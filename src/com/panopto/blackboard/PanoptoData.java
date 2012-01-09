@@ -896,6 +896,7 @@ public class PanoptoData
 			Id bbUserId = user.getId();
 			CourseDbLoader courseLoader = (CourseDbLoader) bbPm.getLoader(CourseDbLoader.TYPE);
 			List<Course> courses = courseLoader.loadByUserIdAndCourseMembershipRole(bbUserId, Role.INSTRUCTOR);
+			courses.addAll(courseLoader.loadByUserIdAndCourseMembershipRole(bbUserId, Role.COURSE_BUILDER));
 
 			for (Course course : courses)
 			{
@@ -930,8 +931,7 @@ public class PanoptoData
 				CourseMembership courseMembership = (CourseMembership)membershipObject;
 				CourseMembership.Role role = courseMembership.getRole();
 				
-				if(role == CourseMembership.Role.INSTRUCTOR)
-				{
+				if(role == CourseMembership.Role.INSTRUCTOR || role == CourseMembership.Role.COURSE_BUILDER)				{
 					User courseUser = courseMembership.getUser();
 					String courseUserKey = Utils.decorateBlackboardUserName(courseUser.getUserName());
 					com.panopto.services.User userInfo = new com.panopto.services.User();
