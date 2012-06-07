@@ -842,6 +842,8 @@ public class PanoptoData
 	// Called after provision or reprovision to update the local store of folder metadata
 	private void updateCourseFolders(Folder[] folders)
 	{
+		setCourseRegistryEntry(hostnameRegistryKey, serverName);
+		
 		// First sort the folders.
 		ArrayList<Folder> sortedFolders = new ArrayList<Folder>();
 		sortedFolders.addAll(Arrays.asList(folders));
