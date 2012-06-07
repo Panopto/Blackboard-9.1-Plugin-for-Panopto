@@ -1,2 +1,4 @@
 .settings
 .mymetadata
+WebRoot/WEB-INF/config
+WebRoot/WEB-INF/lib
