@@ -68,38 +68,51 @@ public class Utils {
 	
 	public static void log(String logMessage)
 	{
-		log(null, logMessage);
+		log(null, logMessage, false);
 	}
 	
 	public static void log(Exception e, String logMessage)
 	{
-		try
+		log(e, logMessage, false);
+	}
+	
+	public static void logVerbose (String logMessage)
+	{
+		log(null, logMessage, true);
+	}
+	
+	private static void log(Exception e, String logMessage, boolean verbose)
+	{
+		if (!verbose || Utils.pluginSettings.getVerbose())
 		{
-			File configDir = PlugInUtil.getConfigDirectory(vendorID, pluginHandle);
-			File logFile = new File(configDir, logFilename);
-
-			FileWriter fileStream = new FileWriter(logFile, true);
-			BufferedWriter bufferedStream = new BufferedWriter(fileStream);
-			PrintWriter output = new PrintWriter(bufferedStream);
-			
-			output.write(new Date().toString() + ": " + logMessage);
-			
-			if(!logMessage.endsWith(System.getProperty("line.separator")))
+			try
 			{
-				output.println();
+				File configDir = PlugInUtil.getConfigDirectory(vendorID, pluginHandle);
+				File logFile = new File(configDir, logFilename);
+	
+				FileWriter fileStream = new FileWriter(logFile, true);
+				BufferedWriter bufferedStream = new BufferedWriter(fileStream);
+				PrintWriter output = new PrintWriter(bufferedStream);
+				
+				output.write(new Date().toString() + ": " + logMessage);
+				
+				if(!logMessage.endsWith(System.getProperty("line.separator")))
+				{
+					output.println();
+				}
+				
+				if(e != null)
+				{
+					e.printStackTrace(output);
+				}
+				
+				output.println("===================================================================================");
+				
+				output.close();
 			}
-			
-			if(e != null)
+			catch(Exception ex)
 			{
-				e.printStackTrace(output);
 			}
-			
-			output.println("===================================================================================");
-			
-			output.close();
-		}
-		catch(Exception ex)
-		{
 		}
 	}
 	

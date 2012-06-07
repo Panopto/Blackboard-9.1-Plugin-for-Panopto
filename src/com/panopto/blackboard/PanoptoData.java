@@ -265,6 +265,7 @@ public class PanoptoData
 			}
 			catch (Exception e)
 			{
+				Utils.logVerbose("first attempt at getFoldersById failed, calling syncUser");
 				// Got an error from the panopto server. sync the user's credentials and try again
 				syncUser(serverName, bbUserName);
 				try
@@ -283,7 +284,7 @@ public class PanoptoData
 						}
 						catch(Exception e3)
 						{
-							Utils.log(e3, String.format("Error getting folder(folder ID: %s, api user: %s).", sessionGroupPublicIDs[i], apiUserKey));
+							Utils.log(e3, String.format("Error getting folder(courseId: %s, courseTitle %s, folder ID: %s, api user: %s).", bbCourse.getId().toExternalString(), bbCourse.getTitle(), sessionGroupPublicIDs[i], apiUserKey));
 							retVal[i] = null;
 						}
 					}
@@ -330,14 +331,34 @@ public class PanoptoData
 			AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
 			HashSet<String> foldersWithCreatorAccess = new HashSet<String>();
 			UserAccessDetails access = getPanoptoAccessManagementSOAPService(serverName).getSelfUserAccessDetails(auth);
+			
+			// Log the user's role
+			Utils.logVerbose(String.format("getFoldersWithCreatorAccess. User %s. has role %s", bbUserName, access.getSystemRole().getValue()));
+			
+			// Gather up the list of all the folders the user has creator access to
 			foldersWithCreatorAccess.addAll(Arrays.asList(access.getFoldersWithCreatorAccess()));
 			for (GroupAccessDetails group : access.getGroupMembershipAccess())
 			{
 				foldersWithCreatorAccess.addAll(Arrays.asList(group.getFoldersWithCreatorAccess()));
 			}
 			
-			// Finally get folder details
-			return sessionManagement.getFoldersById(auth, foldersWithCreatorAccess.toArray(new String[0]));
+			// Log the list of folders with Creator access
+			String[] folderIdList = foldersWithCreatorAccess.toArray(new String[0]);
+			Utils.logVerbose(String.format("getFoldersWithCreatorAccess. User %s. foldersWithCreatorAccess %s", bbUserName, Utils.encodeArrayOfStrings(folderIdList)));
+			
+			// Finally get details for each of the folders with creator access.
+			Folder[] retVal = sessionManagement.getFoldersById(auth, folderIdList);
+			
+			// Log which folders we got back.
+			foldersWithCreatorAccess = new HashSet<String>();
+			for (Folder folder : retVal)
+			{
+				foldersWithCreatorAccess.add(folder.getId());
+			}
+			folderIdList = foldersWithCreatorAccess.toArray(new String[0]);
+			Utils.logVerbose(String.format("getFoldersWithCreatorAccess. User: %s. returned from getFoldersById: %s", bbUserName, Utils.encodeArrayOfStrings(folderIdList)));
+			
+			return retVal;
 		}
 		catch (RemoteException e) 
 		{
@@ -637,40 +658,88 @@ public class PanoptoData
 			List<Course> taCourses = courseLoader.loadByUserIdAndCourseMembershipRole(bbUserId, Role.TEACHING_ASSISTANT);
 
 			ArrayList<String> externalGroupIds = new ArrayList<String>();
+			StringBuilder courseList = new StringBuilder();
 			for(Course course : studentCourses)
 			{
+				courseList.append(course.getTitle());
 				Id courseId = course.getId();
 				String courseServerName = getCourseRegistryEntry(courseId, hostnameRegistryKey);
 				if (courseServerName != null && courseServerName.equalsIgnoreCase(serverName))
 				{
-					externalGroupIds.add(Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_viewers");
+					String groupName = Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_viewers";
+					externalGroupIds.add(groupName);
+					courseList.append('(' + groupName + ')');
 				}
+				else if (courseServerName == null)
+				{
+					courseList.append("(never provisioned)");
+				}
+				else
+				{
+					courseList.append("(provisioned against " + courseServerName + ")");
+				}
+
+				courseList.append(';');
 			}
+			Utils.logVerbose(String.format("Sync'ing user %s group membership to server %s. Student group membership: %s", bbUserName, serverName, courseList.toString()));
+			
+			courseList = new StringBuilder();
 			for(Course course : instructorCourses)
 			{
+				courseList.append(course.getTitle());
 				Id courseId = course.getId();
 				String courseServerName = getCourseRegistryEntry(courseId, hostnameRegistryKey);
 				if (courseServerName != null && courseServerName.equalsIgnoreCase(serverName))
 				{
-					externalGroupIds.add(Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_creators");
+					String groupName = Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_creators";
+					externalGroupIds.add(groupName);
+					courseList.append('(' + groupName + ')');
 				}
+				else if (courseServerName == null)
+				{
+					courseList.append("(never provisioned)");
+				}
+				else
+				{
+					courseList.append("(provisioned against " + courseServerName + ")");
+				}
+
+				courseList.append(';');
 			}
+			Utils.logVerbose(String.format("Sync'ing user %s group membership to server %s. Instructor group membership: %s", bbUserName, serverName, courseList.toString()));
+			
+			courseList = new StringBuilder();
 			for(Course course : taCourses)
 			{
+				courseList.append(course.getTitle());
 				Id courseId = course.getId();
 				String courseServerName = getCourseRegistryEntry(courseId, hostnameRegistryKey);
 				if (courseServerName != null && courseServerName.equalsIgnoreCase(serverName))
 				{
+					String groupName;
 					if (Utils.pluginSettings.getGrantTACreator())
 					{
-						externalGroupIds.add(Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_creators");
+						groupName = Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_creators";
 					}
 					else
 					{
-						externalGroupIds.add(Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_viewers");
+						groupName = Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_viewers";
 					}
+					externalGroupIds.add(groupName);
+					courseList.append('(' + groupName + ')');
 				}
+				else if (courseServerName == null)
+				{
+					courseList.append("(never provisioned)");
+				}
+				else
+				{
+					courseList.append("(provisioned against " + courseServerName + ")");
+				}
+
+				courseList.append(';');
 			}
+			Utils.logVerbose(String.format("Sync'ing user %s group membership to server %s. TA group membership: %s", bbUserName, serverName, courseList.toString()));
 		
 			getPanoptoUserManagementSOAPService(serverName).syncExternalUser(
 					auth, 
@@ -789,7 +858,7 @@ public class PanoptoData
 		
 		// Save the new list of folders back into the registry
 		String encodedFolderIdList = Utils.encodeArrayOfStrings(sessionGroupPublicIDs);
-		Utils.log(String.format("Provisioned BB course, ID: %s, Panopto ID: %s\n", bbCourse.getId().toString(), encodedFolderIdList));
+		Utils.log(String.format("Provisioned BB course, ID: %s, Title: %s, Server: %s, Panopto ID: %s\n", bbCourse.getId().toExternalString(), bbCourse.getTitle(), serverName, encodedFolderIdList));
 		setCourseRegistryEntry(bbCourse.getId(), sessionGroupIDRegistryKey, encodedFolderIdList);
 		setCourseRegistryEntry(bbCourse.getId(), sessionGroupDisplayNameRegistryKey, Utils.encodeArrayOfStrings(sessionGroupDisplayNames));
 	}
@@ -931,7 +1000,8 @@ public class PanoptoData
 				CourseMembership courseMembership = (CourseMembership)membershipObject;
 				CourseMembership.Role role = courseMembership.getRole();
 				
-				if(role == CourseMembership.Role.INSTRUCTOR || role == CourseMembership.Role.COURSE_BUILDER)				{
+				if(role == CourseMembership.Role.INSTRUCTOR || role == CourseMembership.Role.COURSE_BUILDER)
+				{
 					User courseUser = courseMembership.getUser();
 					String courseUserKey = Utils.decorateBlackboardUserName(courseUser.getUserName());
 					com.panopto.services.User userInfo = new com.panopto.services.User();

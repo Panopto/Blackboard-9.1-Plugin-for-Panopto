@@ -53,6 +53,9 @@ public class Settings {
 
 	// Whether to grant TA's creator access
 	private Boolean grantTACreator = false;
+	
+	// Whether to log verbose
+	private Boolean verbose = false;
 		
 	// Parse current settings from XML file in config directory.
 	public Settings()
@@ -159,6 +162,17 @@ public class Settings {
 		save();
 	}
 	
+	public boolean getVerbose()
+	{
+		return verbose;
+	}
+	
+	public void setVerbose(boolean v)
+	{
+		verbose = v;
+		save();
+	}
+	
 	public boolean getMailLectureNotifications()
 	{
 		return mailLectureNotifications;
@@ -240,6 +254,10 @@ public class Settings {
 			Element instructorsCanCreateFolderElem = settingsDocument.createElement("instructorsCanCreateFolder");
 			instructorsCanCreateFolderElem.setAttribute("instructorsCanCreateFolder", instructorsCanCreateFolder.toString());
 			docElem.appendChild(instructorsCanCreateFolderElem);
+			
+			Element verboseElem = settingsDocument.createElement("verbose");
+			verboseElem.setAttribute("verbose", verbose.toString());
+			docElem.appendChild(verboseElem);
 
 			OutputFormat format = new OutputFormat(settingsDocument);
 			format.setIndenting(true);
@@ -329,6 +347,13 @@ public class Settings {
 		{
 			Element instructorsCanCreateFolderElem = (Element)instructorsCanCreateFolderNodes.item(0);
 			this.instructorsCanCreateFolder = Boolean.valueOf(instructorsCanCreateFolderElem.getAttribute("instructorsCanCreateFolder"));
+		}
+		
+		NodeList verboseNodes = docElem.getElementsByTagName("verbose");
+		if(verboseNodes.getLength() != 0)
+		{
+			Element verboseElem = (Element)verboseNodes.item(0);
+			this.verbose = Boolean.valueOf(verboseElem.getAttribute("verbose"));
 		}
 	}
 }

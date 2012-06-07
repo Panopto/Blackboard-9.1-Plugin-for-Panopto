@@ -65,6 +65,7 @@ Boolean mailLectureNotifications = (request.getParameter("mailLectureNotificatio
 Boolean refreshLogins = (request.getParameter("refreshLogins") != null);
 Boolean grantTACreator = (request.getParameter("grantTACreator") != null);
 Boolean instructorsCanCreateFolder = (request.getParameter("instructorsCanCreateFolder") != null);
+Boolean verbose = (request.getParameter("verbose") != null);
 if(instanceName != null)
 {
 	if(!instanceName.trim().equals(""))
@@ -77,6 +78,7 @@ if(instanceName != null)
 	Utils.pluginSettings.setRefreshLogins(refreshLogins);
 	Utils.pluginSettings.setGrantTACreator(grantTACreator);
 	Utils.pluginSettings.setInstructorsCanCreateFolder(instructorsCanCreateFolder);
+	Utils.pluginSettings.setVerbose(verbose);
 }
 instanceName = Utils.pluginSettings.getInstanceName();
 instructorsCanProvision = Utils.pluginSettings.getInstructorsCanProvision();
@@ -84,6 +86,7 @@ mailLectureNotifications = Utils.pluginSettings.getMailLectureNotifications();
 refreshLogins = Utils.pluginSettings.getRefreshLogins();
 grantTACreator = Utils.pluginSettings.getGrantTACreator();
 instructorsCanCreateFolder = Utils.pluginSettings.getInstructorsCanCreateFolder();
+verbose = Utils.pluginSettings.getVerbose();
 
 // Server list form submitted, add/remove servers if valid operation
 String add_hostname = request.getParameter("add_hostname");
@@ -239,6 +242,21 @@ else
 								<div class="field">
 									<p tabIndex="0" class="stepHelp">
 										This setting determines whether instructors are allowed to create new folders in Panopto.<br/>
+										<br/>
+										<br/>
+									</p>
+								</div>
+							</li>
+							<li>
+								<div class="label">Verbose logging</div>
+								<div class="field">
+									<input name="verbose" type="checkbox" <%= verbose ? "checked" : "" %> style="float:left" />
+								</div>
+							</li>
+							<li>
+								<div class="field">
+									<p tabIndex="0" class="stepHelp">
+										This setting controls if the Panopto building block writes verbose logs.<br/>
 										<br/>
 										<br/>
 									</p>
