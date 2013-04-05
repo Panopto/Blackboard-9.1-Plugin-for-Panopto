@@ -51,6 +51,11 @@ In order to fix the CourseSearch jar's bug of not allowing you to submit more th
 
 A slight caveat to this approach is we've found multiple 1000's of provisionings can cause your server to time out, to counter this you can either raise the server's timeout limit (probably not a good idea) or, provision in batches of ~1000 (what we do).
 
+Blackboard stuff
+----------------
+
+If you're looking at this it's likely you've done a bit of blackboard building block development before, in which case you'll know you need to add the blackboard tag libs and blackboard api jars to the war too before compilation. If you're new, head over to the blackboard mailing lists or edugarage.com and ask how you do this. In essence you just take what's necessary from your blackboard install and put them into your IDE to compile against, but you *MUST NOT* package and distribute the blackboard jars with the war.
+
 Credits
 -------
 
