@@ -9,7 +9,7 @@ This is a block for Blackboard 9.1, that allows courses in Blackboard to link di
 Creating the axis 1.6.2 stubs for your server
 ---------------------------------------------
 
-Panopto are using a really old version of AXIS to do their webservice calls, we decided to do our webservice call additions using a newer version in the hope that Panopto will update their calls at some point, but as you've probably guessed... "yes", it does mean you have to compile with 2 AXIS jars in the war, the way we found to avoid conflict in the code is to include your libraries in the following order...
+Since we needed functionality that is in the newer 4.2 API we needed to create newer AXIS stubs, but Panopto are using a really old version of AXIS to do their webservice calls, we decided to do our webservice call additions using a newer version in the hope that Panopto will update their calls at some point, but as you've probably guessed... "yes", it does mean you have to compile with 2 AXIS jars in the war, the way we found to avoid conflict in the code is to include your libraries in the following order...
 
 1. Panopto's axis.jar
 2. The axis website's 1.6.2 jars
