@@ -33,11 +33,9 @@ However, if you so wish, you can set the package to whatever you like and change
 1. Using the command line go to where you have downloaded and decompressed your AXIS 1.6.2 library
 2. Go into the bin directory
 3. Issue a wsdl2java command for each endpoint, so for example to create a stub for the sessions endpoint you would do this:
-
 <pre>
 	wsdl2java.bat -uri https://panoptoserver.example.com/Panopto/PublicAPISSL/4.2/SessionManagement.svc?wsdl -p com.panopto.session
 </pre>
-
 4. You will need to change the server url (and optionally the package)
 5. You will find the required directories and stub source under src/ in the bin directory where you have called the wsdl2java.bat (or .sh if you're on a *nix variant!)
 6. Replace the source for each respective directory in the plugins src/com/panopto/*whatever endpoint directory*
