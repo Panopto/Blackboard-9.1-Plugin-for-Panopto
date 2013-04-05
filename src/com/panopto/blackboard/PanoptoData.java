@@ -819,20 +819,14 @@ public class PanoptoData
                         
                         // create a session management object here and call against the folders list, 
                         ISessionManagement client = getPanoptoSessionManagementSOAPService(serverName);
-                        //Utils.log(String.format("added folder" + folderName)); 
-                        //Folder retVal = client. client.addFolder(auth, folderName, null, false);
-                        Utils.log(String.format("Before the loop ")); 
-                        Utils.log(String.format("Length of folders: " + folderIds.length));
-                        for(int i = 0; i < folderIds.length; i++) {
+                        for(int i = 0; i < folderIds.length; i++)
+                        {
 
                             String folderId = folderIds[i];
-                            Utils.log(String.format("folder ID: " + folderId)); 
                             client.updateFolderEnablePodcast(auth, folderId, false);
                             client.updateFolderAllowPublicNotes(auth, folderId, false);
                             client.updateFolderAllowSessionDownload(auth, folderId, false); 
                         }
-                        
-                        Utils.log(String.format("After the loop ")); 
 		}
 		catch(Exception e)
 		{
@@ -865,96 +859,54 @@ public class PanoptoData
 			String fullName = bbCourse.getCourseId() + ": " + bbCourse.getTitle();
                         String externalId = bbCourse.getCourseId(); 
                         
-                        Utils.log("bbCourse.getId: "+bbCourse.getId().getExternalString());
-                        Utils.log("bbCourse.getCourseId: "+bbCourse.getCourseId());
-                        Utils.log("bbCourse.getTitle: "+bbCourse.getTitle());
-                        
-                        //Utils.log("External Course ID: "+externalCourseId);
-                        //Utils.log("Full Name: "+fullName);
-			
-			// Provision the course
-			//AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
+			// Provision the course using axis2 stubs
                         com.panopto.session.SessionManagementStub.AuthenticationInfo auth = new com.panopto.session.SessionManagementStub.AuthenticationInfo();
-                        //Utils.log("After session management auth object");
                         auth.setAuthCode(apiUserAuthCode);
-                        //Utils.log("Auth code set");
-                        //auth.setPassword(null);
-                        //Utils.log("password set"); 
                         auth.setUserKey(apiUserKey);
-                        //Utils.log("User key set");
-			//Folder[] folders = new Folder[] { getPanoptoSessionManagementSOAPService(serverName).provisionExternalCourse(auth, fullName, externalCourseId) };
                         ProvisionExternalCourse pce = new ProvisionExternalCourse();
-                        //Utils.log("PCE set");
                         pce.setExternalId(panoptoExternalId); 
-                       // Utils.log("pce external id set");
                         pce.setAuth(auth);
-                        //Utils.log("pce auth set");
                         pce.setName(fullName);
-                        
                         com.panopto.session.SessionManagementStub stub = getPanoptoSessionManagementStub(serverName); 
-                        
                         com.panopto.session.SessionManagementStub.Folder[] folders = new com.panopto.session.SessionManagementStub.Folder[] { stub.provisionExternalCourse(pce).getProvisionExternalCourseResult()}; 
                         
-                        //Utils.log("folders array created");
-                        
-                        //ISessionManagement client = getPanoptoSessionManagementSOAPService(serverName);
-                        //Utils.log("update course folders done");
-                        for(int i = 0; i < folders.length; i++) {
-                            //folders[i].setEnablePodcast(false);
-                            //folders[i].setAllowPublicNotes(false);
-                            //folders[i].setAllowSessionDownload(false);
-                            
-                            //Folder retVal = folderIds[i]; 
-                            //String folderId = retVal.getId();
-                            //folders[i].setExternalId(externalId); // doesnt work 
-                            
-                            //folders[i].setEnablePodcast(false);
-                            //folders[i].setAllowPublicNotes(false);
-                            //folders[i].setAllowSessionDownload(false);
-                            
+                        for(int i = 0; i < folders.length; i++)
+                        {
+                            //Add the NCL external id
                             com.panopto.session.SessionManagementStub.UpdateFolderExternalId update = new com.panopto.session.SessionManagementStub.UpdateFolderExternalId(); 
                             update.setAuth(auth);
                             update.setFolderId(folders[i].getId());
                             update.setExternalId(externalId);
                             stub.updateFolderExternalId(update);
                             
+                            //Set NCL defaults for folders
                             com.panopto.session.SessionManagementStub.UpdateFolderAllowPublicNotes pub = new com.panopto.session.SessionManagementStub.UpdateFolderAllowPublicNotes();  
                             pub.setAuth(auth);
                             pub.setFolderId(folders[i].getId());
                             pub.setAllowPublicNotes(false);
                             stub.updateFolderAllowPublicNotes(pub);
-                            
                             com.panopto.session.SessionManagementStub.UpdateFolderEnablePodcast pod = new com.panopto.session.SessionManagementStub.UpdateFolderEnablePodcast(); 
                             pod.setAuth(auth);
                             pod.setFolderId(folders[i].getId());
                             pod.setEnablePodcast(false);
                             stub.updateFolderEnablePodcast(pod);
-                            
                             com.panopto.session.SessionManagementStub.UpdateFolderAllowSessionDownload dow = new com.panopto.session.SessionManagementStub.UpdateFolderAllowSessionDownload();
                             dow.setAuth(auth);
                             dow.setFolderId(folders[i].getId());
                             dow.setAllowSessionDownload(false);
                             stub.updateFolderAllowSessionDownload(dow); 
-                            
-                            //String folderId = folders[i].getId().getGuid();  // added getGuid
-                            //Utils.log(String.format("folder ID: " + folderId)); 
-                            
-                            //client.updateFolderEnablePodcast(auth, folderId, false);
-                            //client.updateFolderAllowPublicNotes(auth, folderId, false);
-                            //client.updateFolderAllowSessionDownload(auth, folderId, false); 
                         }
                         updateCourseFolders2(folders);
-                        Utils.log("finished... ");
 		}
 		catch(Exception e)
 		{
 			Utils.log(e, String.format("Error provisioning course (id: %s, server: %s, user: %s).", bbCourse.getId().toExternalString(), serverName, bbUserName));
 			return false;
 		}
-		
 		return true;
 	}
         
+        //update course folders using axis2 stubs
 	private void updateCourseFolders2(com.panopto.session.SessionManagementStub.Folder[] folders)
 	{
 		setCourseRegistryEntry(hostnameRegistryKey, serverName);
