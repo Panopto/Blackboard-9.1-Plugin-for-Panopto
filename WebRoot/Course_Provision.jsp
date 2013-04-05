@@ -167,19 +167,19 @@ if((provisionServerName != null) && !provisionServerName.trim().isEmpty() && (bb
 							<div class='attribute'>Result</div>
 							<div class='value'>
 					<%
-					if (ccCourse.isMapped() && provisionServerName.toLowerCase().equals(ccCourse.getServerName().toLowerCase()))
+					/*if (ccCourse.isMapped() && provisionServerName.toLowerCase().equals(ccCourse.getServerName().toLowerCase()))
 					{
 						if (ccCourse.reprovisionCourse())
-						{
-							%><div class='successMessage'>Successfully reprovisioned course <%= ccCourse.getBBCourse().getTitle() %></div><%
-						}
+						{*/
+							%><!--<div class='successMessage'>Successfully reprovisioned course <%= ccCourse.getBBCourse().getTitle() %></div>--><%
+						/*}
 						else
-						{
-							%><div class='errorMessage'>Error reprovisioning course <%= ccCourse.getBBCourse().getTitle() %></div><%
-						}
+						{*/
+							%><!--<div class='errorMessage'>Error reprovisioning course <%= ccCourse.getBBCourse().getTitle() %></div>--><%
+						/*}
 					}
 					else
-					{
+					{*/
 						if (ccCourse.provisionCourse(provisionServerName))
 						{
 							%><div class='successMessage'>Successfully provisioned course <%= ccCourse.getBBCourse().getTitle() %></div><%
@@ -188,7 +188,7 @@ if((provisionServerName != null) && !provisionServerName.trim().isEmpty() && (bb
 						{
 							%><div class='errorMessage'>Error provisioning course <%= ccCourse.getBBCourse().getTitle() %></div><%
 						}
-					}
+					//}
 					%>
 							</div>
 				

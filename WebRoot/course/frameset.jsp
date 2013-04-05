@@ -48,7 +48,7 @@
   String searchFormSrc = "left_frame.jsp?type=" + type;
   String searchResultSrc = "right_frame.jsp?type=" + type;
 %>
-<bbUI:frameset rows="100%" cols="36%,*" frameborder="yes">
+<bbUI:frameset rows="100%" cols="290px,*" frameborder="yes">
 
   <bbUI:frame name="Search_Form" title="${searchFormStr}" src="<%=searchFormSrc%>" marginheight="0" marginwidth="0"/>
   <bbUI:frame name="Search_Results" title="${searchResultsStr}" src="<%=searchResultSrc%>" marginheight="0" marginwidth="0"/>

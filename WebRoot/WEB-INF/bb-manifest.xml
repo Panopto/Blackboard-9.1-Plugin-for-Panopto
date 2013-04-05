@@ -4,7 +4,7 @@
 		<name value="Panopto Focus Connector" />
 		<description value="Provision Panopto courses from Blackboard.  View live listing of available Panopto content from within the associated Blackboard course.  Import Panopto lecture links as Blackboard content items." />
 		<handle value="PanoptoCourseTool" />
-		<version value="4.0.11" />
+		<version value="4.0.10" />
 		<requires>
 			<bbversion value="9.1" />
 		</requires>
@@ -21,7 +21,7 @@
 		<!-- Custom content types defined by this extension -->
 		<content-handlers>
 			<content-handler>
-				<name value="Panopto Video Link" />
+				<name value="ReCap Video Link" />
 				<handle value="hyperlink/coursecast" />
 				<http-actions>
 					<create value="Item_Create.jsp" />
