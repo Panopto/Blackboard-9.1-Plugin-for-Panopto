@@ -75,9 +75,6 @@ if (!ccCourse.userMayConfig())
 {
 %>
 	<bbUI:docTemplate title="<%=page_title%>">
-		<bbUI:breadcrumbBar>
-			<bbUI:breadcrumb><%=page_title%></bbUI:breadcrumb>
-		</bbUI:breadcrumbBar>
 		<bbUI:receipt type="FAIL" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=parentURL%>">
 			You do not have access to configure this course. 
 		</bbUI:receipt>
@@ -92,9 +89,6 @@ if((serverList == null) || (serverList.size() == 0))
 {
 %>
 	<bbUI:docTemplate title="<%=page_title%>">
-		<bbUI:breadcrumbBar>
-			<bbUI:breadcrumb><%=page_title%></bbUI:breadcrumb>
-		</bbUI:breadcrumbBar>
 		<bbUI:receipt type="FAIL" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=parentURL%>">
 			No Panopto servers available.  Please contact an administrator.
 		</bbUI:receipt>
@@ -140,11 +134,6 @@ if(folderIds != null)
 		</bbUI:docTemplateHead>
 
 		<bbUI:coursePage courseId="<%= ctx.getCourseId() %>">
-		
-			<bbUI:breadcrumbBar>
-				<bbUI:breadcrumb href="<%=parentURL%>"><%=parentPageTitle%></bbUI:breadcrumb>
-				<bbUI:breadcrumb><%=page_title%></bbUI:breadcrumb>
-			</bbUI:breadcrumbBar>
 	
 			<bbUI:titleBar iconUrl="<%=iconUrl%>">
 				<%=page_title%>

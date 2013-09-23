@@ -448,8 +448,8 @@ public class Utils {
 			return new String[] { input };
 		}
 		
-		ArrayList<String> retVal = retVal = new ArrayList<String>();
-		StringBuilder val = val = new StringBuilder();
+		ArrayList<String> retVal = new ArrayList<String>();
+		StringBuilder val = new StringBuilder();
 		int i = 0;
 
 		// This outer while will loop once per entry in the string
@@ -516,5 +516,29 @@ public class Utils {
 		}
 		
 		return retVal.toArray(new String[0]);
+	}
+	
+	// <summary>
+	// Elide a string in the middle, if necessary. Copied from the C# version at Panopto.Shared.Helpers.StringHelpers.
+	// </summary>
+	// <param name="input">The string to elide.</param>
+	// <param name="elideAfter">The position in the string to display the ellipsis, if truncation is required.</param>
+	// <param name="totalLength">The desired length of the elided string, not including ellipsis.</param>
+	// <returns>A string similar to "A long string that is elided...the middle."</returns>
+	public static String elideMiddle(String input, int elideAfter, int totalLength) 
+	{
+		String output = input;
+
+		if (input.length() > totalLength) 
+		{
+			// Length of text snippet after ellipsis.
+			int endSnippetLength = totalLength - elideAfter;
+
+			output = String.format("%s...%s", 
+						input.substring(0, elideAfter),
+						input.substring(input.length() - endSnippetLength, endSnippetLength));
+		}
+
+		return output;
 	}
 }

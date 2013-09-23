@@ -129,7 +129,7 @@ description = Utils.escapeHTML(content.getBody().getText());
 							<script>
 								window.onload = function () {
 									document.getElementById("title").select();
-								}
+								};
 							</script>
 						</li>
 					</ol>

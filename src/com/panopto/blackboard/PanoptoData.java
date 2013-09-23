@@ -35,21 +35,21 @@ import blackboard.data.course.CourseMembership;
 import blackboard.data.course.CourseMembership.Role;
 import blackboard.data.registry.CourseRegistryEntry;
 import blackboard.data.registry.Registry;
+import blackboard.data.registry.RegistryEntry;
 import blackboard.data.user.User;
 import blackboard.persist.BbPersistenceManager;
 import blackboard.persist.Id;
 import blackboard.persist.KeyNotFoundException;
 import blackboard.persist.PersistenceException;
 import blackboard.persist.content.ContentDbPersister;
-import blackboard.persist.course.CourseCourseDbLoader;
 import blackboard.persist.course.CourseDbLoader;
 import blackboard.persist.course.CourseMembershipDbLoader;
 import blackboard.persist.registry.CourseRegistryEntryDbLoader;
 import blackboard.persist.registry.CourseRegistryEntryDbPersister;
 import blackboard.persist.user.UserDbLoader;
 import blackboard.platform.context.Context;
-import blackboard.platform.log.Log;
 import blackboard.platform.persistence.PersistenceServiceFactory;
+
 import com.panopto.services.*;
 
 // Wrap interaction with DB and Panopto SOAP services for a particular Blackboard course
@@ -129,8 +129,8 @@ public class PanoptoData
 	 		updateServerName(getCourseRegistryEntry(hostnameRegistryKey));
 	 	}
 		
-		sessionGroupPublicIDs = Utils.decodeArrayOfStrings(getCourseRegistryEntry(sessionGroupIDRegistryKey));
-		sessionGroupDisplayNames = Utils.decodeArrayOfStrings(getCourseRegistryEntry(sessionGroupDisplayNameRegistryKey));
+		sessionGroupPublicIDs = getCourseRegistryEntries(sessionGroupIDRegistryKey);
+		sessionGroupDisplayNames = getCourseRegistryEntries(sessionGroupDisplayNameRegistryKey);
 		
 		// Check that the list of Ids and names are valid. They must both be the same length
 		if ((sessionGroupPublicIDs == null && sessionGroupDisplayNames != null)
@@ -138,14 +138,14 @@ public class PanoptoData
 				|| (sessionGroupPublicIDs != null && sessionGroupPublicIDs.length != sessionGroupDisplayNames.length))
 		{
 			Utils.log(String.format("Invalid course registry settings. Reseting both to null. sessionGroupPublicIDs = %s          sessionGroupDisplayNames = %s", 
-					getCourseRegistryEntry(sessionGroupIDRegistryKey), 
-					getCourseRegistryEntry(sessionGroupDisplayNameRegistryKey)));
+					Utils.encodeArrayOfStrings(sessionGroupPublicIDs), 
+					Utils.encodeArrayOfStrings(sessionGroupDisplayNames)));
 			
 			this.sessionGroupPublicIDs = null;
 			this.sessionGroupDisplayNames = null;
 			setCourseRegistryEntry(hostnameRegistryKey, null);
-			setCourseRegistryEntry(sessionGroupIDRegistryKey, null);
-			setCourseRegistryEntry(sessionGroupDisplayNameRegistryKey, null);
+			setCourseRegistryEntries(sessionGroupIDRegistryKey, null);
+			setCourseRegistryEntries(sessionGroupDisplayNameRegistryKey, null);
 		}
 	}
 	
@@ -321,7 +321,6 @@ public class PanoptoData
 	// Gets all the Panopto folders the user has creator access to
 	private Folder[] getFoldersWithCreatorAccess()
 	{
-		// TODO: this is three soap calls. Should I try to improve it? Right now it is only called by course_config and these are the only calls that page makes.
 		try
 		{
 			// First sync the user so his memberships will be up to date
@@ -330,35 +329,44 @@ public class PanoptoData
 			// Next get the user's access details
 			AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
 			HashSet<String> foldersWithCreatorAccess = new HashSet<String>();
-			UserAccessDetails access = getPanoptoAccessManagementSOAPService(serverName).getSelfUserAccessDetails(auth);
 			
-			// Log the user's role
-			Utils.logVerbose(String.format("getFoldersWithCreatorAccess. User %s. has role %s", bbUserName, access.getSystemRole().getValue()));
-			
-			// Gather up the list of all the folders the user has creator access to
-			foldersWithCreatorAccess.addAll(Arrays.asList(access.getFoldersWithCreatorAccess()));
-			for (GroupAccessDetails group : access.getGroupMembershipAccess())
+			// Get all the folders
+			int page = 0;
+			int responseCount = 0;
+			int maxPages = 100; // Do we want an upper cap on the number of pages?
+			int perPage = 25;
+			int totalFoldersExpected = -1;
+			ListFoldersResponse listResponse;
+			List<Folder> allFolders = new ArrayList<Folder>();
+			do
 			{
-				foldersWithCreatorAccess.addAll(Arrays.asList(group.getFoldersWithCreatorAccess()));
-			}
-			
-			// Log the list of folders with Creator access
-			String[] folderIdList = foldersWithCreatorAccess.toArray(new String[0]);
-			Utils.logVerbose(String.format("getFoldersWithCreatorAccess. User %s. foldersWithCreatorAccess %s", bbUserName, Utils.encodeArrayOfStrings(folderIdList)));
-			
-			// Finally get details for each of the folders with creator access.
-			Folder[] retVal = sessionManagement.getFoldersById(auth, folderIdList);
-			
-			// Log which folders we got back.
-			foldersWithCreatorAccess = new HashSet<String>();
-			for (Folder folder : retVal)
-			{
-				foldersWithCreatorAccess.add(folder.getId());
-			}
-			folderIdList = foldersWithCreatorAccess.toArray(new String[0]);
-			Utils.logVerbose(String.format("getFoldersWithCreatorAccess. User: %s. returned from getFoldersById: %s", bbUserName, Utils.encodeArrayOfStrings(folderIdList)));
-			
-			return retVal;
+				ListFoldersRequest foldersRequest = new ListFoldersRequest( new Pagination( perPage, page ), null, false, FolderSortField.Name, true );
+				listResponse = getPanoptoSessionManagementSOAPService(serverName).getFoldersList(auth, foldersRequest, null);
+				allFolders.addAll(Arrays.asList(listResponse.getResults()));
+
+				if (totalFoldersExpected == -1)
+				{
+					// First time through, grab the expected total count.
+					totalFoldersExpected = listResponse.getTotalNumberResults();
+				}
+				Folder[] returnedFolders = listResponse.getResults();
+				
+				// Log which folders we got back. foldersWithCreatorAccess, folderIdList, and returnedFolders are all just in place for logging.
+				foldersWithCreatorAccess = new HashSet<String>();
+				for (Folder folder : returnedFolders)
+				{
+					foldersWithCreatorAccess.add(folder.getId());
+				}
+				String[] folderIdList = foldersWithCreatorAccess.toArray(new String[0]);
+				Utils.logVerbose(String.format("getFoldersWithCreatorAccess. User: %s, page: %d, returned from getFoldersList: %s", bbUserName, page, Utils.encodeArrayOfStrings(folderIdList)));
+
+				responseCount += returnedFolders.length;
+				page++;
+			} while ((responseCount < totalFoldersExpected) && (page < maxPages));
+
+			Utils.logVerbose(String.format("Expected %d folders, returned %d folders", totalFoldersExpected, allFolders.size()));
+
+			return allFolders.toArray(new Folder[allFolders.size()]);
 		}
 		catch (RemoteException e) 
 		{
@@ -854,15 +862,18 @@ public class PanoptoData
 		this.sessionGroupDisplayNames = new String[folders.length];
 		for (int i = 0; i < folders.length; i++)
 		{
+			// These are GUIDs and will never be too long
 			sessionGroupPublicIDs[i] = sortedFolders.get(i).getId();
-			sessionGroupDisplayNames[i] = sortedFolders.get(i).getName();
+			
+			// Display names might go past the 255 Blackboard limit so we elide 
+			// the string to be no more than 255 characters 
+			sessionGroupDisplayNames[i] = Utils.elideMiddle(sortedFolders.get(i).getName(), 100, 255);
 		}
 		
 		// Save the new list of folders back into the registry
-		String encodedFolderIdList = Utils.encodeArrayOfStrings(sessionGroupPublicIDs);
-		Utils.log(String.format("Provisioned BB course, ID: %s, Title: %s, Server: %s, Panopto ID: %s\n", bbCourse.getId().toExternalString(), bbCourse.getTitle(), serverName, encodedFolderIdList));
-		setCourseRegistryEntry(bbCourse.getId(), sessionGroupIDRegistryKey, encodedFolderIdList);
-		setCourseRegistryEntry(bbCourse.getId(), sessionGroupDisplayNameRegistryKey, Utils.encodeArrayOfStrings(sessionGroupDisplayNames));
+		Utils.log(String.format("Provisioned BB course, ID: %s, Title: %s, Server: %s, Panopto ID: %s\n", bbCourse.getId().toExternalString(), bbCourse.getTitle(), serverName, Utils.encodeArrayOfStrings(sessionGroupPublicIDs)));
+		setCourseRegistryEntries(sessionGroupIDRegistryKey, sessionGroupPublicIDs);
+		setCourseRegistryEntries(sessionGroupDisplayNameRegistryKey, sessionGroupDisplayNames);
 	}
 		
 	public static boolean HasPanoptoServer(Course bbCourse)
@@ -1083,61 +1094,183 @@ public class PanoptoData
 		return port;
 	}
 	
-	// The Blackboard course registry stores key/values pairs per-course.
-	private String getCourseRegistryEntry(String key)
+	// Instance method just calls out to static method below
+	private String getCourseRegistryEntry(String key) 
 	{
 		return getCourseRegistryEntry(bbCourse.getId(), key);
 	}
 
 	// Instance method just calls out to static method below
-	private void setCourseRegistryEntry(String key, String value)
+	private void setCourseRegistryEntry(String key, String value) 
 	{
 		setCourseRegistryEntry(bbCourse.getId(), key, value);
 	}
-	
-	private static String getCourseRegistryEntry(Id courseId, String key)
+
+	private static String getCourseRegistryEntry(Id courseId, String key) 
 	{
 		String value = null;
-		
-		try
+
+		try 
 		{
 			CourseRegistryEntryDbLoader creLoader = CourseRegistryEntryDbLoader.Default.getInstance();
-			Registry registry  = creLoader.loadRegistryByCourseId(courseId);
+			Registry registry = creLoader.loadRegistryByCourseId(courseId);
 
 			value = registry.getValue(key);
 		}
-		catch(Exception e)
+		catch (Exception e) 
 		{
 			Utils.log(e, String.format("Error getting course registry entry (key: %s).", key));
 		}
-		
+
 		return value;
 	}
-	
-	// The Blackboard course registry stores key/values pairs per-course.
-	// Static setter enables us to store registry values for newly-provisioned courses
-	// without the cost of instantiating and populating an object for each one.
-	private static void setCourseRegistryEntry(Id courseId, String key, String value)
+
+	// Blackboard DB values have a limited length so we store each string entry as its
+	// own value with a number-post-fixed key. Here we have to handle legacy values
+	// that might be stored with just the key name.
+	// Assumption: only called for keys previously stored with setCourseRegistryEntries
+	// or the old method with double-quoted, comma-separated values.
+	private String[] getCourseRegistryEntries(String key) 
 	{
-		try
+		String[] values = null;
+
+		try 
+		{
+			Utils.logVerbose("Getting CourseRegistry for course: " + bbCourse.getId().toExternalString());
+			
+			CourseRegistryEntryDbLoader creLoader = CourseRegistryEntryDbLoader.Default.getInstance();
+			Registry registry = creLoader.loadRegistryByCourseId(bbCourse.getId());
+
+			String value = registry.getValue(key);
+
+			// If there's a value for the plain key, we are dealing with a legacy value
+			// which should be in the "","","" format. We decode the string and return
+			// the individual values
+			if (value != null) 
+			{
+				values = Utils.decodeArrayOfStrings(value);
+			}
+			// If no value, then we are dealing with the new case where we split
+			// values up into individual keys so look each of those up until we
+			// stop finding them
+			else 
+			{
+				// Use an ArrayList because we don't know ahead of time how many
+				// we may have. This is Ok for small numbers (e.g., less than
+				// 100).
+				ArrayList<String> list = new ArrayList<String>();
+
+				String tempValue = registry.getValue(key + list.size());
+
+				while (tempValue != null) 
+				{
+					list.add(tempValue);
+					tempValue = registry.getValue(key + list.size());
+				}
+
+				// If there were no values at all then 'value' will remain null
+				// as expected
+				if (list.size() > 0) 
+				{
+					values = new String[list.size()];
+					list.toArray(values);
+				}
+			}
+		} 
+		catch (Exception e) 
+		{
+			Utils.log(e, String.format("Error getting course registry entry (key: %s).", key));
+		}
+
+		return values;
+	}
+
+	// The Blackboard course registry stores key/values pairs per-course.
+	// Static setter enables us to store registry values for newly-provisioned
+	// courses without the cost of instantiating and populating an object for each one.
+	private static void setCourseRegistryEntry(Id courseId, String key, String value) 
+	{
+		try  
 		{
 			CourseRegistryEntryDbPersister crePersister = CourseRegistryEntryDbPersister.Default.getInstance();
-			
-			try
-			{
-				crePersister.deleteByKeyAndCourseId(key, courseId);
-			}
-			catch(KeyNotFoundException knfe) {}
-			catch(PersistenceException pe) {}
-	
+
+			DeleteKeyForCourse(crePersister, key, courseId);						
+
 			CourseRegistryEntry cre = new CourseRegistryEntry(key, value);
-	        cre.setCourseId(courseId);
-	      	crePersister.persist(cre);
-		}
-		catch(Exception e)
+			cre.setCourseId(courseId);
+			crePersister.persist(cre);
+		} 
+		catch (Exception e) 
 		{
 			Utils.log(e, String.format("Error setting course registry entry (course ID: %s, key: %s, value: %s).", courseId.toExternalString(), key, value));
 		}
 	}
 
+	// Blackboard DB values have a limited length so we store each string entry
+	// as its own value with a number-post-fixed key.
+	private void setCourseRegistryEntries(String key, String[] values) 
+	{
+		try 
+		{
+			Utils.logVerbose("Setting CourseRegistry for course: " + bbCourse.getId().toExternalString());
+		
+			CourseRegistryEntryDbPersister crePersister = CourseRegistryEntryDbPersister.Default.getInstance();
+			CourseRegistryEntryDbLoader creLoader = CourseRegistryEntryDbLoader.Default.getInstance();
+			Registry registry = creLoader.loadRegistryByCourseId(bbCourse.getId());
+
+			// Delete any legacy key still hanging around
+			Utils.logVerbose("Checking for legacy key " + key);
+			RegistryEntry entry = registry.getEntry(key);
+			if (entry != null)
+			{
+				Utils.logVerbose("Deleting legacy key " + key);
+				DeleteKeyForCourse(crePersister, key, bbCourse.getId());
+			}
+			
+			// Now delete any per-folder entries that may exist.  We don't know how many
+			// so we just start at 0 and keep looking until we find a missing one.
+			int j = 0;
+			String keyToDelete = key + j;				
+		    entry = registry.getEntry(keyToDelete);
+		    Utils.logVerbose("Checking for key " + keyToDelete);
+		    while (entry != null)
+			{
+			    Utils.logVerbose("Deleting key " + keyToDelete);
+		    	DeleteKeyForCourse(crePersister, keyToDelete, bbCourse.getId());
+				
+		    	j++;
+		    	keyToDelete = key + j;				
+			    Utils.logVerbose("Checking for key " + keyToDelete);
+			    entry = registry.getEntry(keyToDelete);										
+			}
+			
+		    // If we have values, save them each in their own key
+			if (values != null) 
+			{
+				Utils.logVerbose("Adding new values - count: " + values.length);
+				for (int i = 0; i < values.length; i++) 
+				{					
+					Utils.logVerbose("Adding new key: " + key + i + " value: "+  values[i]);
+					CourseRegistryEntry cre = new CourseRegistryEntry(key + i, values[i]);
+					cre.setCourseId(bbCourse.getId());
+					crePersister.persist(cre);
+				}
+			}
+		} 
+		catch (Exception e) 
+		{
+			Utils.log(e, String.format("Error setting course registry entry (course ID: %s, key: %s, value: %s).", bbCourse.getId().toExternalString(), key, Utils.encodeArrayOfStrings(values)));
+		}
+	}
+	
+	// Helper method that just makes 6 lines into one in the calling method
+	private static void DeleteKeyForCourse(CourseRegistryEntryDbPersister crePersister, String keyToDelete, Id courseId)
+	{
+		try 
+		{
+			crePersister.deleteByKeyAndCourseId(keyToDelete, courseId);
+		} 
+		catch (KeyNotFoundException knfe) {} 
+		catch (PersistenceException pe) {}
+	}
 }
