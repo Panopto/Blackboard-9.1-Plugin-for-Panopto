@@ -1,4 +1,4 @@
-<!-- Copyright Panopto 2009 - 2011
+<!-- Copyright Panopto 2009 - 2013
  * 
  * This file is part of the Panopto plugin for Blackboard.
  * 
@@ -26,9 +26,12 @@
 <%@page import="blackboard.data.course.Course"%>
 <%@page import="com.panopto.blackboard.PanoptoData"%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%@taglib uri="/bbUI" prefix="bbUI" %>
 <%@taglib uri="/bbData" prefix="bbData"%>
 
+<bbUI:coursePage>
 <bbData:context id="ctx">
 
 <%
@@ -60,14 +63,13 @@ String folderID = request.getParameter("folderID");
 if (!ccCourse.userMayConfig())
 {
 %>
+<c:catch>
 	<bbUI:docTemplate title="<%=page_title%>">
-		<bbUI:breadcrumbBar>
-			<bbUI:breadcrumb><%=page_title%></bbUI:breadcrumb>
-		</bbUI:breadcrumbBar>
 		<bbUI:receipt type="FAIL" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
 			You do not have access to configure this course. 
 		</bbUI:receipt>
 	</bbUI:docTemplate>
+</c:catch>
 <%
 	return;
 }
@@ -76,14 +78,13 @@ if(lectureURL != null)
 {
 	ccCourse.addBlackboardContentItem(content_id, lectureURL, title, description);
 %>
+<c:catch>
 	<bbUI:docTemplate title="<%=page_title%>">
-		<bbUI:breadcrumbBar>
-			<bbUI:breadcrumb><%=page_title%></bbUI:breadcrumb>
-		</bbUI:breadcrumbBar>
 		<bbUI:receipt type="SUCCESS" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
 			Item created.
 		</bbUI:receipt>
 	</bbUI:docTemplate>
+</c:catch>
 <%
 	return;
 }
@@ -96,14 +97,11 @@ if(lectureURL != null)
 		</bbUI:docTemplateHead>
 
 		<bbUI:coursePage courseId="<%= ctx.getCourseId() %>">
-
-			<bbUI:breadcrumbBar environment="ctrl_panel" handle="control_panel" isContent="true">
-				<bbUI:breadcrumb><%=page_title%></bbUI:breadcrumb>
-			</bbUI:breadcrumbBar>
-	
+		<c:catch>
 			<bbUI:titleBar iconUrl="<%=iconUrl%>">
 				<%=page_title%>
 			</bbUI:titleBar>
+		</c:catch>
 
 			<% 
 			if (!ccCourse.isMapped())
@@ -241,3 +239,4 @@ if(lectureURL != null)
 	</bbUI:docTemplate>
 
 </bbData:context>
+</bbUI:coursePage>

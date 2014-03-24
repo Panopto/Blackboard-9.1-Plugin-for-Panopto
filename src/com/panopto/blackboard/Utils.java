@@ -58,6 +58,7 @@ public class Utils {
 	public static final Settings pluginSettings = new Settings();
 
 	public static final String courseConfigScriptURL = "Course_Config.jsp";
+	public static final String courseResetURL = "Course_Reset.jsp";
 	public static final String contentScriptURL = "Content.jsp";
 	public static final String createScriptURL = "Item_Create.jsp";
 	public static final String modifyScriptURL = "Item_Modify.jsp";

@@ -1,4 +1,4 @@
-<!-- Copyright Panopto 2009 - 2011
+<!-- Copyright Panopto 2009 - 2013
  * 
  * This file is part of the Panopto plugin for Blackboard.
  * 
@@ -27,8 +27,12 @@
 <%@page import="blackboard.data.course.Course"%>
 <%@page import="com.panopto.blackboard.PanoptoData"%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%@taglib uri="/bbUI" prefix="bbUI" %>
 <%@taglib uri="/bbData" prefix="bbData"%>
+
+<bbUI:coursePage>
 <bbData:context id="ctx">
 <%
 String iconUrl = "/images/ci/icons/bookopen_u.gif";
@@ -52,14 +56,13 @@ PanoptoData ccCourse = new PanoptoData(ctx);
 if (!ccCourse.userMayConfig())
 {
 %>
+<c:catch>
 	<bbUI:docTemplate title="<%=page_title%>">
-		<bbUI:breadcrumbBar>
-			<bbUI:breadcrumb><%=page_title%></bbUI:breadcrumb>
-		</bbUI:breadcrumbBar>
 		<bbUI:receipt type="FAIL" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
 			You do not have access to configure this course. 
 		</bbUI:receipt>
 	</bbUI:docTemplate>
+</c:catch>
 <%
 	return;
 }
@@ -67,16 +70,15 @@ else if(title != null)
 {
 	Utils.updatePanoptoContentItem(title, description, content_id);
 %>
+<c:catch>
 	<bbUI:docTemplate title="<%=page_title%>">
 		<bbUI:coursePage courseId="<%= courseId %>">
-			<bbUI:breadcrumbBar environment="ctrl_panel" handle="control_panel" isContent="true">
-				<bbUI:breadcrumb><%=page_title%></bbUI:breadcrumb>
-			</bbUI:breadcrumbBar>
 			<bbUI:receipt type="SUCCESS" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
 				Item updated.
 			</bbUI:receipt>
 		</bbUI:coursePage>
 	</bbUI:docTemplate>
+</c:catch>
 <%
 	return;
 }
@@ -89,14 +91,11 @@ description = Utils.escapeHTML(content.getBody().getText());
 	<bbUI:docTemplate title="<%=page_title%>">
 
 		<bbUI:coursePage courseId="<%= courseId %>">
-
-			<bbUI:breadcrumbBar environment="ctrl_panel" handle="control_panel" isContent="true">
-				<bbUI:breadcrumb><%= page_title %></bbUI:breadcrumb>
-			</bbUI:breadcrumbBar>
-	
+		<c:catch>
 			<bbUI:titleBar iconUrl="<%=iconUrl%>">
 				<%= page_title %>
 			</bbUI:titleBar>
+		</c:catch>
 	
 			<form>
 				<input type="hidden" name="course_id" value="<%=course_id%>" />
@@ -149,3 +148,4 @@ description = Utils.escapeHTML(content.getBody().getText());
 	</bbUI:docTemplate>
 
 </bbData:context>
+</bbUI:coursePage>

@@ -59,6 +59,7 @@ public class PanoptoData
 	private static final String hostnameRegistryKey = "CourseCast_Hostname";
 	private static final String sessionGroupIDRegistryKey = "CourseCast_SessionGroupID";
 	private static final String sessionGroupDisplayNameRegistryKey = "CourseCast_SessionGroupDisplayName";
+	private static final String originalContextRegistryKey = "CourseCast_OriginalContext";
 
 	// Blackboard course we are associating with
 	private Course bbCourse;
@@ -172,7 +173,7 @@ public class PanoptoData
 	{
 		return sessionGroupDisplayNames;
 	}
-	
+
 	// gets the number of folders associated with this course
 	public int getNumberOfFolders()
 	{
@@ -218,6 +219,22 @@ public class PanoptoData
 	public String getApiUserKey()
 	{
 		return apiUserKey;
+	}
+	
+	// Determine if this course is in the original context.
+	public boolean isOriginalContext()
+	{
+		boolean isOriginal = true;
+		Utils.log(String.format("Original context debug... originalContextRegistryKey is set to %s, bbCourse.getId().toExternalString() returns %s.", getCourseRegistryEntry(originalContextRegistryKey), bbCourse.getId().toExternalString()));
+		if (getCourseRegistryEntry(originalContextRegistryKey) == null)
+		{
+			setCourseRegistryEntry(originalContextRegistryKey, bbCourse.getId().toExternalString());
+		}
+		else if (!getCourseRegistryEntry(originalContextRegistryKey).equalsIgnoreCase(bbCourse.getId().toExternalString()))
+		{
+			isOriginal = false;
+		}
+		return (isOriginal);
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
@@ -816,6 +833,60 @@ public class PanoptoData
 		
 		return true;
 	}
+	
+	// Updates the course so it has no Panopto data
+	public boolean resetCourse()
+	{
+		boolean success = true;
+		
+		if (!isMapped())
+		{
+			Utils.log(String.format("Cannot reset BB course, not mapped yet. ID: %s, Title: %s\n", bbCourse.getId().toExternalString(), bbCourse.getTitle()));
+			success = false; 
+		}
+		else
+		{
+			// Before blowing away the data, get the folder list.
+			Folder[] courseFolders = getFolders();
+			
+			Utils.log(String.format("Resetting BB course, ID: %s, Title: %s, Old Server: %s, Old Panopto ID: %s\n, Old folders count: %s\n", bbCourse.getId().toExternalString(), bbCourse.getTitle(), serverName, Utils.encodeArrayOfStrings(sessionGroupPublicIDs), courseFolders.length));
+			
+			// In the set registry entry function, we delete existing entries and only create new ones if the value is not null.
+			setCourseRegistryEntry(hostnameRegistryKey, null);
+			setCourseRegistryEntry(originalContextRegistryKey, null);
+			setCourseRegistryEntries(sessionGroupIDRegistryKey, null);
+			setCourseRegistryEntries(sessionGroupDisplayNameRegistryKey, null);
+			
+			try
+			{
+				// If there are empty Panopto folders for this course, then delete it so we don't trail empty unused folders.
+				// This also reduces provisioning errors when a folder already exists.
+				if (courseFolders.length < 0)
+				{
+					Utils.log(String.format("resetting course (length: %s).", courseFolders.length));
+					String[] foldersToDelete = new String[courseFolders.length];
+					for (int idx = 0; idx < courseFolders.length; idx++)
+					{
+						String[] sessionsInFolder = courseFolders[idx].getSessions();
+						Utils.log(String.format("resetting course (index: %s, session list length: %s).", idx, sessionsInFolder.length));
+						if ((sessionsInFolder == null) || (sessionsInFolder.length == 0))
+						{
+							foldersToDelete[foldersToDelete.length] = courseFolders[idx].getId();
+						}
+					}
+					
+					// Batch delete all empty folders to reduce the API calls made.
+					AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
+					sessionManagement.deleteFolders(auth, foldersToDelete);
+				}
+			}
+			catch (RemoteException e) {
+				Utils.log(e, String.format("Error resetting course (id: %s, server: %s, user: %s).", bbCourse.getId().toExternalString(), serverName, bbUserName));
+				success = false;
+			}
+		}
+		return success;
+	}
 
 	// Re-provisions the course with the current settings. If it has never been provisioned before a new folder will be created
 	public boolean reprovisionCourse()
@@ -827,6 +898,7 @@ public class PanoptoData
 	{
 		updateServerName(serverName);
 		setCourseRegistryEntry(hostnameRegistryKey, serverName);
+		setCourseRegistryEntry(originalContextRegistryKey, bbCourse.getId().toExternalString());
 
 		try
 		{
@@ -1196,9 +1268,12 @@ public class PanoptoData
 
 			DeleteKeyForCourse(crePersister, key, courseId);						
 
-			CourseRegistryEntry cre = new CourseRegistryEntry(key, value);
-			cre.setCourseId(courseId);
-			crePersister.persist(cre);
+			if (value != null)
+			{
+				CourseRegistryEntry cre = new CourseRegistryEntry(key, value);
+				cre.setCourseId(courseId);
+				crePersister.persist(cre);
+			}
 		} 
 		catch (Exception e) 
 		{

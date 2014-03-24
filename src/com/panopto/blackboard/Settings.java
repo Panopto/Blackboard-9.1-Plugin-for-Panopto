@@ -54,6 +54,9 @@ public class Settings {
 	// Whether to grant TA's creator access
 	private Boolean grantTACreator = false;
 	
+	// Should the reset button show for all courses
+	private Boolean courseResetEnabled = false;
+	
 	// Whether to log verbose
 	private Boolean verbose = false;
 		
@@ -162,6 +165,17 @@ public class Settings {
 		save();
 	}
 	
+	public boolean getCourseResetEnabled()
+	{
+		return courseResetEnabled;
+	}
+	
+	public void setCourseResetEnabled(boolean canResetAll)
+	{
+		courseResetEnabled = canResetAll;
+		save();
+	}
+	
 	public boolean getVerbose()
 	{
 		return verbose;
@@ -255,6 +269,10 @@ public class Settings {
 			instructorsCanCreateFolderElem.setAttribute("instructorsCanCreateFolder", instructorsCanCreateFolder.toString());
 			docElem.appendChild(instructorsCanCreateFolderElem);
 			
+			Element courseResetEnabledElem = settingsDocument.createElement("courseResetEnabled");
+			courseResetEnabledElem.setAttribute("courseResetEnabled", courseResetEnabled.toString());
+			docElem.appendChild(courseResetEnabledElem);
+			
 			Element verboseElem = settingsDocument.createElement("verbose");
 			verboseElem.setAttribute("verbose", verbose.toString());
 			docElem.appendChild(verboseElem);
@@ -347,6 +365,13 @@ public class Settings {
 		{
 			Element instructorsCanCreateFolderElem = (Element)instructorsCanCreateFolderNodes.item(0);
 			this.instructorsCanCreateFolder = Boolean.valueOf(instructorsCanCreateFolderElem.getAttribute("instructorsCanCreateFolder"));
+		}
+		
+		NodeList canResetAllNodes = docElem.getElementsByTagName("courseResetEnabled");
+		if(canResetAllNodes.getLength() != 0)
+		{
+			Element canResetAllElem = (Element)canResetAllNodes.item(0);
+			this.courseResetEnabled = Boolean.valueOf(canResetAllElem.getAttribute("courseResetEnabled"));
 		}
 		
 		NodeList verboseNodes = docElem.getElementsByTagName("verbose");

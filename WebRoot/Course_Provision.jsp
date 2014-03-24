@@ -1,4 +1,4 @@
-<!-- Copyright Panopto 2009 - 2011
+<!-- Copyright Panopto 2009 - 2013
  * 
  * This file is part of the Panopto plugin for Blackboard.
  * 
@@ -25,10 +25,12 @@
 <%@page import="java.util.ArrayList"%>
 <%@page import="com.panopto.blackboard.PanoptoData"%>
 <%@page import="com.panopto.services.*"%>
-<%@page import="blackboard.base.BbList"%>
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%@taglib uri="/bbUI" prefix="bbUI" %>
 <%@taglib uri="/bbData" prefix="bbData"%>
+
 
 <%
 String iconUrl = "/images/ci/icons/bookopen_u.gif";
@@ -53,22 +55,20 @@ boolean reprovisionAll = request.getParameter("reprovisionAll") != null;
 
 %>
 
+<bbUI:coursePage>
 	<bbData:context id="ctx">
-
 		<bbUI:docTemplate title="<%=page_title%>">
-
+	<c:catch>
 			<bbUI:docTemplateHead>
 				<link rel="stylesheet" type="text/css" href="main.css" />
 			</bbUI:docTemplateHead>
-	
-			<bbUI:breadcrumbBar>
-				<bbUI:breadcrumb><%=page_title%></bbUI:breadcrumb>
-			</bbUI:breadcrumbBar>
 
 			<bbUI:titleBar iconUrl="<%=iconUrl%>">
 				<%=page_title%>
 			</bbUI:titleBar>
+	</c:catch>
 <%
+
 if((provisionServerName != null) && !provisionServerName.trim().isEmpty() && (bbCourses != null && !bbCourses.trim().isEmpty()))
 {
 %>
@@ -223,7 +223,7 @@ else if (reprovisionAll)
 				<div id='batchProvisionResults'>
 		<%
 		
-		BbList<Course> allCourses = PanoptoData.GetAllCourses();
+		java.util.List<Course> allCourses = PanoptoData.GetAllCourses();
 		if (allCourses.size() == 0)
 		{
 			%><div class='errorMessage'>Unable to retrieve Blackboard courses</div><%
@@ -260,10 +260,11 @@ else
 {
 %>
 	<div class='error'>Error no server selected.</div>
-<% } %>
+<% }
+ %>
 		<div>
 			<bbUI:button type="INLINE" name="OK" alt="OK" action="LINK" targetUrl="<%=returnUrl%>" />
 		</div>
 		</bbUI:docTemplate>
-
 	</bbData:context>
+</bbUI:coursePage>

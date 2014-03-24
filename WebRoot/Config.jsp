@@ -1,5 +1,5 @@
 
-<!-- Copyright Panopto 2009 - 2011
+<!-- Copyright Panopto 2009 - 2013
  * 
  * This file is part of the Panopto plugin for Blackboard.
  * 
@@ -22,9 +22,12 @@
 <%@page import="com.panopto.blackboard.Utils"%>
 <%@page import="java.util.*"%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%@taglib uri="/bbUI" prefix="bbUI" %>
 <%@taglib uri="/bbData" prefix="bbData"%>
 
+<bbUI:coursePage>
 <bbData:context id="ctx">
 
 <%
@@ -36,12 +39,11 @@ if (!Utils.userCanConfigureSystem())
 {
 %>
 	<bbUI:docTemplate title="<%=page_title%>">
-		<bbUI:breadcrumbBar>
-			<bbUI:breadcrumb><%=page_title%></bbUI:breadcrumb>
-		</bbUI:breadcrumbBar>
+	<c:catch>
 		<bbUI:receipt type="FAIL" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=Utils.buildingBlockManagerURL%>">
 			You do not have access to configure the Panopto building block. 
 		</bbUI:receipt>
+	</c:catch>
 	</bbUI:docTemplate>
 <%
 	return;
@@ -49,14 +51,11 @@ if (!Utils.userCanConfigureSystem())
 
 %>
 		<bbUI:docTemplate title="<%= page_title %>">
-
+		<c:catch>
 			<bbUI:docTemplateHead>
 				<link rel="stylesheet" type="text/css" href="main.css" />
 			</bbUI:docTemplateHead>
-	
-			<bbUI:breadcrumbBar>
-				<bbUI:breadcrumb><%= page_title %></bbUI:breadcrumb>
-			</bbUI:breadcrumbBar>
+		</c:catch>
 <%
 // Scalar settings form submitted, store in settings file.
 String instanceName = request.getParameter("instanceName");
@@ -65,6 +64,7 @@ Boolean mailLectureNotifications = (request.getParameter("mailLectureNotificatio
 Boolean refreshLogins = (request.getParameter("refreshLogins") != null);
 Boolean grantTACreator = (request.getParameter("grantTACreator") != null);
 Boolean instructorsCanCreateFolder = (request.getParameter("instructorsCanCreateFolder") != null);
+Boolean courseResetEnabled = (request.getParameter("courseResetEnabled") != null);
 Boolean verbose = (request.getParameter("verbose") != null);
 if(instanceName != null)
 {
@@ -78,6 +78,7 @@ if(instanceName != null)
 	Utils.pluginSettings.setRefreshLogins(refreshLogins);
 	Utils.pluginSettings.setGrantTACreator(grantTACreator);
 	Utils.pluginSettings.setInstructorsCanCreateFolder(instructorsCanCreateFolder);
+	Utils.pluginSettings.setCourseResetEnabled(courseResetEnabled);
 	Utils.pluginSettings.setVerbose(verbose);
 }
 instanceName = Utils.pluginSettings.getInstanceName();
@@ -86,6 +87,7 @@ mailLectureNotifications = Utils.pluginSettings.getMailLectureNotifications();
 refreshLogins = Utils.pluginSettings.getRefreshLogins();
 grantTACreator = Utils.pluginSettings.getGrantTACreator();
 instructorsCanCreateFolder = Utils.pluginSettings.getInstructorsCanCreateFolder();
+courseResetEnabled = Utils.pluginSettings.getCourseResetEnabled();
 verbose = Utils.pluginSettings.getVerbose();
 
 // Server list form submitted, add/remove servers if valid operation
@@ -242,6 +244,21 @@ else
 								<div class="field">
 									<p tabIndex="0" class="stepHelp">
 										This setting determines whether instructors are allowed to create new folders in Panopto.<br/>
+										<br/>
+										<br/>
+									</p>
+								</div>
+							</li>
+							<li>
+								<div class="label">Allow all courses to be reset</div>
+								<div class="field">
+									<input name="courseResetEnabled" type="checkbox" <%= courseResetEnabled ? "checked" : "" %> style="float:left" />
+								</div>
+							</li>
+							<li>
+								<div class="field">
+									<p tabIndex="0" class="stepHelp">
+										This setting is best used temporarily if you need to reset non-copied folders. Will allow creators to de-provision a course.<br/>
 										<br/>
 										<br/>
 									</p>
@@ -476,3 +493,4 @@ else
 		</bbUI:docTemplate>
 
 </bbData:context>
+</bbUI:coursePage>

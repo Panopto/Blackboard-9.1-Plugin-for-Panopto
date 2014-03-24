@@ -1,4 +1,4 @@
-<!-- Copyright Panopto 2009 - 2011
+<!-- Copyright Panopto 2009 - 2013
  * 
  * This file is part of the Panopto plugin for Blackboard.
  * 
@@ -22,9 +22,12 @@
 <%@page import="com.panopto.blackboard.PanoptoData"%>
 <%@page import="com.panopto.services.*"%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%@taglib uri="/bbUI" prefix="bbUI" %>
 <%@taglib uri="/bbData" prefix="bbData"%>
 
+<bbUI:coursePage>
 <bbData:context id="ctx">
 
 <%
@@ -35,6 +38,9 @@ final String page_title = "Panopto Focus Content";
 String course_id = request.getParameter("course_id");
 
 String courseConfigURL = Utils.courseConfigScriptURL
+							+ "?course_id=" + course_id;
+							
+String courseResetURL = Utils.courseResetURL
 							+ "?course_id=" + course_id;
 
 PanoptoData ccCourse = new PanoptoData(ctx);
@@ -47,15 +53,11 @@ PanoptoData ccCourse = new PanoptoData(ctx);
 		</bbUI:docTemplateHead>
 
 		<bbUI:coursePage courseId="<%= ctx.getCourseId() %>">
-		
-			<bbUI:breadcrumbBar>
-				<bbUI:breadcrumb><%=page_title%></bbUI:breadcrumb>
-			</bbUI:breadcrumbBar>
-	
+		<c:catch>	
 			<bbUI:titleBar iconUrl="<%=iconUrl%>">
 				<%=page_title%>
 			</bbUI:titleBar>
-	
+		</c:catch>
 			<div id="courseContent">
 			
 				<!-- Add POST parameter to links into Panopto to activate SSO auto-login -->
@@ -68,7 +70,17 @@ PanoptoData ccCourse = new PanoptoData(ctx);
 				{ %>
 					<div id="configButton">
 						<bbUI:button type="INLINE" name="Configure" alt="Configure" action="LINK" targetUrl="<%=courseConfigURL%>" />
-					</div><%
+						<%
+						if (!ccCourse.isOriginalContext() || (Utils.pluginSettings.getCourseResetEnabled()))
+						{
+						%>
+						
+						<bbUI:button type="INLINE" name="Reset Copied Course" alt="Reset Copied Course" action="LINK" targetUrl="<%=courseResetURL%>" />
+						<%
+						}
+						 %>
+					</div>
+					<%
 				}
 				
 				if(!ccCourse.isMapped())
@@ -242,3 +254,4 @@ PanoptoData ccCourse = new PanoptoData(ctx);
 	</bbUI:docTemplate>
 
 </bbData:context>
+</bbUI:coursePage>

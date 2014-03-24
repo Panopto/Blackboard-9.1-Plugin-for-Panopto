@@ -1,4 +1,4 @@
-<!-- Copyright Panopto 2009 - 2011
+<!-- Copyright Panopto 2009 - 2013
  * 
  * This file is part of the Panopto plugin for Blackboard.
  * 
@@ -22,6 +22,8 @@
 <%@page import="java.util.*"%>
 <%@page import="blackboard.platform.security.SecurityUtil"%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%@taglib uri="/bbUI" prefix="bbUI" %>
 <%@taglib uri="/bbData" prefix="bbData"%>
 
@@ -37,17 +39,15 @@ if("delete".equals(action))
 String iconUrl = "/images/ci/icons/bookopen_u.gif";
 String page_title = "Panopto Log Data";
 %>
+<bbUI:coursePage>
 	<bbData:context id="ctx">
 
 		<bbUI:docTemplate title="<%= page_title %>">
-
+		<c:catch>
 			<bbUI:docTemplateHead>
 				<link rel="stylesheet" type="text/css" href="main.css" />
 			</bbUI:docTemplateHead>
-	
-			<bbUI:breadcrumbBar>
-				<bbUI:breadcrumb><%= page_title %></bbUI:breadcrumb>
-			</bbUI:breadcrumbBar>
+		</c:catch>
 <%
 
 // Check for errors loading the list
@@ -81,3 +81,4 @@ else
 		</bbUI:docTemplate>
 
 	</bbData:context>
+</bbUI:coursePage>
