@@ -18,9 +18,17 @@ public class Folder  implements java.io.Serializable {
 
     private java.lang.String[] childFolders;
 
+    private java.lang.Boolean deliveriesHaveSpecifiedOrder;
+
     private java.lang.String description;
 
+    private java.lang.String embedUploaderUrl;
+
+    private java.lang.String embedUrl;
+
     private java.lang.Boolean enablePodcast;
+
+    private java.lang.String externalId;
 
     private java.lang.String id;
 
@@ -31,6 +39,8 @@ public class Folder  implements java.io.Serializable {
     private java.lang.String name;
 
     private java.lang.String parentFolder;
+
+    private java.lang.String[] presenters;
 
     private java.lang.String[] sessions;
 
@@ -49,13 +59,18 @@ public class Folder  implements java.io.Serializable {
            java.lang.String audioPodcastITunesUrl,
            java.lang.String audioRssUrl,
            java.lang.String[] childFolders,
+           java.lang.Boolean deliveriesHaveSpecifiedOrder,
            java.lang.String description,
+           java.lang.String embedUploaderUrl,
+           java.lang.String embedUrl,
            java.lang.Boolean enablePodcast,
+           java.lang.String externalId,
            java.lang.String id,
            java.lang.Boolean isPublic,
            java.lang.String listUrl,
            java.lang.String name,
            java.lang.String parentFolder,
+           java.lang.String[] presenters,
            java.lang.String[] sessions,
            java.lang.String settingsUrl,
            java.lang.String videoPodcastITunesUrl,
@@ -65,13 +80,18 @@ public class Folder  implements java.io.Serializable {
            this.audioPodcastITunesUrl = audioPodcastITunesUrl;
            this.audioRssUrl = audioRssUrl;
            this.childFolders = childFolders;
+           this.deliveriesHaveSpecifiedOrder = deliveriesHaveSpecifiedOrder;
            this.description = description;
+           this.embedUploaderUrl = embedUploaderUrl;
+           this.embedUrl = embedUrl;
            this.enablePodcast = enablePodcast;
+           this.externalId = externalId;
            this.id = id;
            this.isPublic = isPublic;
            this.listUrl = listUrl;
            this.name = name;
            this.parentFolder = parentFolder;
+           this.presenters = presenters;
            this.sessions = sessions;
            this.settingsUrl = settingsUrl;
            this.videoPodcastITunesUrl = videoPodcastITunesUrl;
@@ -180,6 +200,26 @@ public class Folder  implements java.io.Serializable {
 
 
     /**
+     * Gets the deliveriesHaveSpecifiedOrder value for this Folder.
+     * 
+     * @return deliveriesHaveSpecifiedOrder
+     */
+    public java.lang.Boolean getDeliveriesHaveSpecifiedOrder() {
+        return deliveriesHaveSpecifiedOrder;
+    }
+
+
+    /**
+     * Sets the deliveriesHaveSpecifiedOrder value for this Folder.
+     * 
+     * @param deliveriesHaveSpecifiedOrder
+     */
+    public void setDeliveriesHaveSpecifiedOrder(java.lang.Boolean deliveriesHaveSpecifiedOrder) {
+        this.deliveriesHaveSpecifiedOrder = deliveriesHaveSpecifiedOrder;
+    }
+
+
+    /**
      * Gets the description value for this Folder.
      * 
      * @return description
@@ -200,6 +240,46 @@ public class Folder  implements java.io.Serializable {
 
 
     /**
+     * Gets the embedUploaderUrl value for this Folder.
+     * 
+     * @return embedUploaderUrl
+     */
+    public java.lang.String getEmbedUploaderUrl() {
+        return embedUploaderUrl;
+    }
+
+
+    /**
+     * Sets the embedUploaderUrl value for this Folder.
+     * 
+     * @param embedUploaderUrl
+     */
+    public void setEmbedUploaderUrl(java.lang.String embedUploaderUrl) {
+        this.embedUploaderUrl = embedUploaderUrl;
+    }
+
+
+    /**
+     * Gets the embedUrl value for this Folder.
+     * 
+     * @return embedUrl
+     */
+    public java.lang.String getEmbedUrl() {
+        return embedUrl;
+    }
+
+
+    /**
+     * Sets the embedUrl value for this Folder.
+     * 
+     * @param embedUrl
+     */
+    public void setEmbedUrl(java.lang.String embedUrl) {
+        this.embedUrl = embedUrl;
+    }
+
+
+    /**
      * Gets the enablePodcast value for this Folder.
      * 
      * @return enablePodcast
@@ -216,6 +296,26 @@ public class Folder  implements java.io.Serializable {
      */
     public void setEnablePodcast(java.lang.Boolean enablePodcast) {
         this.enablePodcast = enablePodcast;
+    }
+
+
+    /**
+     * Gets the externalId value for this Folder.
+     * 
+     * @return externalId
+     */
+    public java.lang.String getExternalId() {
+        return externalId;
+    }
+
+
+    /**
+     * Sets the externalId value for this Folder.
+     * 
+     * @param externalId
+     */
+    public void setExternalId(java.lang.String externalId) {
+        this.externalId = externalId;
     }
 
 
@@ -316,6 +416,26 @@ public class Folder  implements java.io.Serializable {
      */
     public void setParentFolder(java.lang.String parentFolder) {
         this.parentFolder = parentFolder;
+    }
+
+
+    /**
+     * Gets the presenters value for this Folder.
+     * 
+     * @return presenters
+     */
+    public java.lang.String[] getPresenters() {
+        return presenters;
+    }
+
+
+    /**
+     * Sets the presenters value for this Folder.
+     * 
+     * @param presenters
+     */
+    public void setPresenters(java.lang.String[] presenters) {
+        this.presenters = presenters;
     }
 
 
@@ -425,12 +545,24 @@ public class Folder  implements java.io.Serializable {
             ((this.childFolders==null && other.getChildFolders()==null) || 
              (this.childFolders!=null &&
               java.util.Arrays.equals(this.childFolders, other.getChildFolders()))) &&
+            ((this.deliveriesHaveSpecifiedOrder==null && other.getDeliveriesHaveSpecifiedOrder()==null) || 
+             (this.deliveriesHaveSpecifiedOrder!=null &&
+              this.deliveriesHaveSpecifiedOrder.equals(other.getDeliveriesHaveSpecifiedOrder()))) &&
             ((this.description==null && other.getDescription()==null) || 
              (this.description!=null &&
               this.description.equals(other.getDescription()))) &&
+            ((this.embedUploaderUrl==null && other.getEmbedUploaderUrl()==null) || 
+             (this.embedUploaderUrl!=null &&
+              this.embedUploaderUrl.equals(other.getEmbedUploaderUrl()))) &&
+            ((this.embedUrl==null && other.getEmbedUrl()==null) || 
+             (this.embedUrl!=null &&
+              this.embedUrl.equals(other.getEmbedUrl()))) &&
             ((this.enablePodcast==null && other.getEnablePodcast()==null) || 
              (this.enablePodcast!=null &&
               this.enablePodcast.equals(other.getEnablePodcast()))) &&
+            ((this.externalId==null && other.getExternalId()==null) || 
+             (this.externalId!=null &&
+              this.externalId.equals(other.getExternalId()))) &&
             ((this.id==null && other.getId()==null) || 
              (this.id!=null &&
               this.id.equals(other.getId()))) &&
@@ -446,6 +578,9 @@ public class Folder  implements java.io.Serializable {
             ((this.parentFolder==null && other.getParentFolder()==null) || 
              (this.parentFolder!=null &&
               this.parentFolder.equals(other.getParentFolder()))) &&
+            ((this.presenters==null && other.getPresenters()==null) || 
+             (this.presenters!=null &&
+              java.util.Arrays.equals(this.presenters, other.getPresenters()))) &&
             ((this.sessions==null && other.getSessions()==null) || 
              (this.sessions!=null &&
               java.util.Arrays.equals(this.sessions, other.getSessions()))) &&
@@ -492,11 +627,23 @@ public class Folder  implements java.io.Serializable {
                 }
             }
         }
+        if (getDeliveriesHaveSpecifiedOrder() != null) {
+            _hashCode += getDeliveriesHaveSpecifiedOrder().hashCode();
+        }
         if (getDescription() != null) {
             _hashCode += getDescription().hashCode();
         }
+        if (getEmbedUploaderUrl() != null) {
+            _hashCode += getEmbedUploaderUrl().hashCode();
+        }
+        if (getEmbedUrl() != null) {
+            _hashCode += getEmbedUrl().hashCode();
+        }
         if (getEnablePodcast() != null) {
             _hashCode += getEnablePodcast().hashCode();
+        }
+        if (getExternalId() != null) {
+            _hashCode += getExternalId().hashCode();
         }
         if (getId() != null) {
             _hashCode += getId().hashCode();
@@ -512,6 +659,17 @@ public class Folder  implements java.io.Serializable {
         }
         if (getParentFolder() != null) {
             _hashCode += getParentFolder().hashCode();
+        }
+        if (getPresenters() != null) {
+            for (int i=0;
+                 i<java.lang.reflect.Array.getLength(getPresenters());
+                 i++) {
+                java.lang.Object obj = java.lang.reflect.Array.get(getPresenters(), i);
+                if (obj != null &&
+                    !obj.getClass().isArray()) {
+                    _hashCode += obj.hashCode();
+                }
+            }
         }
         if (getSessions() != null) {
             for (int i=0;
@@ -542,95 +700,131 @@ public class Folder  implements java.io.Serializable {
         new org.apache.axis.description.TypeDesc(Folder.class, true);
 
     static {
-        typeDesc.setXmlType(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Folder"));
+        typeDesc.setXmlType(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "Folder"));
         org.apache.axis.description.ElementDesc elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("allowPublicNotes");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "AllowPublicNotes"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "AllowPublicNotes"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "boolean"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("allowSessionDownload");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "AllowSessionDownload"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "AllowSessionDownload"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "boolean"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("audioPodcastITunesUrl");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "AudioPodcastITunesUrl"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "AudioPodcastITunesUrl"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("audioRssUrl");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "AudioRssUrl"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "AudioRssUrl"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("childFolders");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "ChildFolders"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "ChildFolders"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://schemas.microsoft.com/2003/10/Serialization/", "guid"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         elemField.setItemQName(new javax.xml.namespace.QName("http://schemas.microsoft.com/2003/10/Serialization/Arrays", "guid"));
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
+        elemField.setFieldName("deliveriesHaveSpecifiedOrder");
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "DeliveriesHaveSpecifiedOrder"));
+        elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "boolean"));
+        elemField.setMinOccurs(0);
+        elemField.setNillable(false);
+        typeDesc.addFieldDesc(elemField);
+        elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("description");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Description"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "Description"));
+        elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
+        elemField.setMinOccurs(0);
+        elemField.setNillable(true);
+        typeDesc.addFieldDesc(elemField);
+        elemField = new org.apache.axis.description.ElementDesc();
+        elemField.setFieldName("embedUploaderUrl");
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "EmbedUploaderUrl"));
+        elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
+        elemField.setMinOccurs(0);
+        elemField.setNillable(true);
+        typeDesc.addFieldDesc(elemField);
+        elemField = new org.apache.axis.description.ElementDesc();
+        elemField.setFieldName("embedUrl");
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "EmbedUrl"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("enablePodcast");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "EnablePodcast"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "EnablePodcast"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "boolean"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
+        elemField.setFieldName("externalId");
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "ExternalId"));
+        elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
+        elemField.setMinOccurs(0);
+        elemField.setNillable(true);
+        typeDesc.addFieldDesc(elemField);
+        elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("id");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Id"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "Id"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("isPublic");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "IsPublic"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "IsPublic"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "boolean"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("listUrl");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "ListUrl"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "ListUrl"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("name");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Name"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "Name"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("parentFolder");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "ParentFolder"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "ParentFolder"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
+        elemField.setFieldName("presenters");
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "Presenters"));
+        elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
+        elemField.setMinOccurs(0);
+        elemField.setNillable(true);
+        elemField.setItemQName(new javax.xml.namespace.QName("http://schemas.microsoft.com/2003/10/Serialization/Arrays", "string"));
+        typeDesc.addFieldDesc(elemField);
+        elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("sessions");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Sessions"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "Sessions"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://schemas.microsoft.com/2003/10/Serialization/", "guid"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
@@ -638,21 +832,21 @@ public class Folder  implements java.io.Serializable {
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("settingsUrl");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "SettingsUrl"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "SettingsUrl"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("videoPodcastITunesUrl");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "VideoPodcastITunesUrl"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "VideoPodcastITunesUrl"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("videoRssUrl");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "VideoRssUrl"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "VideoRssUrl"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);

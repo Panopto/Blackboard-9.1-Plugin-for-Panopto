@@ -51,7 +51,7 @@ String page_title = "Panopto Log Data";
 <%
 
 // Check for errors loading the list
-if(!SecurityUtil.userHasEntitlement("course.configure-tools.EXECUTE"))
+if(!SecurityUtil.userHasEntitlement("course.panopto.EXECUTE"))
 {
 %>
 			<bbUI:receipt type="FAIL" iconUrl="<%=iconUrl%>" title="<%=page_title%>">

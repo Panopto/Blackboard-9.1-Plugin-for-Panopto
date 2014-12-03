@@ -16,9 +16,15 @@ public class Session  implements java.io.Serializable {
 
     private java.lang.String editorUrl;
 
+    private java.lang.String externalId;
+
     private java.lang.String folderId;
 
+    private java.lang.String folderName;
+
     private java.lang.String id;
+
+    private java.lang.String iosVideoUrl;
 
     private java.lang.Boolean isBroadcast;
 
@@ -56,8 +62,11 @@ public class Session  implements java.io.Serializable {
            java.lang.String description,
            java.lang.Double duration,
            java.lang.String editorUrl,
+           java.lang.String externalId,
            java.lang.String folderId,
+           java.lang.String folderName,
            java.lang.String id,
+           java.lang.String iosVideoUrl,
            java.lang.Boolean isBroadcast,
            java.lang.Boolean isDownloadable,
            java.lang.String MP3Url,
@@ -76,8 +85,11 @@ public class Session  implements java.io.Serializable {
            this.description = description;
            this.duration = duration;
            this.editorUrl = editorUrl;
+           this.externalId = externalId;
            this.folderId = folderId;
+           this.folderName = folderName;
            this.id = id;
+           this.iosVideoUrl = iosVideoUrl;
            this.isBroadcast = isBroadcast;
            this.isDownloadable = isDownloadable;
            this.MP3Url = MP3Url;
@@ -176,6 +188,26 @@ public class Session  implements java.io.Serializable {
 
 
     /**
+     * Gets the externalId value for this Session.
+     * 
+     * @return externalId
+     */
+    public java.lang.String getExternalId() {
+        return externalId;
+    }
+
+
+    /**
+     * Sets the externalId value for this Session.
+     * 
+     * @param externalId
+     */
+    public void setExternalId(java.lang.String externalId) {
+        this.externalId = externalId;
+    }
+
+
+    /**
      * Gets the folderId value for this Session.
      * 
      * @return folderId
@@ -196,6 +228,26 @@ public class Session  implements java.io.Serializable {
 
 
     /**
+     * Gets the folderName value for this Session.
+     * 
+     * @return folderName
+     */
+    public java.lang.String getFolderName() {
+        return folderName;
+    }
+
+
+    /**
+     * Sets the folderName value for this Session.
+     * 
+     * @param folderName
+     */
+    public void setFolderName(java.lang.String folderName) {
+        this.folderName = folderName;
+    }
+
+
+    /**
      * Gets the id value for this Session.
      * 
      * @return id
@@ -212,6 +264,26 @@ public class Session  implements java.io.Serializable {
      */
     public void setId(java.lang.String id) {
         this.id = id;
+    }
+
+
+    /**
+     * Gets the iosVideoUrl value for this Session.
+     * 
+     * @return iosVideoUrl
+     */
+    public java.lang.String getIosVideoUrl() {
+        return iosVideoUrl;
+    }
+
+
+    /**
+     * Sets the iosVideoUrl value for this Session.
+     * 
+     * @param iosVideoUrl
+     */
+    public void setIosVideoUrl(java.lang.String iosVideoUrl) {
+        this.iosVideoUrl = iosVideoUrl;
     }
 
 
@@ -518,12 +590,21 @@ public class Session  implements java.io.Serializable {
             ((this.editorUrl==null && other.getEditorUrl()==null) || 
              (this.editorUrl!=null &&
               this.editorUrl.equals(other.getEditorUrl()))) &&
+            ((this.externalId==null && other.getExternalId()==null) || 
+             (this.externalId!=null &&
+              this.externalId.equals(other.getExternalId()))) &&
             ((this.folderId==null && other.getFolderId()==null) || 
              (this.folderId!=null &&
               this.folderId.equals(other.getFolderId()))) &&
+            ((this.folderName==null && other.getFolderName()==null) || 
+             (this.folderName!=null &&
+              this.folderName.equals(other.getFolderName()))) &&
             ((this.id==null && other.getId()==null) || 
              (this.id!=null &&
               this.id.equals(other.getId()))) &&
+            ((this.iosVideoUrl==null && other.getIosVideoUrl()==null) || 
+             (this.iosVideoUrl!=null &&
+              this.iosVideoUrl.equals(other.getIosVideoUrl()))) &&
             ((this.isBroadcast==null && other.getIsBroadcast()==null) || 
              (this.isBroadcast!=null &&
               this.isBroadcast.equals(other.getIsBroadcast()))) &&
@@ -589,11 +670,20 @@ public class Session  implements java.io.Serializable {
         if (getEditorUrl() != null) {
             _hashCode += getEditorUrl().hashCode();
         }
+        if (getExternalId() != null) {
+            _hashCode += getExternalId().hashCode();
+        }
         if (getFolderId() != null) {
             _hashCode += getFolderId().hashCode();
         }
+        if (getFolderName() != null) {
+            _hashCode += getFolderName().hashCode();
+        }
         if (getId() != null) {
             _hashCode += getId().hashCode();
+        }
+        if (getIosVideoUrl() != null) {
+            _hashCode += getIosVideoUrl().hashCode();
         }
         if (getIsBroadcast() != null) {
             _hashCode += getIsBroadcast().hashCode();
@@ -654,101 +744,122 @@ public class Session  implements java.io.Serializable {
         new org.apache.axis.description.TypeDesc(Session.class, true);
 
     static {
-        typeDesc.setXmlType(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Session"));
+        typeDesc.setXmlType(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "Session"));
         org.apache.axis.description.ElementDesc elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("creatorId");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "CreatorId"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "CreatorId"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("description");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Description"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "Description"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("duration");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Duration"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "Duration"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "double"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("editorUrl");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "EditorUrl"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "EditorUrl"));
+        elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
+        elemField.setMinOccurs(0);
+        elemField.setNillable(true);
+        typeDesc.addFieldDesc(elemField);
+        elemField = new org.apache.axis.description.ElementDesc();
+        elemField.setFieldName("externalId");
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "ExternalId"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("folderId");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "FolderId"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "FolderId"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);
+        typeDesc.addFieldDesc(elemField);
+        elemField = new org.apache.axis.description.ElementDesc();
+        elemField.setFieldName("folderName");
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "FolderName"));
+        elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
+        elemField.setMinOccurs(0);
+        elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("id");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Id"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "Id"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
+        elemField.setFieldName("iosVideoUrl");
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "IosVideoUrl"));
+        elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
+        elemField.setMinOccurs(0);
+        elemField.setNillable(true);
+        typeDesc.addFieldDesc(elemField);
+        elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("isBroadcast");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "IsBroadcast"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "IsBroadcast"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "boolean"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("isDownloadable");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "IsDownloadable"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "IsDownloadable"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "boolean"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("MP3Url");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "MP3Url"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "MP3Url"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("MP4Url");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "MP4Url"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "MP4Url"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("name");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Name"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "Name"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("notesURL");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "NotesURL"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "NotesURL"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("outputsPageUrl");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "OutputsPageUrl"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "OutputsPageUrl"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("remoteRecorderIds");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "RemoteRecorderIds"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "RemoteRecorderIds"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://schemas.microsoft.com/2003/10/Serialization/", "guid"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
@@ -756,42 +867,42 @@ public class Session  implements java.io.Serializable {
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("sharePageUrl");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "SharePageUrl"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "SharePageUrl"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("startTime");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "StartTime"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "StartTime"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "dateTime"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("state");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "State"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "State"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "SessionState"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("statusMessage");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "StatusMessage"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "StatusMessage"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("thumbUrl");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "ThumbUrl"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "ThumbUrl"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("viewerUrl");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "ViewerUrl"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V42.Soap", "ViewerUrl"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);

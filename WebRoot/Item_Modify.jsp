@@ -36,7 +36,7 @@
 <bbData:context id="ctx">
 <%
 String iconUrl = "/images/ci/icons/bookopen_u.gif";
-String page_title = "Edit Panopto Focus Video Link";
+String page_title = "Edit Panopto Video Link";
 
 // Passed from Blackboard to content create / modify pages
 // For content create action, "content_id" refers to the parent content container

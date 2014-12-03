@@ -16,6 +16,7 @@
  * along with the Panopto plugin for Blackboard.  If not, see <http://www.gnu.org/licenses/>.
  */ -->
 
+<%@page import="blackboard.admin.data.course.AdminCourse"%>
 <%@page language="java" pageEncoding="ISO-8859-1" %>
 
 <%@page import="com.panopto.blackboard.Utils"%>
@@ -39,7 +40,7 @@
 
 <%
 final String iconUrl = "/images/ci/icons/bookopen_u.gif";
-final String page_title = "Configure Panopto Focus Course";
+final String page_title = "Configure Panopto Course";
 
 // Passed from Blackboard to content create / modify pages
 // Persist in form for use when redirecting back to create page
@@ -54,7 +55,7 @@ if(content_id != null)
 {	
 	// Fetch Blackboard-generated URL to course documents area via utility method
 	courseDocsURL = Utils.getCourseDocsURL(course_id, content_id);
-	parentPageTitle = "Insert Panopto Focus Video"; 
+	parentPageTitle = "Insert Panopto Video"; 
 	parentURL = Utils.createScriptURL +
 				"?course_id=" + course_id +
 				"&content_id=" + content_id;
@@ -62,7 +63,7 @@ if(content_id != null)
 }
 else
 {
-	parentPageTitle = "Panopto Focus Content";
+	parentPageTitle = "Panopto Content";
 	parentURL = Utils.contentScriptURL +
 				"?course_id=" + course_id;
 }
@@ -138,7 +139,8 @@ if(folderIds != null)
 			<bbUI:titleBar iconUrl="<%=iconUrl%>">
 				<%=page_title%>
 			</bbUI:titleBar>
-	
+			
+		
 			<!-- If the course hasn't been mapped then let the user select a server and provision it if he has access -->
 			<%
 			if (!ccCourse.isMapped() && ccCourse.userMayProvision())

@@ -22,7 +22,7 @@ public class UserManagementLocator extends org.apache.axis.client.Service implem
     }
 
     // Use to get a proxy class for BasicHttpBinding_IUserManagement
-    private java.lang.String BasicHttpBinding_IUserManagement_address = "http://10.1.11.27/Panopto/PublicAPI/4.0/UserManagement.svc";
+    private java.lang.String BasicHttpBinding_IUserManagement_address = "http://granitevm.panopto.local/Panopto/PublicAPI/4.6/UserManagement.svc";
 
     public java.lang.String getBasicHttpBinding_IUserManagementAddress() {
         return BasicHttpBinding_IUserManagement_address;

@@ -30,4 +30,5 @@ public interface IUserManagement extends java.rmi.Remote {
     public void deleteGroup(com.panopto.services.AuthenticationInfo auth, java.lang.String groupId) throws java.rmi.RemoteException;
     public com.panopto.services.Group getGroup(com.panopto.services.AuthenticationInfo auth, java.lang.String groupId) throws java.rmi.RemoteException;
     public com.panopto.services.ListGroupsResponse listGroups(com.panopto.services.AuthenticationInfo auth, com.panopto.services.Pagination pagination) throws java.rmi.RemoteException;
+    public com.panopto.services.Group[] getGroupsByName(com.panopto.services.AuthenticationInfo auth, java.lang.String groupName) throws java.rmi.RemoteException;
 }

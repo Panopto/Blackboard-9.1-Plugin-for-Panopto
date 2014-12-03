@@ -1,6 +1,6 @@
 #configButton
 {
-	margin: 20px 0px;
+	margin: 20px 5px;
 }
 
 #provisionLink
@@ -137,4 +137,9 @@
 .selectFoldersButton
 {
 	width: 90;
+}
+
+.resetReceipt
+{
+	margin: 5px;
 }
