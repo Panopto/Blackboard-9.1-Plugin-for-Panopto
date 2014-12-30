@@ -70,6 +70,7 @@ Boolean verbose = (request.getParameter("verbose") != null);
 Boolean adminProvisionOnly = (request.getParameter("adminProvisionOnly") != null);
 Boolean insertLinkOnProvision = (request.getParameter("insertLinkOnProvision") != null);
 String menuLinkText = request.getParameter("menuLinkText");
+
 if(instanceName != null)
 {
     if(!instanceName.trim().equals(""))
@@ -87,8 +88,19 @@ if(instanceName != null)
     Utils.pluginSettings.setVerbose(verbose);
     Utils.pluginSettings.setAdminProvisionOnly(adminProvisionOnly);
     Utils.pluginSettings.setInsertLinkOnProvision(insertLinkOnProvision);
-    Utils.pluginSettings.setMenuLinkText(menuLinkText);
 }
+ 
+//If menu link text is not null, save it.
+if(menuLinkText != null)
+{
+    //If the field is left blank, changes to the text will not be saved
+    if(!menuLinkText.trim().equals(""))
+    {
+        Utils.pluginSettings.setMenuLinkText(menuLinkText.trim());
+    }
+}
+
+
 instanceName = Utils.pluginSettings.getInstanceName();
 instructorsCanProvision = Utils.pluginSettings.getInstructorsCanProvision();
 mailLectureNotifications = Utils.pluginSettings.getMailLectureNotifications();
@@ -295,7 +307,7 @@ else
                             <li>
                                 <div class="label">Panopto Link Text</div>
                                 <div class="field">
-                                    <input name="menuLinkText" type="text" value="<%=menuLinkText%>" style="float:left" />
+                                    <input name="menuLinkText" type="text" size="30" value="<%= menuLinkText %>" style="float:left" />
                                 </div>
                             </li>
                             <li>
