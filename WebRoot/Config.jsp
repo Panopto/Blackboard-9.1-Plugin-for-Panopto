@@ -21,6 +21,7 @@
 
 <%@page import="com.panopto.blackboard.Utils"%>
 <%@page import="java.util.*"%>
+<%@page import="blackboard.platform.plugin.PlugInUtil" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -38,6 +39,7 @@ String page_title = "Configure Panopto Focus Connector";
 if (!Utils.userCanConfigureSystem()) 
 {
 %>
+
     <bbUI:docTemplate title="<%=page_title%>">
     <c:catch>
         <bbUI:receipt type="FAIL" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=Utils.buildingBlockManagerURL%>">
@@ -70,6 +72,9 @@ Boolean verbose = (request.getParameter("verbose") != null);
 Boolean adminProvisionOnly = (request.getParameter("adminProvisionOnly") != null);
 Boolean insertLinkOnProvision = (request.getParameter("insertLinkOnProvision") != null);
 String menuLinkText = request.getParameter("menuLinkText");
+//Bounce page address to copy into Panopto
+String SSOAddress = "https://" + ctx.getHostName() + PlugInUtil.getUri("ppto", "PanoptoCourseTool", "SSO.jsp");
+
 if(instanceName != null)
 {
     if(!instanceName.trim().equals(""))
@@ -87,8 +92,18 @@ if(instanceName != null)
     Utils.pluginSettings.setVerbose(verbose);
     Utils.pluginSettings.setAdminProvisionOnly(adminProvisionOnly);
     Utils.pluginSettings.setInsertLinkOnProvision(insertLinkOnProvision);
-    Utils.pluginSettings.setMenuLinkText(menuLinkText);
 }
+ 
+//If menu link text is not null, save it.
+if(menuLinkText != null)
+{
+    //If the field is left blank, changes to the text will not be saved
+    if(!menuLinkText.trim().equals(""))
+    {
+        Utils.pluginSettings.setMenuLinkText(menuLinkText.trim());
+    }
+}
+
 instanceName = Utils.pluginSettings.getInstanceName();
 instructorsCanProvision = Utils.pluginSettings.getInstructorsCanProvision();
 mailLectureNotifications = Utils.pluginSettings.getMailLectureNotifications();
@@ -166,6 +181,17 @@ else
                                     <p tabIndex="0" class="stepHelp">
                                         The instance name identifies this Blackboard system to Panopto.<br />
                                         If this is the only Blackboard system that will connect to the Panopto servers below, it is not necessary to change the default ("blackboard"). 
+                                    </p>
+                                </div>
+                            </li>
+                              <li>
+                                <div class="label">Bounce Page URL</div>
+                                <div class="field"><b><%= SSOAddress %></b></div>
+                            </li>
+                            <li>
+                                <div class="field">
+                                    <p tabIndex="0" class="stepHelp">
+                                        Use this address for the bounce page URL in for your Blackboard instance in the service provider section of your Panopto server.
                                     </p>
                                 </div>
                             </li>
@@ -295,7 +321,7 @@ else
                             <li>
                                 <div class="label">Panopto Link Text</div>
                                 <div class="field">
-                                    <input name="menuLinkText" type="text" value="<%=menuLinkText%>" style="float:left" />
+                                    <input name="menuLinkText" type="text" size="30" value="<%= menuLinkText %>" style="float:left" />
                                 </div>
                             </li>
                             <li>

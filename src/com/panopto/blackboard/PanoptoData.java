@@ -54,9 +54,11 @@ import blackboard.persist.navigation.CourseTocDbPersister;
 import blackboard.persist.registry.CourseRegistryEntryDbLoader;
 import blackboard.persist.registry.CourseRegistryEntryDbPersister;
 import blackboard.persist.user.UserDbLoader;
+import blackboard.platform.config.BbConfig;
 import blackboard.platform.context.Context;
 import blackboard.platform.persistence.PersistenceServiceFactory;
 import blackboard.platform.reporting.service.birt.jdbc.Util;
+import blackboard.platform.plugin.PlugInUtil;
 
 import com.panopto.services.AccessManagementLocator;
 import com.panopto.services.AuthenticationInfo;
@@ -1397,14 +1399,18 @@ public class PanoptoData
     
     private void addCourseMenuLink() throws ValidationException,
     PersistenceException {
-        Id cid;
+    	
+    	//Generate Schema independent URL for plugin location
+        String URIRoot = PlugInUtil.getUri("ppto", "PanoptoCourseTool", "Content.jsp");
+        
+    	Id cid;
         cid = bbCourse.getId();
         CourseToc panLink = new CourseToc();
         panLink.setCourseId(cid);
         panLink.setTargetType(CourseToc.Target.URL);
         panLink.setLabel(Utils.pluginSettings.getMenuLinkText());
-        panLink.setLaunchInNewWindow(false);
-        panLink.setUrl("/webapps/ppto-PanoptoCourseTool-BBLEARN/Content.jsp?course_id=" + cid.toExternalString());
+        panLink.setLaunchInNewWindow(false);       
+        panLink.setUrl(URIRoot + "?course_id=" + cid.toExternalString());
         CourseTocDbPersister.Default.getInstance().persist(panLink);
     }
 }
