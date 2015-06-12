@@ -57,7 +57,7 @@ boolean reprovisionAll = request.getParameter("reprovisionAll") != null;
 <bbUI:coursePage>
     <bbData:context id="ctx">
         <bbUI:docTemplate title="<%=page_title%>">
-        <c:catch>
+    <c:catch>
             <bbUI:docTemplateHead>
                 <link rel="stylesheet" type="text/css" href="main.css" />
             </bbUI:docTemplateHead>
@@ -65,13 +65,10 @@ boolean reprovisionAll = request.getParameter("reprovisionAll") != null;
             <bbUI:titleBar iconUrl="<%=iconUrl%>">
                 <%=page_title%>
             </bbUI:titleBar>
-        </c:catch>
+    </c:catch>
 <%
 
-if((   provisionServerName != null) 
-    && !provisionServerName.trim().isEmpty() 
-    && (   (bbCourses != null && !bbCourses.trim().isEmpty())
-        || (csvCourses != null && !csvCourses.trim().isEmpty())))
+if((provisionServerName != null) && !provisionServerName.trim().isEmpty() && ((bbCourses != null && !bbCourses.trim().isEmpty()) || (csvCourses != null && ! csvCourses.trim().isEmpty())))
 {
 %>
             <div id='batchProvisionResultsHeader'>Provisioning Results:</div>
@@ -79,27 +76,9 @@ if((   provisionServerName != null)
     <%
     provisionServerName = provisionServerName.trim();
     
-    //Get individual lists of course IDs from both text input and csv
-    String[] inputCourseIDs = null;
-    if (bbCourses != null)
-    {
-        inputCourseIDs = bbCourses.split(",");
-    }
-    else
-    {
-        inputCourseIDs = new String[0];
-    }
-    
-    String[] csvCourseIDs = null;
-    if (csvCourses != null)
-    { 
-        csvCourseIDs = csvCourses.split(",");
-    }
-    else
-    {
-        csvCourseIDs = new String[0];
-    }
-    
+	//Get individual lists of course IDs from both text input and csv
+    String[] inputCourseIDs = bbCourses.split(",");
+    String[] csvCourseIDs = csvCourses.split(",");
     
     //Concatenate CourseId lists
     int aLen = inputCourseIDs.length;
@@ -108,10 +87,11 @@ if((   provisionServerName != null)
     System.arraycopy(inputCourseIDs, 0, arrCourseIDs, 0, aLen);
     System.arraycopy(csvCourseIDs, 0, arrCourseIDs, aLen, bLen);
     
+    
     for(String courseID : arrCourseIDs)
     {
         courseID = courseID.trim();
-
+        
         if(!courseID.equals(""))
         {
             PanoptoData ccCourse = new PanoptoData(courseID, ctx.getUser().getUserName());
@@ -126,7 +106,7 @@ if((   provisionServerName != null)
                 {
                 %>
                         <div class='courseProvisionResult'>
-
+            
                             <div class='attribute'>Course Name</div>
                             <div class='value'><%=ccCourse.getBBCourse().getTitle()%></div>
                                               

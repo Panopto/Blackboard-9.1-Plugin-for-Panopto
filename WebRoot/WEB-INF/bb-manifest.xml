@@ -1,89 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <plugin>
-    <name value="Panopto Connector" />
-    <description value="Provision Panopto courses from Blackboard.  View live listing of available Panopto content from within the associated Blackboard course.  Import Panopto lecture links as Blackboard content items." />
-    <handle value="PanoptoCourseTool" />
-    <version value="4.8.0" />
-    <requires>
-      <bbversion value="9.1" />
-    </requires>
-    <vendor>
-      <id value="ppto" />
-      <name value="Panopto, Inc." />
-      <url value="http://www.panopto.com" />
-      <description value="Panopto, Inc." />
-    </vendor>
-    <http-actions>
-      <config value="Config.jsp" />
-      <remove value="" />
-    </http-actions>
-    <!-- Custom content types defined by this extension -->
-    <content-handlers>
-      <content-handler>
-        <name value="Panopto Video Link" />
-        <handle value="hyperlink/coursecast" />
+    <plugin>
+        <name value="Panopto Focus Connector" />
+        <description value="Provision Panopto courses from Blackboard.  View live listing of available Panopto content from within the associated Blackboard course.  Import Panopto lecture links as Blackboard content items." />
+        <handle value="PanoptoCourseTool" />
+        <version value="4.7.4" />
+        <requires>
+            <bbversion value="9.1" />
+        </requires>
+        <vendor>
+            <id value="ppto" />
+            <name value="Panopto, Inc." />
+            <url value="http://www.panopto.com" />
+            <description value="Panopto, Inc." />
+        </vendor>
         <http-actions>
-          <create value="Item_Create.jsp" />
-          <modify value="Item_Modify.jsp" />
+            <config value="Config.jsp" />
+            <remove value="" />
         </http-actions>
-        <icons>
-          <toolbar value="images/panopto_logo_32x32.png" />
-          <listitem value="images/panopto_logo_50x50.png" />
-        </icons>
-      </content-handler>
-    </content-handlers>
-    <!-- Applications defined by this extension -->
-    <application-defs>
-      <application handle="PanoptoCourseToolApp" type="course" name="Panopto Course Tool Application">
-        <description>Panopto Course Tool</description>
-        <links>
-          <link>
-            <type value="tool" />
-            <name value="Panopto Content" />
-            <url value="Content.jsp" />
-            <description value="Panopto Content" />
-            <icons>
-              <listitem value="images/panopto_logo_50x50.png" />
-            </icons>
-          </link>
-        </links>
-      </application>
-      <application handle="panopto-video" is-sys-tool="true" is-course-tool="true"
-            is-org-tool="true" is-group-tool="false" use-ssl="true"
-            name="Panopto Video Button" can-allow-guest="false"
-            small-icon="images/panopto_logo_32x32.png" large-icon="images/panopto_logo_50x50.png">
-        <links>
-          <link>
-            <type value="vtbe_mashup_course" />
-            <name value="Panopto Video" />
-            <url value="vtbe/mashup.jsp?course_id=@X@course.pk_string@X@" />
-            <description value="This mashup tool allows you to embed videos from your hard drive or from your Panopto site anywhere in Blackboard." />
-          </link>
-        </links>
-      </application>
-    </application-defs>
-    <permissions>
-      <!-- Change value of "name" attribute below to restrict socket access to your Panopto server -->
-      <!-- e.g. name="panopto.myinstitution.edu" -->
-      <permission type="socket" name="*" actions="connect" />
-      <permission type="runtime" name="getClassLoader" actions="" />
-      <permission type="persist" name="content" actions="persist" />
-      <permission type="blackboard.persist.PersistPermission" name="coursetoc" actions="create,modify,delete"/>
-      <permission type="blackboard.data.AttributePermission" name="user.authinfo" actions="get" />
-      <permission type="blackboard.data.AttributePermission" name="user.personalinfo" actions="get" />
-      <!-- Request the rendering hook permission to avoid the 'action already submitted' message from bug 16109 -->
-      <permission type="java.lang.RuntimePermission" name="injectRenderingHook" />
-    </permissions>
-    <entitlements>
-      <entitlement uid="course.panopto.EXECUTE"
-                   label="course.panopto.EXECUTE.label"
-                   type="Course"
-                   template="course.configure-tools.EXECUTE" />
-      <entitlement uid="system.panopto.EXECUTE"
-                   label="system.panopto.EXECUTE.label"
-                   type="System"
-                   template="system.configure-tools.EXECUTE" />
-    </entitlements>
-  </plugin>
+        <!-- Custom content types defined by this extension -->
+        <content-handlers>
+            <content-handler>
+                <name value="Panopto Video Link" />
+                <handle value="hyperlink/coursecast" />
+                <http-actions>
+                    <create value="Item_Create.jsp" />
+                    <modify value="Item_Modify.jsp" />
+                </http-actions>
+                <icons>
+                    <toolbar value="images/panopto_logo_32x32.png" />
+                    <listitem value="images/panopto_logo_50x50.png" />
+                </icons>
+            </content-handler>
+        </content-handlers>
+        <!-- Applications defined by this extension -->
+        <application-defs>
+            <application handle="PanoptoCourseToolApp" type="course" name="Panopto Course Tool Application">
+                <description>Panopto Focus Course Tool</description>
+                <links>
+                    <link>
+                        <type value="tool" />
+                        <name value="Panopto Focus Content" />
+                        <url value="Content.jsp" />
+                        <description value="Panopto Focus Content" />
+                        <icons>
+                            <listitem value="images/panopto_logo_50x50.png" />
+                        </icons>
+                    </link>
+                </links>
+            </application>
+        </application-defs>
+        <permissions>
+            <!-- Change value of "name" attribute below to restrict socket access to your Panopto server -->
+            <!-- e.g. name="panopto.myinstitution.edu" -->
+            <permission type="socket" name="*" actions="connect" />
+            <permission type="runtime" name="getClassLoader" actions="" />
+            <permission type="persist" name="content" actions="persist" />
+            <permission type="blackboard.persist.PersistPermission" name="coursetoc" actions="create,modify,delete"/> 
+            <permission type="blackboard.data.AttributePermission" name="user.authinfo" actions="get" />
+            <permission type="blackboard.data.AttributePermission" name="user.personalinfo" actions="get" />
+            <!-- Request the rendering hook permission to avoid the 'action already submitted' message from bug 16109 -->
+            <permission type="java.lang.RuntimePermission" name="injectRenderingHook" />
+        </permissions>
+        <entitlements>
+            <entitlement uid="course.panopto.EXECUTE"
+                         label="course.panopto.EXECUTE.label"
+                         type="Course"
+                         template="course.configure-tools.EXECUTE" />
+            <entitlement uid="system.panopto.EXECUTE"
+                         label="system.panopto.EXECUTE.label"
+                         type="System"
+                         template="system.configure-tools.EXECUTE" />                        
+        </entitlements>
+    </plugin>
 </manifest>

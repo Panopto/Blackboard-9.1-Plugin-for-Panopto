@@ -337,11 +337,11 @@ public class Settings {
             docElem.appendChild(adminProvisionOnlyElem);
 
             Element insertLinkOnProvisionElem = settingsDocument.createElement("insertLinkOnProvision");
-            insertLinkOnProvisionElem.setAttribute("insertLinkOnProvision", insertLinkOnProvision.toString());
+            insertLinkOnProvisionElem.setAttribute("insertLinkOnProvision", insertLinkOnProvisionElem.toString());
             docElem.appendChild(insertLinkOnProvisionElem);
             
             Element menuLinkTextElem = settingsDocument.createElement("menuLinkText");
-            menuLinkTextElem.setAttribute("menutext", menuLinkText);
+            menuLinkTextElem.setAttribute("menuLinkText", menuLinkTextElem.toString());
             docElem.appendChild(menuLinkTextElem);
             
             OutputFormat format = new OutputFormat(settingsDocument);
@@ -473,7 +473,7 @@ public class Settings {
         if(menuLinkTextNodes.getLength() != 0)
         {
             Element menuLinkTextElem = (Element)menuLinkTextNodes.item(0);
-            this.menuLinkText = menuLinkTextElem.getAttribute("menutext");
+            this.menuLinkText = menuLinkTextElem.getAttribute("menuLinkText");
         }
     }
 
