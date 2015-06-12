@@ -21,6 +21,8 @@
 
 <%@page import="com.panopto.blackboard.Utils"%>
 <%@page import="java.util.*"%>
+<%@page import="blackboard.platform.plugin.PlugInUtil" %>
+
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -64,12 +66,16 @@ Boolean mailLectureNotifications = (request.getParameter("mailLectureNotificatio
 Boolean refreshLogins = (request.getParameter("refreshLogins") != null);
 Boolean grantTACreator = (request.getParameter("grantTACreator") != null);
 Boolean grantTAProvision = (request.getParameter("grantTAProvision") != null);
+Boolean TAsCanCreateLinks = (request.getParameter("TAsCanCreateLinks") != null);
 Boolean instructorsCanCreateFolder = (request.getParameter("instructorsCanCreateFolder") != null);
 Boolean courseResetEnabled = (request.getParameter("courseResetEnabled") != null);
 Boolean verbose = (request.getParameter("verbose") != null);
 Boolean adminProvisionOnly = (request.getParameter("adminProvisionOnly") != null);
 Boolean insertLinkOnProvision = (request.getParameter("insertLinkOnProvision") != null);
 String menuLinkText = request.getParameter("menuLinkText");
+//Bounce page address to copy into Panopto
+String SSOAddress = "https://" + ctx.getHostName()  + PlugInUtil.getUri("ppto", "PanoptoCourseTool", "SSO.jsp");
+
 if(instanceName != null)
 {
     if(!instanceName.trim().equals(""))
@@ -82,19 +88,32 @@ if(instanceName != null)
     Utils.pluginSettings.setRefreshLogins(refreshLogins);
     Utils.pluginSettings.setGrantTACreator(grantTACreator);
     Utils.pluginSettings.setGrantTAProvision(grantTAProvision);
+    Utils.pluginSettings.setTAsCanCreateLinks(TAsCanCreateLinks);
     Utils.pluginSettings.setInstructorsCanCreateFolder(instructorsCanCreateFolder);
     Utils.pluginSettings.setCourseResetEnabled(courseResetEnabled);
     Utils.pluginSettings.setVerbose(verbose);
     Utils.pluginSettings.setAdminProvisionOnly(adminProvisionOnly);
     Utils.pluginSettings.setInsertLinkOnProvision(insertLinkOnProvision);
-    Utils.pluginSettings.setMenuLinkText(menuLinkText);
 }
+ 
+//If menu link text is not null, save it.
+if(menuLinkText != null)
+{
+    //If the field is left blank, changes to the text will not be saved
+    if(!menuLinkText.trim().equals(""))
+    {
+        Utils.pluginSettings.setMenuLinkText(menuLinkText.trim());
+    }
+}
+
+
 instanceName = Utils.pluginSettings.getInstanceName();
 instructorsCanProvision = Utils.pluginSettings.getInstructorsCanProvision();
 mailLectureNotifications = Utils.pluginSettings.getMailLectureNotifications();
 refreshLogins = Utils.pluginSettings.getRefreshLogins();
 grantTACreator = Utils.pluginSettings.getGrantTACreator();
 grantTAProvision = Utils.pluginSettings.getGrantTAProvision();
+TAsCanCreateLinks = Utils.pluginSettings.getTAsCanCreateLinks();
 instructorsCanCreateFolder = Utils.pluginSettings.getInstructorsCanCreateFolder();
 courseResetEnabled = Utils.pluginSettings.getCourseResetEnabled();
 verbose = Utils.pluginSettings.getVerbose();
@@ -169,6 +188,17 @@ else
                                     </p>
                                 </div>
                             </li>
+                              <li>
+                                <div class="label">Bounce Page URL</div>
+                                <div class="field"><b><%= SSOAddress %></b></div>
+                            </li>
+                            <li>
+                                <div class="field">
+                                    <p tabIndex="0" class="stepHelp">
+                                        Use this address for the bounce page URL in for your Blackboard instance in the service provider section of your Panopto server.
+                                    </p>
+                                </div>
+                            </li>
                             <li>
                                 <div class="field"></div>
                             </li>
@@ -232,7 +262,7 @@ else
                             <li>
                                 <div class="label">Grant TA Creator Access</div>
                                 <div class="field">
-                                    <input name="grantTACreator" type="checkbox" <%= grantTACreator ? "checked" : "" %> style="float:left" />
+                                    <input id="grantTACreator" name="grantTACreator" type="checkbox" <%= grantTACreator ? "checked" : "" %> style="float:left" />
                                 </div>
                             </li>
                             <li>
@@ -247,9 +277,25 @@ else
                                 </div>
                             </li>
                             <li>
+                                <div class="label">Allow TAs to Create Panopto Course Tool Links</div>
+                                <div class="field">
+                                    <input name="TAsCanCreateLinks" type="checkbox" <%= TAsCanCreateLinks ? "checked" : "" %> style="float:left" />
+                                </div>
+                            </li>
+                            <li>
+                                <div class="field">
+                                    <p tabIndex="0" class="stepHelp">
+                                        This setting determines whether teaching assistants have the ability to create Panopto Course Tool Links on a course's Course Menu.<br/>
+                                         If checked, TAs will be able to create links regardless of whether they have creator access or course provisioning access.              
+                                        <br/>
+                                        <br/>
+                                    </p>
+                                </div>
+                            </li>
+                            <li>
                                 <div class="label">Grant TA Provisioning Access</div>
                                 <div class="field">
-                                    <input name="grantTAProvision" type="checkbox" <%= grantTAProvision ? "checked" : "" %> style="float:left" />
+                                    <input id="grantTAProvision" name="grantTAProvision" type="checkbox" <%= grantTAProvision ? "checked" : "" %> style="float:left" />
                                 </div>
                             </li>
                             <li>
@@ -265,7 +311,7 @@ else
                             <li>
                                 <div class="label">Provisioning by administrators only</div>
                                 <div class="field">
-                                    <input name="adminProvisionOnly" type="checkbox" <%= adminProvisionOnly ? "checked" : "" %> style="float:left" />
+                                    <input id = "adminProvisionOnly" name="adminProvisionOnly" type="checkbox" <%= adminProvisionOnly ? "checked" : "" %> style="float:left" />
                                 </div>
                             </li>
                             <li>
@@ -295,7 +341,7 @@ else
                             <li>
                                 <div class="label">Panopto Link Text</div>
                                 <div class="field">
-                                    <input name="menuLinkText" type="text" value="<%=menuLinkText%>" style="float:left" />
+                                    <input name="menuLinkText" type="text" size="30" value="<%= menuLinkText %>" style="float:left" />
                                 </div>
                             </li>
                             <li>
@@ -600,6 +646,24 @@ else
                     </div>
                   </div>
             </form>
+            
+          <!--  JS function for disabling the checkboxes for Grant Ta Creator Access and Grant TA Provision access when 
+            provisioning by admins only is enabled. This is to prevent confusion caused by the latter setting overriding
+            the former ones. -->
+            <script type = "text/javascript">
+                
+                var adminProvisionOnlyBox = document.getElementById("adminProvisionOnly");
+                        
+                var disableTAProvisionSettings = function()
+                {                                  
+                    document.getElementById("grantTAProvision").disabled = adminProvisionOnlyBox.checked;
+                }
+                adminProvisionOnlyBox.onclick = disableTAProvisionSettings;
+                               
+                //Execute function once when script is loaded
+                disableTAProvisionSettings();       
+            </script>
+            
 <%
 }
 %>

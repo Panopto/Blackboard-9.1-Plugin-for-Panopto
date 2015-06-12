@@ -1,25 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="com.genuitec.eclipse.j2eedt.core.J2EE14_CONTAINER"/>
-	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/axis.jar"/>
-	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/commons-discovery-0.2.jar"/>
-	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/CourseSearch.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="con" path="com.genuitec.runtime.library/com.genuitec.generic_1.4">
-		<attributes>
-			<attribute name="owner.project.facets" value="jst.web"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
 		<attributes>
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/src/Panopto/Active/Panopto/External/Blackboard/ExternalJARs/jstl-1.2.jar"/>
-	<classpathentry kind="lib" path="C:/src/Panopto/Active/Panopto/External/Blackboard/BlackboardLibs/9.1/bb-cms-admin.jar"/>
-	<classpathentry kind="lib" path="C:/src/Panopto/Active/Panopto/External/Blackboard/BlackboardLibs/9.1/bb-platform.jar"/>
-	<classpathentry kind="lib" path="C:/src/Panopto/Active/Panopto/External/Blackboard/BlackboardLibs/9.1/bb-taglibs.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/com.genuitec.embedded.tomcat.runtime.v70">
+		<attributes>
+			<attribute name="owner.project.facets" value="jst.web"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="com.genuitec.runtime.library/com.genuitec.generic_1.4"/>
+	<classpathentry kind="con" path="com.genuitec.runtime.library/com.genuitec.generic_6.0"/>
+	<classpathentry kind="lib" path="C:/tfs/Panopto/Active/Panopto/External/Blackboard/ExternalJARs/jstl-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/plancaster/Desktop/bb jars/axis.jar"/>
+	<classpathentry kind="lib" path="C:/Users/plancaster/Desktop/bb jars/bb-cms-admin.jar"/>
+	<classpathentry kind="lib" path="C:/Users/plancaster/Desktop/bb jars/bb-platform.jar"/>
+	<classpathentry kind="lib" path="C:/Users/plancaster/Desktop/bb jars/bb-taglibs.jar"/>
+	<classpathentry kind="lib" path="C:/Users/plancaster/Desktop/bb jars/commons-discovery-0.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/plancaster/Desktop/bb jars/CourseSearch.jar" sourcepath="C:/Users/plancaster/Desktop/bb jars/CourseSearch.zip"/>
+	<classpathentry kind="lib" path="C:/Users/plancaster/Desktop/commons-io-2.4.jar" sourcepath="C:/Users/plancaster/Desktop/commons-io-2.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/plancaster/Desktop/commons-io-2.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="WebRoot/WEB-INF/classes"/>
 </classpath>
