@@ -1,7 +1,7 @@
 /* Copyright Panopto 2009 - 2011
- * 
+ *
  * This file is part of the Panopto plugin for Blackboard.
- * 
+ *
  * The Panopto plugin for Blackboard is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,13 +18,24 @@
 
 package com.panopto.blackboard;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import blackboard.platform.plugin.PlugInUtil;
 
-import com.sun.org.apache.xml.internal.serialize.*;
-import java.io.*;
-import java.util.*;
-import javax.xml.parsers.*;
-import org.w3c.dom.*;
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 public class Settings {
 
@@ -34,53 +45,55 @@ public class Settings {
     // Enable multiple instances to talk to the same CC server.
     // Set a default to avoid confusing users.
     private String instanceName = "blackboard";
-    
+
     // Whether to allow any instructor to provision their course into Panopto,
     // or to allow only admins to provision.
     private Boolean instructorsCanProvision = true;
-    
+
     // Whether to allow any instructor to create panopto folders
     private Boolean instructorsCanCreateFolder = true;
-    
+
     // Whether to automatically email instructors when lectures are available, by default.
     private Boolean mailLectureNotifications = true;
-    
+
     // Whether to send authenticated users back through the login page when action="relogin" is set.
     // This is a workaround for servers which do not allow unauthenticated deep-linking to the SSO page.
     // "false" will avoid doubled Recorder logins, but will force a Recorder quit to clear BB logins.
     // Default to true, the standard behavior.
-    private Boolean refreshLogins = true; 
+    private Boolean refreshLogins = true;
 
     // Whether to grant TA's creator access
     private Boolean grantTACreator = false;
 
-    // Whether to grant TA's creator access
+    // Whether TAs can create course links
+    private Boolean TAsCanCreateLinks = false;
+
+    // Whether to grant TA's provsioning access
     private Boolean grantTAProvision = false;
-    
+
     // Should the reset button show for all courses
     private Boolean courseResetEnabled = false;
-    
+
     // Whether to log verbose
     private Boolean verbose = false;
-    
-    //Make ability to provision course exclusive to administrators
+
+    // Make ability to provision course exclusive to administrators
     private Boolean adminProvisionOnly = false;
-    
-    //Insert a link to panopto tool on course page when a course is provisioned
+
+    // Insert a link to panopto tool on course page when a course is provisioned
     private Boolean insertLinkOnProvision = false;
-    
-    //Text for link created on provision. Default is "Panopto Video"
+
+    // Text for link created on provision. Default is "Panopto Video"
     private String menuLinkText = "Panopto Video";
-    
+
     // Parse current settings from XML file in config directory.
-    public Settings()
-    {
-        try
-        {
+    public Settings() {
+        try {
             // Get path to plugin config directory.
-            File configDir = PlugInUtil.getConfigDirectory(Utils.vendorID, Utils.pluginHandle);
+            File configDir = PlugInUtil.getConfigDirectory(Utils.vendorID,
+                    Utils.pluginHandle);
             File settingsFile = new File(configDir, "settings.xml");
-            
+
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
 
@@ -88,7 +101,7 @@ public class Settings {
             {
                 // Parse XML
                 Document settingsDocument = db.parse(settingsFile);
-                
+
                 // Walk document tree and set corresponding setting values.
                 readSettings(settingsDocument);
             }
@@ -99,12 +112,12 @@ public class Settings {
             e.printStackTrace();
         }
     }
-    
+
     public String getInstanceName()
     {
         return instanceName;
     }
-    
+
     public void setInstanceName(String instanceName)
     {
         this.instanceName = instanceName;
@@ -119,7 +132,7 @@ public class Settings {
             save();
         }
     }
-    
+
     public void removeServer(String serverName)
     {
         if(serverTable != null)
@@ -128,93 +141,93 @@ public class Settings {
             save();
         }
     }
-    
+
     // Return a list of available servers, or null if we failed to parse the server list.
     public List<String> getServerList()
     {
         List<String> serverList = null;
-        
+
         if(serverTable != null)
         {
             // Return a copy of the server list so that it cannot be modified by client code.
             serverList = new ArrayList<String>(serverTable.keySet());
         }
-        
+
         return serverList;
     }
 
     public String getApplicationKey(String serverName)
     {
         String applicationKey = null;
-        
+
         if(serverTable != null)
-        {    
+        {
             applicationKey = serverTable.get(serverName);
         }
-        
+
         return applicationKey;
     }
-    
+
     public boolean getInstructorsCanProvision()
     {
         return instructorsCanProvision;
     }
-    
+
     public void setInstructorsCanProvision(boolean canProvision)
     {
         instructorsCanProvision = canProvision;
         save();
     }
-    
+
     public boolean getInstructorsCanCreateFolder()
     {
         return instructorsCanCreateFolder;
     }
-    
+
     public void setInstructorsCanCreateFolder(boolean canCreateFolder)
     {
         instructorsCanCreateFolder = canCreateFolder;
         save();
     }
-    
+
     public boolean getCourseResetEnabled()
     {
         return courseResetEnabled;
     }
-    
+
     public void setCourseResetEnabled(boolean canResetAll)
     {
         courseResetEnabled = canResetAll;
         save();
     }
-    
+
     public boolean getVerbose()
     {
         return verbose;
     }
-    
+
     public void setVerbose(boolean v)
     {
         verbose = v;
         save();
     }
-    
+
     public boolean getMailLectureNotifications()
     {
         return mailLectureNotifications;
     }
-    
+
     public void setMailLectureNotifications(boolean mailLectureNotifications)
     {
         this.mailLectureNotifications = mailLectureNotifications;
         save();
     }
-    
+
     public boolean getRefreshLogins()
     {
         return refreshLogins;
     }
-    
+
     public void setRefreshLogins(boolean refresh)
     {
         refreshLogins = refresh;
@@ -231,8 +244,18 @@ public class Settings {
         grantTACreator = val;
         save();
     }
-    
-    
+
+    public boolean getTAsCanCreateLinks()
+    {
+        return TAsCanCreateLinks;
+    }
+
+    public void setTAsCanCreateLinks(boolean val)
+    {
+        TAsCanCreateLinks = val;
+        save();
+    }
+
     public boolean getGrantTAProvision()
     {
         return grantTAProvision;
@@ -243,7 +266,7 @@ public class Settings {
         grantTAProvision = val;
         save();
     }
-    
+
     public Boolean getAdminProvisionOnly() {
         return adminProvisionOnly;
     }
@@ -252,26 +275,26 @@ public class Settings {
         this.adminProvisionOnly = adminProvisionOnly;
         save();
     }
-    
+
     public Boolean getInsertLinkOnProvision() {
-		return insertLinkOnProvision;
-	}
+        return insertLinkOnProvision;
+    }
 
-	public void setInsertLinkOnProvision(Boolean insertLinkOnProvision) {
-		this.insertLinkOnProvision = insertLinkOnProvision;
-		save();
-	}
+    public void setInsertLinkOnProvision(Boolean insertLinkOnProvision) {
+        this.insertLinkOnProvision = insertLinkOnProvision;
+        save();
+    }
 
-	public String getMenuLinkText() {
-		return menuLinkText;
-	}
+    public String getMenuLinkText() {
+        return menuLinkText;
+    }
 
-	public void setMenuLinkText(String menuLinkText) {
-		this.menuLinkText = menuLinkText;
-		save();
-	}
+    public void setMenuLinkText(String menuLinkText) {
+        this.menuLinkText = menuLinkText;
+        save();
+    }
 
-	// Serialize current settings to XML settings file in config directory.
+    // Serialize current settings to XML settings file in config directory.
     private void save()
     {
         try
@@ -279,17 +302,17 @@ public class Settings {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document settingsDocument = db.newDocument();
-            
+
             Element docElem = settingsDocument.createElement("config");
             settingsDocument.appendChild(docElem);
-            
+
             Element instanceNameElem = settingsDocument.createElement("instanceName");
             instanceNameElem.setAttribute("name", instanceName);
             docElem.appendChild(instanceNameElem);
-            
+
             Element serverListElem = settingsDocument.createElement("serverList");
             docElem.appendChild(serverListElem);
-            
+
             for(Map.Entry<String, String> serverEntry : serverTable.entrySet())
             {
                 Element serverElem = settingsDocument.createElement("server");
@@ -302,36 +325,39 @@ public class Settings {
             Element instructorsCanProvisionElem = settingsDocument.createElement("instructorsCanProvision");
             instructorsCanProvisionElem.setAttribute("canProvision", instructorsCanProvision.toString());
             docElem.appendChild(instructorsCanProvisionElem);
-            
+
             // Write <mailLectureNotifications default="true/false" />
             Element mailLectureNotificationsElem = settingsDocument.createElement("mailLectureNotifications");
             mailLectureNotificationsElem.setAttribute("default", mailLectureNotifications.toString());
             docElem.appendChild(mailLectureNotificationsElem);
-            
+
             Element refreshLoginsElem = settingsDocument.createElement("refreshLogins");
             refreshLoginsElem.setAttribute("refresh", refreshLogins.toString());
             docElem.appendChild(refreshLoginsElem);
-            
+
             Element grantTACreatorElem = settingsDocument.createElement("grantTACreator");
             grantTACreatorElem.setAttribute("grantTACreator", grantTACreator.toString());
             docElem.appendChild(grantTACreatorElem);
-            
+
+            Element grantTAsCanCreateLinks = settingsDocument.createElement("TAsCanCreateLinks");
+            grantTACreatorElem.setAttribute("TAsCanCreateLinks", TAsCanCreateLinks.toString());
+            docElem.appendChild(grantTACreatorElem);
             Element grantTAProvisionElem = settingsDocument.createElement("grantTAProvision");
             grantTAProvisionElem.setAttribute("grantTAProvision", grantTAProvision.toString());
             docElem.appendChild(grantTAProvisionElem);
-            
+
             Element instructorsCanCreateFolderElem = settingsDocument.createElement("instructorsCanCreateFolder");
             instructorsCanCreateFolderElem.setAttribute("instructorsCanCreateFolder", instructorsCanCreateFolder.toString());
             docElem.appendChild(instructorsCanCreateFolderElem);
-            
+
             Element courseResetEnabledElem = settingsDocument.createElement("courseResetEnabled");
             courseResetEnabledElem.setAttribute("courseResetEnabled", courseResetEnabled.toString());
             docElem.appendChild(courseResetEnabledElem);
-            
+
             Element verboseElem = settingsDocument.createElement("verbose");
             verboseElem.setAttribute("verbose", verbose.toString());
             docElem.appendChild(verboseElem);
-            
+
             Element adminProvisionOnlyElem = settingsDocument.createElement("adminProvisionOnly");
             adminProvisionOnlyElem.setAttribute("adminProvisionOnly", adminProvisionOnly.toString());
             docElem.appendChild(adminProvisionOnlyElem);
@@ -339,11 +365,11 @@ public class Settings {
             Element insertLinkOnProvisionElem = settingsDocument.createElement("insertLinkOnProvision");
             insertLinkOnProvisionElem.setAttribute("insertLinkOnProvision", insertLinkOnProvision.toString());
             docElem.appendChild(insertLinkOnProvisionElem);
-            
+
             Element menuLinkTextElem = settingsDocument.createElement("menuLinkText");
             menuLinkTextElem.setAttribute("menutext", menuLinkText);
             docElem.appendChild(menuLinkTextElem);
-            
+
             OutputFormat format = new OutputFormat(settingsDocument);
             format.setIndenting(true);
             format.setLineSeparator("\r\n");
@@ -353,7 +379,7 @@ public class Settings {
 
             FileOutputStream outStream = new FileOutputStream(settingsFile);
             XMLSerializer serializer = new XMLSerializer(outStream, format);
-            
+
             // Serialize to XML.
             serializer.serialize(settingsDocument);
         }
@@ -367,16 +393,16 @@ public class Settings {
     private void readSettings(Document settingsDocument)
     {
         Map<String, String> servers = new HashMap<String, String>();
-        
+
         Element docElem = settingsDocument.getDocumentElement();
-        
+
         NodeList instanceNameNodes = docElem.getElementsByTagName("instanceName");
         if(instanceNameNodes.getLength() != 0)
         {
             Element instanceNameElem = (Element)instanceNameNodes.item(0);
             this.instanceName = instanceNameElem.getAttribute("name");
         }
-        
+
         NodeList serverListNodes = docElem.getElementsByTagName("serverList");
         if(serverListNodes.getLength() != 0)
         {
@@ -386,9 +412,9 @@ public class Settings {
             for(int i = 0; i < nl.getLength(); i++)
             {
                 Element serverElement = (Element)nl.item(i);
-                
-                String hostname = serverElement.getAttribute("hostname"); 
-                String applicationKey = serverElement.getAttribute("applicationKey"); 
+
+                String hostname = serverElement.getAttribute("hostname");
+                String applicationKey = serverElement.getAttribute("applicationKey");
                 if(!hostname.equals("") && !applicationKey.equals(""))
                 {
                     servers.put(hostname, applicationKey);
@@ -426,56 +452,62 @@ public class Settings {
             Element grantTACreatorElem = (Element)grantTACreatorNodes.item(0);
             this.grantTACreator = Boolean.valueOf(grantTACreatorElem.getAttribute("grantTACreator"));
         }
-        
+
+        NodeList TAsCanCreateLinksNodes = docElem.getElementsByTagName("TAsCanCreateLinks");
+        if(TAsCanCreateLinksNodes.getLength() != 0)
+        {
+            Element TAsCanCreateLinksElem = (Element) TAsCanCreateLinksNodes.item(0);
+            this.grantTACreator = Boolean.valueOf(TAsCanCreateLinksElem.getAttribute("grantTACreator"));
+        }
+
         NodeList grantTAProvisionNodes = docElem.getElementsByTagName("grantTAProvision");
         if(grantTAProvisionNodes.getLength() != 0)
-        {
+         {
             Element grantTAProvisionElem = (Element)grantTAProvisionNodes.item(0);
             this.grantTAProvision = Boolean.valueOf(grantTAProvisionElem.getAttribute("grantTAProvision"));
         }
-        
+
         NodeList instructorsCanCreateFolderNodes = docElem.getElementsByTagName("instructorsCanCreateFolder");
         if(instructorsCanCreateFolderNodes.getLength() != 0)
-        {
+         {
             Element instructorsCanCreateFolderElem = (Element)instructorsCanCreateFolderNodes.item(0);
             this.instructorsCanCreateFolder = Boolean.valueOf(instructorsCanCreateFolderElem.getAttribute("instructorsCanCreateFolder"));
         }
-        
+
         NodeList canResetAllNodes = docElem.getElementsByTagName("courseResetEnabled");
         if(canResetAllNodes.getLength() != 0)
-        {
+         {
             Element canResetAllElem = (Element)canResetAllNodes.item(0);
             this.courseResetEnabled = Boolean.valueOf(canResetAllElem.getAttribute("courseResetEnabled"));
         }
-        
+
         NodeList verboseNodes = docElem.getElementsByTagName("verbose");
         if(verboseNodes.getLength() != 0)
         {
             Element verboseElem = (Element)verboseNodes.item(0);
             this.verbose = Boolean.valueOf(verboseElem.getAttribute("verbose"));
         }
-        
+
         NodeList adminProvisionOnlyNodes = docElem.getElementsByTagName("adminProvisionOnly");
         if(adminProvisionOnlyNodes.getLength() != 0)
         {
             Element adminProvisionOnlyElem = (Element)adminProvisionOnlyNodes.item(0);
             this.adminProvisionOnly = Boolean.valueOf(adminProvisionOnlyElem.getAttribute("adminProvisionOnly"));
         }
-        
+
         NodeList insertLinkOnProvisionNodes = docElem.getElementsByTagName("insertLinkOnProvision");
         if(insertLinkOnProvisionNodes.getLength() != 0)
-        {
+         {
             Element insertLinkOnProvisionElem = (Element)insertLinkOnProvisionNodes.item(0);
             this.insertLinkOnProvision = Boolean.valueOf(insertLinkOnProvisionElem.getAttribute("insertLinkOnProvision"));
         }
-        
+
         NodeList menuLinkTextNodes = docElem.getElementsByTagName("menuLinkText");
         if(menuLinkTextNodes.getLength() != 0)
-        {
+         {
             Element menuLinkTextElem = (Element)menuLinkTextNodes.item(0);
             this.menuLinkText = menuLinkTextElem.getAttribute("menutext");
         }
     }
 
-    
 }

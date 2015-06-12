@@ -75,12 +75,10 @@
       }
       courses = CourseSearch.searchForCourses(searchString, exactMatch, searchBy, isCourseSearch);
     }
-    CourseSearchHelper helper = CourseSearchHelper.getInstance();
-    List<CourseBean> courseBeans = helper.setUpCourseExtraInfo( courses );
 
-    GenericFieldComparator<CourseBean> compCourseId = new GenericFieldComparator<CourseBean>( BaseComparator.ASCENDING, "getCourse.getCourseId", CourseBean.class );
-    GenericFieldComparator<CourseBean> compTitle = new GenericFieldComparator<CourseBean>( BaseComparator.ASCENDING, "getCourse.getTitle", CourseBean.class );
-    GenericFieldComparator<CourseBean> compDescription = new GenericFieldComparator<CourseBean>( BaseComparator.ASCENDING, "getCourse.getDescription", CourseBean.class );
+    GenericFieldComparator<Course> compCourseId = new GenericFieldComparator<Course>( BaseComparator.ASCENDING, "getCourseId", Course.class );
+    GenericFieldComparator<Course> compTitle = new GenericFieldComparator<Course>( BaseComparator.ASCENDING, "getTitle", Course.class );
+    GenericFieldComparator<Course> compDescription = new GenericFieldComparator<Course>( BaseComparator.ASCENDING, "getDescription", Course.class );
 
     // Switch to print out the correct headers for course versus orgs
     String strCourseIdHeader = termCourseId;
@@ -102,7 +100,7 @@
   </fmt:message>
 
 <bbNG:jsBlock>
-<script language="JavaScript">
+<script>
   function pickCourses()
   {
     var form = document.forms["right_frame"];
@@ -140,23 +138,18 @@
       out.println("<strong>" + String.valueOf(pageContext.getAttribute("strMaxResults")) + "</strong><p>");
     }
 %>
-<bbNG:inventoryList collection="<%=courseBeans %>"  objectVar="courseBean" className="CourseBean" emptyMsg="<strong>${pageNoCoursesFound}</strong> <br/> ${pageEnterCriteria}">
-  <bbNG:listCheckboxElement name="theCheckbox" value="<%=courseBean.getCourse().getCourseId()%>"/>
+<bbNG:inventoryList collection="<%=courses %>"  objectVar="course" className="Course" emptyMsg="<strong>${pageNoCoursesFound}</strong> <br/> ${pageEnterCriteria}">
+  <bbNG:listCheckboxElement name="theCheckbox" value="<%=course.getCourseId()%>"/>
   <bbNG:listElement  label='<%=strCourseIdHeader%>' name="courseid" comparator="<%=compCourseId%>"  isRowHeader="true">
-    <%=courseBean.getCourse().getCourseId()%>
+    <%=course.getCourseId()%>
   </bbNG:listElement>
   <bbNG:listElement  label='<%=strCourseNameHeader%>' name="coursename" comparator="<%=compTitle%>">
-    <%=courseBean.getCourse().getTitle()%>
+    <%=course.getTitle()%>
   </bbNG:listElement>
   <bbNG:listElement  label='${termDescription}' name="description" comparator="<%=compDescription%>">
-    <%=courseBean.getCourse().getDescription()%>
+    <%=course.getDescription()%>
   </bbNG:listElement>
-  <% if ( helper.showInstitutionCol() ) { %>
-    <bbNG:listElement   label="${institutionLabel}" name="institution" >
-      <bbNG:beanComparator property="institutionName"/>
-      <%=courseBean.getInstitutionName() %>
-    </bbNG:listElement>
-  <% } %>
+
   <bbNG:listOptions allowEditPaging="true"/>
 </bbNG:inventoryList>
 <%

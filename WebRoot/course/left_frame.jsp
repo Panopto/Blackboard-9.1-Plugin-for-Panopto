@@ -90,7 +90,7 @@ form[name=searchForm]
 </STYLE>
 </bbNG:cssBlock>
 <bbNG:jsBlock>
-<SCRIPT LANGUAGE="JavaScript">
+<SCRIPT>
     function searchNow() 
     {
       if (document.searchForm.search_string.value=="")

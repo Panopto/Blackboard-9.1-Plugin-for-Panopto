@@ -53,7 +53,7 @@ String description = request.getParameter("description");
 String courseDocsURL = Utils.getCourseDocsURL(course_id, content_id);
 
 PanoptoData ccCourse = new PanoptoData(ctx);
-if (!ccCourse.userMayConfig())
+if (!ccCourse.userMayAddLinks())
 {
 %>
 <c:catch>

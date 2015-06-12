@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
     <plugin>
-        <name value="Panopto Focus Connector" />
+        <name value="Panopto Connector" />
         <description value="Provision Panopto courses from Blackboard.  View live listing of available Panopto content from within the associated Blackboard course.  Import Panopto lecture links as Blackboard content items." />
         <handle value="PanoptoCourseTool" />
-        <version value="4.7.6" />
+        <version value="4.8.84" />
         <requires>
             <bbversion value="9.1" />
         </requires>
@@ -36,17 +36,30 @@
         <!-- Applications defined by this extension -->
         <application-defs>
             <application handle="PanoptoCourseToolApp" type="course" name="Panopto Course Tool Application">
-                <description>Panopto Focus Course Tool</description>
+                <description>Panopto Course Tool</description>
                 <links>
                     <link>
                         <type value="tool" />
-                        <name value="Panopto Focus Content" />
+                        <name value="Panopto Content" />
                         <url value="Content.jsp" />
-                        <description value="Panopto Focus Content" />
+                        <description value="Panopto Content" />
                         <icons>
                             <listitem value="images/panopto_logo_50x50.png" />
                         </icons>
                     </link>
+                </links>
+            </application>
+            <application handle="panopto-video" is-sys-tool="true" is-course-tool="true"
+                  is-org-tool="true" is-group-tool="false" use-ssl="true"
+                  name="Panopto Video Button" can-allow-guest="false"
+                  small-icon="images/panopto_logo_32x32.png" large-icon="images/panopto_logo_50x50.png">
+                <links>
+                    <link>
+                        <type value="vtbe_mashup_course" />
+                        <name value="Panopto Video" />
+                        <url value="vtbe/mashup.jsp?course_id=@X@course.pk_string@X@" />
+                        <description value="This mashup tool allows you to embed videos from your hard drive or from your Panopto site anywhere in Blackboard." />
+                    </link>       
                 </links>
             </application>
         </application-defs>

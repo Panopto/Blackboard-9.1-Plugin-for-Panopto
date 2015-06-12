@@ -1,7 +1,7 @@
 /* Copyright Panopto 2009 - 2011
- * 
+ *
  * This file is part of the Panopto plugin for Blackboard.
- * 
+ *
  * The Panopto plugin for Blackboard is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -19,11 +19,8 @@
 package com.panopto.blackboard;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
@@ -47,13 +44,13 @@ import blackboard.platform.persistence.PersistenceServiceFactory;
 import blackboard.platform.plugin.PlugInUtil;
 import blackboard.platform.security.SecurityUtil;
 
-// Utility methods applicable outside the context of a particular Blackboard course 
+// Utility methods applicable outside the context of a particular Blackboard course
 public class Utils {
 
     // These identify the Building Block to Blackboard.  Set in bb-manifest.xml.
     public static final String vendorID = "ppto";
     public static final String pluginHandle = "PanoptoCourseTool";
-    
+
     // Global settings for the plugin, applicable across all courses.
     public static final Settings pluginSettings = new Settings();
 
@@ -65,23 +62,23 @@ public class Utils {
     public static final String logScriptURL = "Logs.jsp";
     public static final String buildingBlockManagerURL = "/webapps/blackboard/admin/manage_plugins.jsp";
 
-    public static final String logFilename = "log.txt"; 
-    
+    public static final String logFilename = "log.txt";
+
     public static void log(String logMessage)
     {
         log(null, logMessage, false);
     }
-    
+
     public static void log(Exception e, String logMessage)
     {
         log(e, logMessage, false);
     }
-    
+
     public static void logVerbose (String logMessage)
     {
         log(null, logMessage, true);
     }
-    
+
     private static void log(Exception e, String logMessage, boolean verbose)
     {
         if (!verbose || Utils.pluginSettings.getVerbose())
@@ -90,25 +87,25 @@ public class Utils {
             {
                 File configDir = PlugInUtil.getConfigDirectory(vendorID, pluginHandle);
                 File logFile = new File(configDir, logFilename);
-    
+
                 FileWriter fileStream = new FileWriter(logFile, true);
                 BufferedWriter bufferedStream = new BufferedWriter(fileStream);
                 PrintWriter output = new PrintWriter(bufferedStream);
-                
+
                 output.write(new Date().toString() + ": " + logMessage);
-                
+
                 if(!logMessage.endsWith(System.getProperty("line.separator")))
                 {
                     output.println();
                 }
-                
+
                 if(e != null)
                 {
                     e.printStackTrace(output);
                 }
-                
+
                 output.println("===================================================================================");
-                
+
                 output.close();
             }
             catch(Exception ex)
@@ -116,7 +113,7 @@ public class Utils {
             }
         }
     }
-    
+
     public static String getLogData()
     {
         StringBuilder contents = new StringBuilder();
@@ -125,13 +122,13 @@ public class Utils {
         {
             File configDir = PlugInUtil.getConfigDirectory(vendorID, pluginHandle);
             File logFile = new File(configDir, logFilename);
-            
+
             BufferedReader input =  new BufferedReader(new FileReader(logFile));
 
             try
             {
                 String line = null;
-                
+
                 while (( line = input.readLine()) != null)
                 {
                   contents.append(line);
@@ -149,14 +146,14 @@ public class Utils {
 
         return contents.toString();
     }
-    
+
     public static void clearLogData()
     {
         try
         {
             File configDir = PlugInUtil.getConfigDirectory(vendorID, pluginHandle);
             File logFile = new File(configDir, logFilename);
-            
+
             logFile.delete();
         }
         catch(Exception e)
@@ -169,31 +166,31 @@ public class Utils {
     {
         return SecurityUtil.userHasEntitlement("system.panopto.EXECUTE");
     }
-    
+
     // Check for course tools conifguration entitlement
     public static boolean userCanConfigureCourse()
     {
         return SecurityUtil.userHasEntitlement("course.panopto.EXECUTE");
     }
-    
+
     // URL to Course Documents page (for custom content importer).
     public static String getCourseDocsURL(String course_id, String content_id)
     {
         return PlugInUtil.getEditableContentReturnURL(content_id, course_id);
     }
-    
+
     public static List<String> getServerList()
     {
         return pluginSettings.getServerList();
     }
-    
+
     // Generate options for drop-down list of servers with optional current selection (serverName)
     public static String generateServerOptionsHTML(String serverName)
     {
         StringBuffer result = new StringBuffer();
 
         boolean hasSelection = false;
-        
+
         for(String strServerName : getServerList())
         {
             result.append("<option");
@@ -212,36 +209,36 @@ public class Utils {
         {
             result.insert(0, "<option value=''>-- Select a Server --</option>");
         }
-        
+
         return result.toString();
     }
-    
+
     // Convert a Blackboard username into a Panopto user key referencing this Blackboard instance.
     public static String decorateBlackboardUserName(String bbUserName)
     {
         return pluginSettings.getInstanceName() + "\\" + bbUserName;
     }
-    
+
     // Decorate the course ID with the instance name to generate an external course ID for Panopto.
     public static String decorateBlackboardCourseID(String courseId)
     {
-        return (pluginSettings.getInstanceName() + ":" + courseId); 
+        return (pluginSettings.getInstanceName() + ":" + courseId);
     }
 
-    // Sign the payload with the proof that it was generated by trusted code. 
+    // Sign the payload with the proof that it was generated by trusted code.
     public static String generateAuthCode(String serverName, String payload)
     {
         String signedPayload = payload + "|" + pluginSettings.getApplicationKey(serverName);
-        
+
         String authCode = null;
         try
         {
             MessageDigest m = MessageDigest.getInstance("SHA-1");
             m.update(signedPayload.getBytes(), 0, signedPayload.length());
-            
+
             byte[] digest = m.digest();
             BigInteger digestAsInteger = new BigInteger(1, digest);
-            
+
             // Format as 0-padded hex string.  Length is 2 hex chars per byte.
             String hexPlusLengthFormatString = "%0" + (digest.length * 2) + "X";
 
@@ -251,10 +248,10 @@ public class Utils {
         {
             Utils.log(e, "Error generating auth code.");
         }
-        
+
         return authCode;
     }
-    
+
     // Verify that the payload was generated by trusted code.
     public static boolean validateAuthCode(String serverName, String payload, String auth)
     {
@@ -262,7 +259,7 @@ public class Utils {
 
         return ((auth_computed != null) && (auth_computed.equals(auth)));
     }
-    
+
     // Update content item title and description in DB (link is immutable).
     public static void updatePanoptoContentItem(String title, String description, String content_id)
     {
@@ -272,7 +269,7 @@ public class Utils {
             content.setTitle(title);
             FormattedText text = new FormattedText(description, FormattedText.Type.HTML);
             content.setBody(text);
-    
+
             BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
             ContentDbPersister persister = (ContentDbPersister) bbPm.getPersister( ContentDbPersister.TYPE );
             persister.persist( content );
@@ -282,18 +279,18 @@ public class Utils {
             Utils.log(e, String.format("Error updating content item (title: %s, description: %s, content ID: %s).", title, description, content_id));
         }
     }
-    
+
     // Load the specified content item from the DB.
     public static Content loadPanoptoContentItem(String content_id)
     {
         Content content = null;
-        
+
         try
         {
             BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
             ContentDbLoader loader = (ContentDbLoader) bbPm.getLoader( ContentDbLoader.TYPE );
             Id contentId = bbPm.generateId( Content.DATA_TYPE, content_id );
-            content = loader.loadById( contentId );        
+            content = loader.loadById( contentId );
         }
         catch (Exception e)
         {
@@ -301,7 +298,7 @@ public class Utils {
         }
 
         return content;
-    }    
+    }
 
     public static String checkAndEscapeTerminalUrlParam(String url, String terminalUrlParam)
     {
@@ -311,9 +308,9 @@ public class Utils {
         // Match parameter value (from '=' to end of string) containing URL chars ':' '/' or '?'.
         // Store parameter value as capture group.
         String regex = ".*[?&]" + terminalUrlParam + "=(.*[:/?].*)$";
-        
+
         Matcher urlParamMatcher = Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(url);
-        
+
         // If we found URL chars, replace the captured parameter value with its URL-encoded value.
         if(urlParamMatcher.matches())
         {
@@ -333,10 +330,10 @@ public class Utils {
         {
             urlWithEscapedParam = url;
         }
-        
+
         return urlWithEscapedParam;
     }
-    
+
     // Found online, Java has no String.join
     public static <T> String join(final Iterable<T> objs, final String delimiter)
     {
@@ -352,7 +349,7 @@ public class Utils {
         }
         return buffer.toString();
     }
-    
+
     // Found online, Java has no HTML escape function.
     public static String escapeHTML(String text)
     {
@@ -413,7 +410,7 @@ public class Utils {
             {
                 escaped.append(character);
             }
-            
+
             character = iterator.next();
         }
 
@@ -432,10 +429,10 @@ public class Utils {
         {
             retVal.append('"' + val.replaceAll("\"", "\"\"") + "\",");
         }
-        
+
         return retVal.toString();
     }
-    
+
     // Uses a simple encoding to de-serialize an array of strings from a single string
     public static String[] decodeArrayOfStrings(String input)
     {
@@ -448,7 +445,7 @@ public class Utils {
         {
             return new String[] { input };
         }
-        
+
         ArrayList<String> retVal = new ArrayList<String>();
         StringBuilder val = new StringBuilder();
         int i = 0;
@@ -463,8 +460,8 @@ public class Utils {
                 return null;
             }
             i++;
-            
-            // The inner while will loop over the characters in an entry 
+
+            // The inner while will loop over the characters in an entry
             boolean foundEndQuote = false;
             while (i < input.length() && !foundEndQuote)
             {
@@ -498,15 +495,15 @@ public class Utils {
                 Utils.log(String.format("Missing closing quote at %d in encoded string %s\n", i, input));
                 return null;
             }
-            
+
             // Only add non-empty entries
             if (val.length() > 0)
             {
                 retVal.add(val.toString());
             }
-            
+
             val = new StringBuilder();
-            
+
             // Each entry (including the last) should end with a comma.
             if (i >= input.length() || input.charAt(i) != ',')
             {
@@ -515,10 +512,10 @@ public class Utils {
             }
             i++;
         }
-        
+
         return retVal.toArray(new String[0]);
     }
-    
+
     // <summary>
     // Elide a string in the middle, if necessary. Copied from the C# version at Panopto.Shared.Helpers.StringHelpers.
     // </summary>
@@ -526,16 +523,16 @@ public class Utils {
     // <param name="elideAfter">The position in the string to display the ellipsis, if truncation is required.</param>
     // <param name="totalLength">The desired length of the elided string, not including ellipsis.</param>
     // <returns>A string similar to "A long string that is elided...the middle."</returns>
-    public static String elideMiddle(String input, int elideAfter, int totalLength) 
+    public static String elideMiddle(String input, int elideAfter, int totalLength)
     {
         String output = input;
 
-        if (input.length() > totalLength) 
+        if (input.length() > totalLength)
         {
             // Length of text snippet after ellipsis.
             int endSnippetLength = totalLength - elideAfter;
 
-            output = String.format("%s...%s", 
+            output = String.format("%s...%s",
                         input.substring(0, elideAfter),
                         input.substring(input.length() - endSnippetLength, endSnippetLength));
         }

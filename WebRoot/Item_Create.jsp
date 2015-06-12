@@ -60,7 +60,7 @@ String description = request.getParameter("description");
 String lectureURL = request.getParameter("lectureURL");
 String folderID = request.getParameter("folderID");
 
-if (!ccCourse.userMayConfig())
+if (!ccCourse.userMayAddLinks())
 {
 %>
 <c:catch>
