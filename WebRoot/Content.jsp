@@ -50,7 +50,7 @@ Boolean useOldLayout = false;
 
 %>
     <bbNG:learningSystemPage>
-        <bbNG:cssFile href="css/main.css" />
+        <bbNG:cssFile href="main.css" />
             <style>
             #containerdiv
             {
