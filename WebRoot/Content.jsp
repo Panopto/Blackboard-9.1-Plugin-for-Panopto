@@ -371,7 +371,7 @@ Boolean useOldLayout = false;
                 
                 window.onload = function(){ fitToWindow(); };
                 
-                window.onresize = function () { setTimeout(fitToWindow(), 150); };
+                window.onresize = function () { fitToWindow() };
                 
                 function fitToWindow()
                 {
