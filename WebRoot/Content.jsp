@@ -50,10 +50,11 @@ Boolean useOldLayout = false;
 
 %>
     <bbNG:learningSystemPage>
-        <bbNG:cssFile href="main.css" />
+        <bbNG:cssFile href="css/main.css" />
             <style>
             #containerdiv
             {
+                overflow: hidden;
                 padding:0px 0px;
                 height: 800px;
             }
@@ -199,7 +200,7 @@ Boolean useOldLayout = false;
                                             String folderUrl = folders[i].getEmbedUrl();
                                             String contentHostName = "courseContent";
                                              
-                                            %><iframe src="<%=folderUrl%>" height="100%" width="100%"></iframe><%
+                                            %><iframe src="<%=folderUrl%>" height="100%" width="100%" ></iframe><%
                                     }
                                     else
                                     {
@@ -309,7 +310,7 @@ Boolean useOldLayout = false;
                         %><br><br><span class='error'>Error getting Panopto course content.</span><%
                     }
                 } %>
-            </div></div></div><%
+            </div></div></div></div></div></div><%
             if(ccCourse.isMapped() && ccCourse.userMayConfig())
             { %>
                 <div id="configButtons" class="configureButtonBox">
@@ -367,7 +368,7 @@ Boolean useOldLayout = false;
                 
                 window.onload = function(){ fitToWindow(); };
                 
-                window.onresize = function () { fitToWindow(); };
+                window.onresize = function () { setTimeout(fitToWindow(), 150); };
                 
                 function fitToWindow()
                 {
@@ -390,6 +391,10 @@ Boolean useOldLayout = false;
                     // Set height of content divs column.
                     // Containerdiv is created by the BBNG presets.
                     document.getElementById("containerdiv").style.height = contentHeight;
+                    
+                    //Remove double scrollbar from inner content frame.
+                    //document.getElementById("containerdiv").style.overflow = "hidden";
+                    
                     document.getElementById("courseContent").style.height = contentHeight;
                     document.getElementById("contentPanel").style.height = blackboardPageHeight;
                 }
