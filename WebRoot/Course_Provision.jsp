@@ -161,16 +161,21 @@ if((   provisionServerName != null)
                             <div class='attribute'>Students</div>
                             <div class='value'>
                     <%
-                    List<String> students = ccCourse.getStudentUserKeys();
+                    com.panopto.services.User[] students = ccCourse.getStudentUserKeys();
                     if (students == null)
                     {
                     %>
                                 <div class='errorMessage'>Error getting students.</div>
                     <%
                     }
-                    else if(students.size() > 0)
+                    else if(students.length > 0)
                     {
-                                %><%=Utils.join(students, ", ")%><%
+                    List<String> lstStudentInfo = new ArrayList<String>();
+                        for(com.panopto.services.User student : students)
+                        {
+                            lstStudentInfo.add(student.getUserKey() + " (" + student.getFirstName() + " " + student.getLastName() + " &lt;" + student.getEmail() + "&gt;)");
+                        }
+                                %><%=Utils.join(lstStudentInfo, ", ")%><%
                     }
                     else
                     {

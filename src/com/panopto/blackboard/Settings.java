@@ -339,9 +339,10 @@ public class Settings {
             grantTACreatorElem.setAttribute("grantTACreator", grantTACreator.toString());
             docElem.appendChild(grantTACreatorElem);
 
-            Element grantTAsCanCreateLinks = settingsDocument.createElement("TAsCanCreateLinks");
-            grantTACreatorElem.setAttribute("TAsCanCreateLinks", TAsCanCreateLinks.toString());
-            docElem.appendChild(grantTACreatorElem);
+            Element TAsCanCreateLinksElem = settingsDocument.createElement("TAsCanCreateLinks");
+            TAsCanCreateLinksElem.setAttribute("TAsCanCreateLinks", TAsCanCreateLinks.toString());
+            docElem.appendChild(TAsCanCreateLinksElem);
+
             Element grantTAProvisionElem = settingsDocument.createElement("grantTAProvision");
             grantTAProvisionElem.setAttribute("grantTAProvision", grantTAProvision.toString());
             docElem.appendChild(grantTAProvisionElem);
@@ -457,7 +458,7 @@ public class Settings {
         if(TAsCanCreateLinksNodes.getLength() != 0)
         {
             Element TAsCanCreateLinksElem = (Element) TAsCanCreateLinksNodes.item(0);
-            this.grantTACreator = Boolean.valueOf(TAsCanCreateLinksElem.getAttribute("grantTACreator"));
+            this.TAsCanCreateLinks = Boolean.valueOf(TAsCanCreateLinksElem.getAttribute("TAsCanCreateLinks"));
         }
 
         NodeList grantTAProvisionNodes = docElem.getElementsByTagName("grantTAProvision");
