@@ -81,23 +81,23 @@ public class PanoptoData
     private static final String sessionGroupDisplayNameRegistryKey = "CourseCast_SessionGroupDisplayName";
     private static final String originalContextRegistryKey = "CourseCast_OriginalContext";
 
-	// Blackboard course we are associating with
-	private Course bbCourse;
-	// Blackboard username of currently logged in user
-	private String bbUserName;
+    // Blackboard course we are associating with
+    private Course bbCourse;
+    // Blackboard username of currently logged in user
+    private String bbUserName;
 
-	private boolean isInstructor = false;
-	private boolean canAddLinks = false;
+    private boolean isInstructor = false;
+    private boolean canAddLinks = false;
 
-	// Panopto server to talk to
-	private String serverName;
+    // Panopto server to talk to
+    private String serverName;
 
     // User key to use when talking to Panopto SOAP services
     // (Instance-decorated username of currently-logged-in Blackboard user)
     private String apiUserKey;
     // Hash of username, server, and shared secret for securing web services
     private String apiUserAuthCode;
-    
+
     // ID and display name of currently associated Panopto course
     private String[] sessionGroupPublicIDs;
     private String[] sessionGroupDisplayNames;
@@ -142,7 +142,7 @@ public class PanoptoData
         this.isInstructor = PanoptoData.isUserInstructor(this.bbCourse.getId(), this.bbUserName, false);
         this.canAddLinks = PanoptoData.canUserAddLinks(this.bbCourse.getId(), this.bbUserName);
         List<String> serverList = Utils.pluginSettings.getServerList();
-         // If there is only one server available, use it
+        // If there is only one server available, use it
         if(serverList.size() == 1)
         {
             updateServerName(serverList.get(0));
@@ -435,30 +435,30 @@ public class PanoptoData
 
             do
             {
-	            ListFoldersRequest request = new ListFoldersRequest();
-	            request.setPublicOnly(true);
-	            request.setPagination(new Pagination(perPage, page));
-	            listResponse =getPanoptoSessionManagementSOAPService(serverName).getCreatorFoldersList(auth, request, null);
-	            allFolders.addAll(Arrays.asList(listResponse.getResults()));
+                ListFoldersRequest request = new ListFoldersRequest();
+                request.setPublicOnly(true);
+                request.setPagination(new Pagination(perPage, page));
+                listResponse =getPanoptoSessionManagementSOAPService(serverName).getCreatorFoldersList(auth, request, null);
+                allFolders.addAll(Arrays.asList(listResponse.getResults()));
 
-	            if (totalFoldersExpected == -1)
-	            {
-	                // First time through, grab the expected total count.
-	                totalFoldersExpected = listResponse.getTotalNumberResults();
-	            }
-	            Folder[] returnedFolders = listResponse.getResults();
+                if (totalFoldersExpected == -1)
+                {
+                    // First time through, grab the expected total count.
+                    totalFoldersExpected = listResponse.getTotalNumberResults();
+                }
+                Folder[] returnedFolders = listResponse.getResults();
 
-	            // Log which folders we got back. foldersWithCreatorAccess, folderIdList, and returnedFolders are all just in place for logging.
-	            publicFolders = new HashSet<String>();
-	            for (Folder folder : returnedFolders)
-	            {
-	                publicFolders.add(folder.getId());
-	            }
-	            String[] folderIdList = publicFolders.toArray(new String[0]);
-	            Utils.logVerbose(String.format("getPublicFolders. User: %s, page: %d, returned from getPublicFolders: %s", bbUserName, page, Utils.encodeArrayOfStrings(folderIdList)));
+                // Log which folders we got back. foldersWithCreatorAccess, folderIdList, and returnedFolders are all just in place for logging.
+                publicFolders = new HashSet<String>();
+                for (Folder folder : returnedFolders)
+                {
+                    publicFolders.add(folder.getId());
+                }
+                String[] folderIdList = publicFolders.toArray(new String[0]);
+                Utils.logVerbose(String.format("getPublicFolders. User: %s, page: %d, returned from getPublicFolders: %s", bbUserName, page, Utils.encodeArrayOfStrings(folderIdList)));
 
-	            responseCount += returnedFolders.length;
-	            page++;
+                responseCount += returnedFolders.length;
+                page++;
             } while ((responseCount < totalFoldersExpected) && (page < maxPages));
             Utils.logVerbose(String.format("Expected %d folders, returned %d folders", totalFoldersExpected, allFolders.size()));
             return allFolders.toArray(new Folder[allFolders.size()]);
@@ -479,11 +479,11 @@ public class PanoptoData
         {
             for (int i = 0; i < sessionGroupDisplayNames.length; i++)
             {
-	            result.append("<option");
-	            result.append(" value='" + sessionGroupPublicIDs[i] + "'");
-	            result.append(">");
-	            result.append(Utils.escapeHTML(sessionGroupDisplayNames[i]));
-	            result.append("</option>\n");
+                result.append("<option");
+                result.append(" value='" + sessionGroupPublicIDs[i] + "'");
+                result.append(">");
+                result.append(Utils.escapeHTML(sessionGroupDisplayNames[i]));
+                result.append("</option>\n");
             }
         }
 
@@ -557,64 +557,66 @@ public class PanoptoData
             result.append("<option value=''>-- Select a Folder --</option>");
 
             // Only use option groups if we have elements in both groups
-            boolean useOptionalGroups = sessionGroupDisplayNames != null && sessionGroupDisplayNames.length > 0
-                                        && publicFolders != null && publicFolders.length > 0;
+            boolean useOptionalGroups =    sessionGroupDisplayNames != null 
+                    && sessionGroupDisplayNames.length > 0
+                    && publicFolders != null 
+                    && publicFolders.length > 0;
 
-            // Add all the mapped folders
-            if (sessionGroupDisplayNames != null && sessionGroupDisplayNames.length > 0)
-            {
-                if (useOptionalGroups)
-                {
-                    result.append("<optgroup label='Mapped Folders'>\n");
-                }
-                for (int i = 0; i < sessionGroupDisplayNames.length; i++)
-                {
-                    String strDisplayName = Utils.escapeHTML(sessionGroupDisplayNames[i]);
-                    String strID = sessionGroupPublicIDs[i];
-
-                    result.append("<option");
-                    result.append(" value='" + strID + "'");
-                    if(strID.equals(folderId))
+                    // Add all the mapped folders
+                    if (sessionGroupDisplayNames != null && sessionGroupDisplayNames.length > 0)
                     {
-                        result.append(" SELECTED");
+                        if (useOptionalGroups)
+                        {
+                            result.append("<optgroup label='Mapped Folders'>\n");
+                        }
+                        for (int i = 0; i < sessionGroupDisplayNames.length; i++)
+                        {
+                            String strDisplayName = Utils.escapeHTML(sessionGroupDisplayNames[i]);
+                            String strID = sessionGroupPublicIDs[i];
+
+                            result.append("<option");
+                            result.append(" value='" + strID + "'");
+                            if(strID.equals(folderId))
+                            {
+                                result.append(" SELECTED");
+                            }
+                            result.append(">");
+                            result.append(strDisplayName);
+                            result.append("</option>\n");
+                        }
+                        if (useOptionalGroups)
+                        {
+                            result.append("</optgroup>\n");
+                        }
                     }
-                    result.append(">");
-                    result.append(strDisplayName);
-                    result.append("</option>\n");
-                }
-                if (useOptionalGroups)
-                {
-                    result.append("</optgroup>\n");
-                }
-            }
 
-            // Add all the public folders
-            if (publicFolders != null && publicFolders.length > 0)
-            {
-                if (useOptionalGroups)
-                {
-                    result.append("<optgroup label='Public Folders'>\n");
-                }
-                for (int i = 0; i < publicFolders.length; i++)
-                {
-                    String strDisplayName = Utils.escapeHTML(publicFolders[i].getName());
-                    String strID = publicFolders[i].getId();
-
-                    result.append("<option");
-                    result.append(" value='" + strID + "'");
-                    if(strID.equals(folderId))
+                    // Add all the public folders
+                    if (publicFolders != null && publicFolders.length > 0)
                     {
-                        result.append(" SELECTED");
+                        if (useOptionalGroups)
+                        {
+                            result.append("<optgroup label='Public Folders'>\n");
+                        }
+                        for (int i = 0; i < publicFolders.length; i++)
+                        {
+                            String strDisplayName = Utils.escapeHTML(publicFolders[i].getName());
+                            String strID = publicFolders[i].getId();
+
+                            result.append("<option");
+                            result.append(" value='" + strID + "'");
+                            if(strID.equals(folderId))
+                            {
+                                result.append(" SELECTED");
+                            }
+                            result.append(">");
+                            result.append(strDisplayName);
+                            result.append("</option>\n");
+                        }
+                        if (useOptionalGroups)
+                        {
+                            result.append("</optgroup>\n");
+                        }
                     }
-                    result.append(">");
-                    result.append(strDisplayName);
-                    result.append("</option>\n");
-                }
-                if (useOptionalGroups)
-                {
-                    result.append("</optgroup>\n");
-                }
-            }
         }
 
         return result.toString();
@@ -668,9 +670,9 @@ public class PanoptoData
     {
         return isInstructor;
     }
-	public boolean canAddLinks() {
-		return canAddLinks;
-	}
+    public boolean canAddLinks() {
+        return canAddLinks;
+    }
 
     // Insert a content item in the current course with a link to the specified delivery.
     public Content addBlackboardContentItem(String content_id, String lectureUrl, String title, String description)
@@ -742,22 +744,18 @@ public class PanoptoData
             for(CourseMembership membership: allCourseMemberships)
             {
                 Role membershipRole = membership.getRole();
-                if(     membershipRole.equals(Role.INSTRUCTOR)
-                   ||   membershipRole.equals(Role.COURSE_BUILDER)
-                   ||   membershipRole.getDbRole().isActAsInstructor())
+                if(isInstructorRole(membershipRole))
                 {
                     instructorCourses.add(courseLoader.loadById(membership.getCourseId()));
                 }
-                else if(    membershipRole.equals(Role.TEACHING_ASSISTANT)
-                        ||  membershipRole.getDbRole().isRemovable())
+                else if(isTARole(membershipRole))
                 {
                     taCourses.add(courseLoader.loadById(membership.getCourseId()));
                 }
                 else
                 {
                     studentCourses.add(courseLoader.loadById(membership.getCourseId()));
-                }
-
+                }  
             }
 
             ArrayList<String> externalGroupIds = new ArrayList<String>();
@@ -1054,6 +1052,27 @@ public class PanoptoData
     }
 
     // Gets all the members of the course from Blackboard
+    private static List<CourseMembership> getCourseMemberships(Course bbCourse)
+    {
+        BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
+
+        // Get the course membership (instructors, students, etc.)
+        List<CourseMembership> courseMemberships = null;
+        try
+        {
+            CourseMembershipDbLoader courseMembershipLoader = (CourseMembershipDbLoader) bbPm.getLoader(CourseMembershipDbLoader.TYPE);
+
+            courseMemberships = courseMembershipLoader.loadByCourseId(bbCourse.getId(), null, true);
+        }
+        catch(Exception e)
+        {
+            Utils.log(e, String.format("Error getting course membership (course ID: %s).", bbCourse.getId()));
+        }
+
+        return courseMemberships;
+    }
+    
+    // Gets all the members of the course from Blackboard
     private static List<CourseMembership> getCourseMembershipsByRole(Course bbCourse, CourseMembership.Role role)
     {
         BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
@@ -1074,30 +1093,46 @@ public class PanoptoData
         return courseMemberships;
     }
 
-    // Gets all the members of the course from Blackboard
-    private static List<CourseMembership> getCourseMemberships(Course bbCourse)
+    // Gets the user key of all the students of the course
+    public List<String> getTAs()
     {
-        BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
-
+        ArrayList<String> lstTAs = new ArrayList<String>();
+        
         // Get the course membership (instructors, students, etc.)
-        List<CourseMembership> courseMemberships = null;
-        try
-        {
-            CourseMembershipDbLoader courseMembershipLoader = (CourseMembershipDbLoader) bbPm.getLoader(CourseMembershipDbLoader.TYPE);
+        List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
 
-            courseMemberships = courseMembershipLoader.loadByCourseId(bbCourse.getId(), null, true);
-        }
-        catch(Exception e)
+        List<CourseMembership> TACourseMemberships = new ArrayList<CourseMembership>();
+        for(CourseMembership membership: courseMemberships)
         {
-            Utils.log(e, String.format("Error getting course membership (course ID: %s).", bbCourse.getId()));
-        }
 
-        return courseMemberships;
+            blackboard.data.course.CourseMembership.Role membershipRole = membership.getRole();
+            if (isTARole(membershipRole))
+            {
+                TACourseMemberships.add(membership);
+            }
+        }
+        if(!TACourseMemberships.isEmpty())
+        {
+
+            for(Object membershipObject : TACourseMemberships)
+            {
+                CourseMembership courseMembership = (CourseMembership)membershipObject;
+                User courseUser = courseMembership.getUser();
+                if(courseUser != null)
+                {
+                    String courseUserKey = Utils.decorateBlackboardUserName(courseUser.getUserName());
+                    lstTAs.add(courseUserKey);
+                }
+            }   
+        }
+        return lstTAs;
     }
 
     // Gets the user key of all the students of the course
-    public com.panopto.services.User[] getStudentUserKeys()
+    public List<String> getStudents()
     {
+        ArrayList<String> lstStudents = new ArrayList<String>();
+        
         // Get the course membership (instructors, students, etc.)
         List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
 
@@ -1106,48 +1141,34 @@ public class PanoptoData
         {
 
             blackboard.data.course.CourseMembership.Role membershipRole = membership.getRole();
-            blackboard.platform.security.CourseRole cRole = membershipRole.getDbRole();
-            if (       !membershipRole.equals(CourseMembership.Role.INSTRUCTOR)
-                    && !membershipRole.equals(CourseMembership.Role.COURSE_BUILDER)
-                    && !cRole.isActAsInstructor())
-               {
-                   studentCourseMemberships.add(membership);
-               }
-
+            if (isStudentRole(membershipRole))
+            {
+                studentCourseMemberships.add(membership);
+            }
         }
-        if(studentCourseMemberships != null)
+        if(!studentCourseMemberships.isEmpty())
         {
-            ArrayList<com.panopto.services.User> lstStudents = new ArrayList<com.panopto.services.User>();
-
-            boolean mailLectureNotifications = Utils.pluginSettings.getMailLectureNotifications();
-
-            for(Object membershipObject : studentCourseMemberships.toArray())
-             {
+            
+            for(Object membershipObject : studentCourseMemberships)
+            {
                 CourseMembership courseMembership = (CourseMembership)membershipObject;
                 User courseUser = courseMembership.getUser();
                 if(courseUser != null)
                 {
                     String courseUserKey = Utils.decorateBlackboardUserName(courseUser.getUserName());
-                    com.panopto.services.User userInfo = new com.panopto.services.User();
-                    userInfo.setUserKey(courseUserKey);
-                    userInfo.setFirstName(courseUser.getGivenName());
-                    userInfo.setLastName(courseUser.getFamilyName());
-                    userInfo.setEmail(courseUser.getEmailAddress());
-                    userInfo.setEmailSessionNotifications(mailLectureNotifications);
-
-                    lstStudents.add(userInfo);
+                   
+                    lstStudents.add(courseUserKey);
                 }
-            }
-
-            return lstStudents.toArray(new com.panopto.services.User[0]);
+            }   
         }
-        return null;
+        return lstStudents;
     }
 
-
     // Gets info about all the instructors of the course
-    public com.panopto.services.User[] getInstructors()
-     {
+    public List<String> getInstructors()
+    {
+        ArrayList<String> lstInstructors = new ArrayList<String>();
+        
         // Get the course membership (instructors, students, etc.)
         List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
 
@@ -1155,45 +1176,47 @@ public class PanoptoData
         for(CourseMembership membership: courseMemberships)
         {
             blackboard.data.course.CourseMembership.Role membershipRole = membership.getRole();
-            blackboard.platform.security.CourseRole cRole = membershipRole.getDbRole();
-            if (       membershipRole.equals(CourseMembership.Role.INSTRUCTOR)
-                    || membershipRole.equals(CourseMembership.Role.COURSE_BUILDER)
-                    || (   cRole.isRemovable()
-                        && cRole.isActAsInstructor()))
-               {
-                   instructorCourseMemberships.add(membership);
-               }
+            if (isInstructorRole(membershipRole))
+            {
+                instructorCourseMemberships.add(membership);
+            }
 
         }
 
-        if(instructorCourseMemberships != null)
+        if(!instructorCourseMemberships.isEmpty())
         {
-            ArrayList<com.panopto.services.User> lstInstructors = new ArrayList<com.panopto.services.User>();
-
-            boolean mailLectureNotifications = Utils.pluginSettings.getMailLectureNotifications();
-
-            for(Object membershipObject : instructorCourseMemberships.toArray())
-             {
+            for(Object membershipObject : instructorCourseMemberships)
+            {
                 CourseMembership courseMembership = (CourseMembership)membershipObject;
                 User courseUser = courseMembership.getUser();
                 if(courseUser != null)
                 {
-                	String courseUserKey = Utils.decorateBlackboardUserName(courseUser.getUserName());
-                	com.panopto.services.User userInfo = new com.panopto.services.User();
-                	userInfo.setUserKey(courseUserKey);
-                	userInfo.setFirstName(courseUser.getGivenName());
-                	userInfo.setLastName(courseUser.getFamilyName());
-                	userInfo.setEmail(courseUser.getEmailAddress());
-                	userInfo.setEmailSessionNotifications(mailLectureNotifications);
-
-                	lstInstructors.add(userInfo);
+                    String courseUserKey = Utils.decorateBlackboardUserName(courseUser.getUserName());
+                    lstInstructors.add(courseUserKey);
                 }
             }
-
-            return lstInstructors.toArray(new com.panopto.services.User[0]);
         }
+        return lstInstructors;
+    }
 
-        return null;
+    private static boolean isInstructorRole(
+            blackboard.data.course.CourseMembership.Role membershipRole) {
+        return membershipRole.equals(CourseMembership.Role.INSTRUCTOR)
+                || membershipRole.equals(CourseMembership.Role.COURSE_BUILDER)
+                || membershipRole.getDbRole().isActAsInstructor();
+    }
+
+    private static boolean isStudentRole(
+            blackboard.data.course.CourseMembership.Role membershipRole) {
+        return !membershipRole.equals(CourseMembership.Role.INSTRUCTOR)
+                && !membershipRole.equals(CourseMembership.Role.COURSE_BUILDER)
+                && !membershipRole.getDbRole().isRemovable();
+    }
+
+    private static boolean isTARole(
+            blackboard.data.course.CourseMembership.Role membershipRole) {
+        return membershipRole.getDbRole().isRemovable()
+            &&  !membershipRole.getDbRole().isActAsInstructor();
     }
 
     public boolean userMayProvision()
@@ -1207,21 +1230,21 @@ public class PanoptoData
         }
     }
 
-	//Check for whether a user may add course menu links.
-	//This may be done by Admins and instructors at any time
-	//or by TAs if setting is checked
-	public boolean userMayAddLinks() {
-		//Admins can add links to any course. Instructors can add links to their own courses
-		return Utils.userCanConfigureSystem()
-				|| this.canAddLinks();
-	}
+    //Check for whether a user may add course menu links.
+    //This may be done by Admins and instructors at any time
+    //or by TAs if setting is checked
+    public boolean userMayAddLinks() {
+        //Admins can add links to any course. Instructors can add links to their own courses
+        return Utils.userCanConfigureSystem()
+                || this.canAddLinks();
+    }
 
-	public boolean userMayConfig() {
-		// Admins may config any course. Instructors may configure their own
-		// courses
-		return Utils.userCanConfigureSystem()
-				|| this.IsInstructor();
-	}
+    public boolean userMayConfig() {
+        // Admins may config any course. Instructors may configure their own
+        // courses
+        return Utils.userCanConfigureSystem()
+                || this.IsInstructor();
+    }
 
     public boolean userMayCreateFolder()
     {
@@ -1233,107 +1256,55 @@ public class PanoptoData
     //If checkTACanCreateLinks is true, a check will be performed if either getGrantTAProvision
     //or getTAsCanCreateLinks returns true. This is used when checking if TAs may add course menu links
     public static boolean isUserInstructor(Id bbCourseId, String bbUserName, boolean checkTACanCreateLinks)
-    {
+    {      
         BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
-
+        
         try
         {
+            //Get user's blackboard ID from their username
             UserDbLoader userLoader = (UserDbLoader)bbPm.getLoader(UserDbLoader.TYPE);
             User user = userLoader.loadByUserName(bbUserName);
             Id bbUserId = user.getId();
-
-            List<Role> builtInInstructorRoles = new ArrayList<Role>();
-            builtInInstructorRoles.add(Role.INSTRUCTOR);
-            builtInInstructorRoles.add(Role.COURSE_BUILDER);
-
+            
+            //Load the user's membership in the current course to get their role
             CourseMembershipDbLoader membershipLoader = (CourseMembershipDbLoader)bbPm.getLoader(CourseMembershipDbLoader.TYPE);
-            List<CourseMembership> courseMembershipList = membershipLoader.loadByCourseIdAndInstructorFlag(bbCourseId);
-
-            courseMembershipList.addAll(membershipLoader.loadByCourseIdAndRoles(bbCourseId, builtInInstructorRoles));
-
-            Utils.log("I am in isUserInstructor, checking if checkTACanCreateLinks is true.");
-            if(checkTACanCreateLinks){
-                Utils.log("It was true");
-            	courseMembershipList = addTAsCanCreateLinks(bbUserId, bbCourseId, membershipLoader, courseMembershipList);
-            }
-            else{
-                Utils.log("It was not true");
-            	courseMembershipList = addTAIsInstructor(bbUserId, bbCourseId, membershipLoader, courseMembershipList);
-            }
-
-            Utils.log("Check it " + courseMembershipList.toString());
-
-       for (CourseMembership membership : courseMembershipList)
+            CourseMembership usersCourseMembership = membershipLoader.loadByCourseAndUserId(bbCourseId, bbUserId);
+            Role userRole = usersCourseMembership.getRole();
+            
+            //If the user is an instructor, a course builder, or has a custom role flagged as an instructor role, return true.
+            if (isInstructorRole(userRole))
             {
-               Utils.log("Comparator userID: " + bbUserId.toString());
-               Utils.log("Course membership: userID = " + membership.getUserId());
-                if (membership.getUserId().compareTo(bbUserId) == 0)
+                return true;
+            }
+            
+            //If settings are configured to treat TAs as an instructor, and the user is either a Teaching Assistant or has a custom role, return true.
+            else if(    Utils.pluginSettings.getGrantTAProvision()
+                    || (    checkTACanCreateLinks
+                         && Utils.pluginSettings.getTAsCanCreateLinks()))
+            {
+                if(isTARole(userRole))
                 {
-                    Utils.log("I'm returning true!");
                     return true;
                 }
             }
-
         }
         catch(Exception e)
         {
             Utils.log(e, String.format("Error getting user's course membership (course ID: %s, userName: %s).", bbCourseId, bbUserName));
         }
 
+        //User is not an instructor
         return false;
     }
 
-	// Returns true if the specified user can add a course menu link. Nearly identical to
-	//isUserInstructor but includes a check for TAsCanCreateLinks
-	public static boolean canUserAddLinks(Id bbCourseId, String bbUserName) {
-		return isUserInstructor(bbCourseId, bbUserName, true);
-	}
-
-    private static List<CourseMembership> addTAIsInstructor(Id bbUserId, Id bbCourseID, CourseMembershipDbLoader membershipLoader, List<CourseMembership> courseMemberships)
-    throws KeyNotFoundException, PersistenceException
-    {
-	        // If we allow TAs to add content, also allow them to manage the BB block like an instructor.
-	        if (Utils.pluginSettings.getGrantTAProvision())
-	        {
-	           addTAMemberships(bbCourseID, membershipLoader, courseMemberships);
-	        }
-	        return courseMemberships;
+    // Returns true if the specified user can add a course menu link. Nearly identical to
+    //isUserInstructor but includes a check for TAsCanCreateLinks
+    public static boolean canUserAddLinks(Id bbCourseId, String bbUserName) {
+        return isUserInstructor(bbCourseId, bbUserName, true);
     }
-
-
-	//Adds TAs to instructor list if either the TAs may provision or TAs may add course links
-	//setting is enabled
-	private static List<CourseMembership> addTAsCanCreateLinks(Id bbUserId, Id bbCourseID, CourseMembershipDbLoader membershipLoader, List<CourseMembership> courseMemberships)
-	throws KeyNotFoundException, PersistenceException
-	{
-    		// If we allow TAs to add content, also allow them to add links.
-    		if (Utils.pluginSettings.getGrantTAProvision() || Utils.pluginSettings.getTAsCanCreateLinks()) {
-    		    addTAMemberships(bbCourseID, membershipLoader, courseMemberships);
-    		}
-    		return courseMemberships;
-	}
-
-	private static void addTAMemberships(Id bbCourseID,
-	        CourseMembershipDbLoader membershipLoader,
-	        List<CourseMembership> courseMemberships) throws KeyNotFoundException,
-	        PersistenceException
-	{
-       List<CourseMembership> allCourseMemberships = membershipLoader.loadByCourseId(bbCourseID);
-       for(CourseMembership membership: allCourseMemberships )
-       {
-           Role courseRole = membership.getRole();
-           blackboard.platform.security.CourseRole cRole = courseRole.getDbRole();
-           if(    courseRole == Role.TEACHING_ASSISTANT
-              ||(     cRole.isRemovable()
-                  && !cRole.isActAsInstructor()))
-           {
-               courseMemberships.add(membership);
-           }
-       }
-	}
-
+    
     private static IAccessManagement getPanoptoAccessManagementSOAPService(String serverName)
-     {
+    {
         IAccessManagement port = null;
 
         try
