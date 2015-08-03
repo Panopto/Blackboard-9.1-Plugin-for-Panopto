@@ -53,6 +53,7 @@ import blackboard.persist.user.UserDbLoader;
 import blackboard.platform.context.Context;
 import blackboard.platform.persistence.PersistenceServiceFactory;
 import blackboard.platform.plugin.PlugInUtil;
+import blackboard.platform.security.CourseRole;
 
 import com.panopto.services.AccessManagementLocator;
 import com.panopto.services.AuthenticationInfo;
@@ -1199,24 +1200,37 @@ public class PanoptoData
         return lstInstructors;
     }
 
+    /*Returns true if role should be treated as an Intstructor. Instructors get creator access in Panopto.*/
     private static boolean isInstructorRole(
-            blackboard.data.course.CourseMembership.Role membershipRole) {
+            blackboard.data.course.CourseMembership.Role membershipRole) 
+    {
+        //Role is instructor role if it is the 'Instructor' or 'Course Builder' built in blackboard role,
+        //or if it is any role marked with the 'Act As Instructor' flag.
         return membershipRole.equals(CourseMembership.Role.INSTRUCTOR)
                 || membershipRole.equals(CourseMembership.Role.COURSE_BUILDER)
                 || membershipRole.getDbRole().isActAsInstructor();
     }
 
+    /*Returns true if role should be treated as a Student. Students get viewer access in Panopto.*/
     private static boolean isStudentRole(
-            blackboard.data.course.CourseMembership.Role membershipRole) {
-        return !membershipRole.equals(CourseMembership.Role.INSTRUCTOR)
-                && !membershipRole.equals(CourseMembership.Role.COURSE_BUILDER)
-                && !membershipRole.getDbRole().isRemovable();
+            blackboard.data.course.CourseMembership.Role membershipRole) 
+    {
+        //Role is student role if it is not a built in instructor role or a custom role.
+        return    !isInstructorRole(membershipRole)
+               && !isTARole(membershipRole);
     }
 
+    /*Returns true if role should be treated as a TA. TA's get viewer access in Panopto, unless otherwise specified in the
+       Blackboard block settings. Any custom blackboard roles are treated as TAs, unless they are marked with the 'Act As Instructor' flag.*/
     private static boolean isTARole(
-            blackboard.data.course.CourseMembership.Role membershipRole) {
-        return membershipRole.getDbRole().isRemovable()
-            &&  !membershipRole.getDbRole().isActAsInstructor();
+            blackboard.data.course.CourseMembership.Role membershipRole) 
+    {  
+        //Role is a TA role if it is the 'Teaching Assistant' built in blackboard role 
+        //or if it is a custom role without the 'Act as Instructor' flag.
+        CourseRole dbRole = membershipRole.getDbRole();
+        return membershipRole.equals(Role.TEACHING_ASSISTANT)
+                ||  (      dbRole.isRemovable()
+                     &&   !dbRole.isActAsInstructor());
     }
 
     public boolean userMayProvision()
@@ -1271,7 +1285,6 @@ public class PanoptoData
             CourseMembership usersCourseMembership = membershipLoader.loadByCourseAndUserId(bbCourseId, bbUserId);
             Role userRole = usersCourseMembership.getRole();
             
-            //If the user is an instructor, a course builder, or has a custom role flagged as an instructor role, return true.
             if (isInstructorRole(userRole))
             {
                 return true;
