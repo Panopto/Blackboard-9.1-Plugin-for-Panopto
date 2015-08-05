@@ -133,21 +133,16 @@ if((   provisionServerName != null)
                             <div class='attribute'>Instructors</div>
                             <div class='value'>
                     <%
-                    com.panopto.services.User[] instructors = ccCourse.getInstructors();
+                    List<String> instructors = ccCourse.getInstructors();
                     if (instructors == null)
                     {
                     %>
                                 <div class='errorMessage'>Error getting instructors.</div>
                     <%
                     }
-                    else if(instructors.length > 0)
+                    else if(instructors.size() > 0)
                     {
-                        List<String> lstInstructorInfo = new ArrayList<String>();
-                        for(com.panopto.services.User instructor : instructors)
-                        {
-                            lstInstructorInfo.add(instructor.getUserKey() + " (" + instructor.getFirstName() + " " + instructor.getLastName() + " &lt;" + instructor.getEmail() + "&gt;)");
-                        }
-                                %><%=Utils.join(lstInstructorInfo, "<br />")%><%
+                                %><%=Utils.join(instructors, "<br />")%><%
                     }
                     else
                     {
@@ -157,13 +152,36 @@ if((   provisionServerName != null)
                     }
                     %>
                             </div>
-                
+
+                            <div class='attribute'>Teaching Assistants</div>
+                            <div class='value'>
+                    <%
+                    List<String> tas = ccCourse.getTAs();
+                    if (tas == null)
+                    {
+                    %>
+                                <div class='errorMessage'>Error getting teaching assistants.</div>
+                    <%
+                    }
+                    else if(tas.size() > 0)
+                    {
+                                %><%=Utils.join(tas, "<br />")%><%
+                    }
+                    else
+                    {
+                    %>
+                                <div class='errorMessage'>No teaching assistants.</div>
+                    <%
+                    }
+                    %>
+                            </div>
+                                            
                             <div class='attribute'>Students</div>
                             <div class='value'>
                     <%
-                    List<String> students = ccCourse.getStudentUserKeys();
-                    if (students == null)
-                    {
+                        List<String> students = ccCourse.getStudents();
+                                            if (students == null)
+                                            {
                     %>
                                 <div class='errorMessage'>Error getting students.</div>
                     <%
