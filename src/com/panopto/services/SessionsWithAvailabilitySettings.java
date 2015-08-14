@@ -1,5 +1,5 @@
 /**
- * ListNotesResponse.java
+ * SessionsWithAvailabilitySettings.java
  *
  * This file was auto-generated from WSDL
  * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
@@ -7,16 +7,16 @@
 
 package com.panopto.services;
 
-public class ListNotesResponse  implements java.io.Serializable {
-    private com.panopto.services.Note[] results;
+public class SessionsWithAvailabilitySettings  implements java.io.Serializable {
+    private com.panopto.services.SessionAvailabilitySettings[] results;
 
     private java.lang.Integer totalNumberResults;
 
-    public ListNotesResponse() {
+    public SessionsWithAvailabilitySettings() {
     }
 
-    public ListNotesResponse(
-           com.panopto.services.Note[] results,
+    public SessionsWithAvailabilitySettings(
+           com.panopto.services.SessionAvailabilitySettings[] results,
            java.lang.Integer totalNumberResults) {
            this.results = results;
            this.totalNumberResults = totalNumberResults;
@@ -24,27 +24,27 @@ public class ListNotesResponse  implements java.io.Serializable {
 
 
     /**
-     * Gets the results value for this ListNotesResponse.
+     * Gets the results value for this SessionsWithAvailabilitySettings.
      * 
      * @return results
      */
-    public com.panopto.services.Note[] getResults() {
+    public com.panopto.services.SessionAvailabilitySettings[] getResults() {
         return results;
     }
 
 
     /**
-     * Sets the results value for this ListNotesResponse.
+     * Sets the results value for this SessionsWithAvailabilitySettings.
      * 
      * @param results
      */
-    public void setResults(com.panopto.services.Note[] results) {
+    public void setResults(com.panopto.services.SessionAvailabilitySettings[] results) {
         this.results = results;
     }
 
 
     /**
-     * Gets the totalNumberResults value for this ListNotesResponse.
+     * Gets the totalNumberResults value for this SessionsWithAvailabilitySettings.
      * 
      * @return totalNumberResults
      */
@@ -54,7 +54,7 @@ public class ListNotesResponse  implements java.io.Serializable {
 
 
     /**
-     * Sets the totalNumberResults value for this ListNotesResponse.
+     * Sets the totalNumberResults value for this SessionsWithAvailabilitySettings.
      * 
      * @param totalNumberResults
      */
@@ -64,8 +64,8 @@ public class ListNotesResponse  implements java.io.Serializable {
 
     private java.lang.Object __equalsCalc = null;
     public synchronized boolean equals(java.lang.Object obj) {
-        if (!(obj instanceof ListNotesResponse)) return false;
-        ListNotesResponse other = (ListNotesResponse) obj;
+        if (!(obj instanceof SessionsWithAvailabilitySettings)) return false;
+        SessionsWithAvailabilitySettings other = (SessionsWithAvailabilitySettings) obj;
         if (obj == null) return false;
         if (this == obj) return true;
         if (__equalsCalc != null) {
@@ -111,21 +111,21 @@ public class ListNotesResponse  implements java.io.Serializable {
 
     // Type metadata
     private static org.apache.axis.description.TypeDesc typeDesc =
-        new org.apache.axis.description.TypeDesc(ListNotesResponse.class, true);
+        new org.apache.axis.description.TypeDesc(SessionsWithAvailabilitySettings.class, true);
 
     static {
-        typeDesc.setXmlType(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "ListNotesResponse"));
+        typeDesc.setXmlType(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "SessionsWithAvailabilitySettings"));
         org.apache.axis.description.ElementDesc elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("results");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Results"));
-        elemField.setXmlType(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Note"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "Results"));
+        elemField.setXmlType(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "SessionAvailabilitySettings"));
         elemField.setMinOccurs(0);
         elemField.setNillable(true);
-        elemField.setItemQName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "Note"));
+        elemField.setItemQName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "SessionAvailabilitySettings"));
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("totalNumberResults");
-        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "TotalNumberResults"));
+        elemField.setXmlName(new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V46.Soap", "TotalNumberResults"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "int"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);
