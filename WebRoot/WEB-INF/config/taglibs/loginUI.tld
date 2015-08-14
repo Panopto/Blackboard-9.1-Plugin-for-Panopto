@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="bbNG.xsl"?>
+    
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:bb="http://www.blackboard.com/tld-public-api"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd" 
+        version="2.0"> 
+                                                                                              
+  <tlib-version>1.0</tlib-version>    
+  <short-name>loginUI</short-name>
+  <uri>/loginUI</uri>
+  <description>
+    The Blackboard Login User Interface tag library encapsulates Blackboard login page
+    user interface elements to allow easy customization of the login page look and feel.
+  </description>
+
+  <tag bb:public="true">
+    <name>welcomeArea</name>
+    <tag-class>blackboard.servlet.tags.login.WelcomeAreaTag</tag-class>
+    <body-content>empty</body-content>
+    <description>Creates the standard welcome panel.</description>
+  </tag>
+
+  <tag bb:public="true">
+    <name>gatewayButtons</name>
+    <tag-class>blackboard.servlet.tags.login.GatewayButtonsTag</tag-class>
+    <body-content>empty</body-content>
+    <dynamic-attributes>true</dynamic-attributes>
+    <description>Creates the standard login welcome panel.</description>
+    <attribute>
+      <name>guestAccessText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>The explanatory text for the "Preview as Guest" button</description>
+    </attribute>
+    <attribute>
+      <name>createAccountText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>The explanatory text for the "Create a New Account" button</description>
+    </attribute>
+    <attribute>
+      <name>courseCatalogText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>The explanatory text for the "View Course Catalog" button</description>
+    </attribute>
+    <attribute>
+      <name>titleText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Text to display in the title bar.</description>
+    </attribute>
+    <attribute>
+      <name>instructionsText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Instructions to show below title bar.</description>
+    </attribute>
+  </tag>
+
+  <tag bb:public="true">
+    <name>loginForm</name>
+    <tag-class>blackboard.servlet.tags.login.LoginFormTag</tag-class>
+    <body-content>empty</body-content>
+    <dynamic-attributes>true</dynamic-attributes>
+    <description>
+      Creates the standard login form ( same look and feel as rendered by login.pl ).
+    </description>
+    <attribute>
+      <name>showTitleBar</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Boolean to control whether the title bar is displayed or not
+      </description>
+    </attribute>
+    <attribute>
+      <name>titleBarText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Text to display in the title bar.
+      </description>
+    </attribute>
+    <attribute>
+      <name>formText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Form display text.
+      </description>
+    </attribute>
+    <attribute>
+      <name>userNameFieldLabel</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Display text for the username field</description>
+    </attribute>
+    <attribute>
+      <name>passwordFieldLabel</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Display text for the password field</description>
+    </attribute>
+    <attribute>
+      <name>loginText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Display text for the login link</description>
+    </attribute>
+    <attribute>
+      <name>forgotPasswordText</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Display text for the forgot password link</description>
+    </attribute>
+    <attribute>
+      <name>target</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The string to use as the value for the target attribute in the login form. Default
+        is none, which should be used for all relogins except when a guest logs in as a
+        real user
+      </description>
+    </attribute>
+    <attribute>
+      <name>reconciling</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        If used on a reconciliation page set this to true to override the suppress-login-prompt
+        settings from auth.properties
+      </description>
+    </attribute>
+  </tag>
+
+  <function bb:public="true">
+    <name>getProductName</name>
+    <function-class>blackboard.servlet.tags.login.ProductNameUtil</function-class>
+    <function-signature>
+      String getProductName()
+    </function-signature>
+    <description>
+      Determines the current branded product name.
+    </description>
+  </function>
+  
+  <tag bb:public="true">
+    <name>errorMessage</name>
+    <tag-class>blackboard.servlet.tags.login.LoginErrorMessageTag</tag-class>
+    <body-content>empty</body-content>
+    <description>Shows the error associated with the last login attempt, if any.</description>
+  </tag>
+
+  <tag bb:public="true">
+    <name>systemAnnouncements</name>
+    <tag-class>blackboard.servlet.tags.login.SystemAnnouncementsTag</tag-class>
+    <body-content>empty</body-content>
+    <description>Shows the list of announcements configured to "show on login page".</description>
+    <attribute>
+      <name>maxItems</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+      Maximum number of announcements to include.  If not specified, all
+      announcements will be shown.
+      </description>
+    </attribute>
+  </tag>
+
+  <tag bb:public="true">
+    <name>accessibility</name>
+    <tag-class>blackboard.servlet.tags.login.GatewayAccessibilityTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+    Displays a set of user accessibility tools.  This includes a tool to
+    change the font size and a tool to change the screen contrast.
+    </description>
+  </tag>
+
+  <tag bb:public="true">
+    <name>localePicker</name>
+    <tag-class>blackboard.servlet.tags.login.GatewayLocalePickerTag</tag-class>
+    <body-content>empty</body-content>
+    <description>Allow users to pick from available system languages.</description>
+    <attribute>
+      <name>target</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+      The target URL to go to after the locale has been changed.  If not specified, will
+      go to the standard login page.
+      </description>
+    </attribute>
+  </tag>
+
+  <!--
+    Deprecated tags.  These tags no longer do anything, but are being kept around to
+    ensure that legacy JSPs continue to compile. 
+  -->
+
+  <tag bb:public="true">
+    <name>inlineScript</name>
+    <tag-class>blackboard.servlet.tags.NullTag</tag-class>
+    <body-content>empty</body-content>
+    <dynamic-attributes>true</dynamic-attributes>
+    <description>Deprecated tag.</description>
+  </tag>
+
+  <tag bb:public="true">
+    <name>validateLoginFormScript</name>
+    <tag-class>blackboard.servlet.tags.NullTag</tag-class>
+    <body-content>empty</body-content>
+    <dynamic-attributes>true</dynamic-attributes>
+    <description>Deprecated tag.</description>
+  </tag>
+
+  <tag bb:public="true">
+    <name>loginWelcome</name>
+    <tag-class>blackboard.servlet.tags.NullTag</tag-class>
+    <body-content>empty</body-content>
+    <dynamic-attributes>true</dynamic-attributes>
+    <description>Deprecated tag.</description>
+  </tag>
+
+</taglib>

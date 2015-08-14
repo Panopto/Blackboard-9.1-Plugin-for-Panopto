@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="bbNG.xsl"?>
+    
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd" 
+        version="2.0"> 
+                                                                                              
+  <tlib-version>1.0</tlib-version>    
+  <short-name>bbBlackboard</short-name>
+  <uri>/bbBlackboard</uri>
+  <description>
+    The Blackboard Webapp tag library encapsulates Blackboard user interface elements in
+    the blackboard webapp to allow standardization of components.
+  </description>
+
+  <tag>
+    <name>contentCheckboxList</name>
+    <tag-class>blackboard.servlet.tags.ContentCheckboxListTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Creates a list of checkboxes of course materials for Course Copy and Content
+      Exchange. The following checkbox labels are static: Content, Announcements,
+      Calendar, File Manager, Discussion Board, Gradebook Items and Settings, Grades (for
+      Course Copy only), Settings, Staff Information, Tasks, "Tests, Surveys, and Pools",
+      Users and Groups (for Course Copy only).
+      <![CDATA[<p>]]>
+      The following is the list of corresponding form element names: announcement,
+      calendar, fileManager, discussionBoard, gradebookItems, grades, settings,
+      staffInformation, tasks, assessment, usersGroups.
+      <![CDATA[<p>]]>
+      The Content checkbox will have a list of dynamically created checkboxes representing
+      the TOC areas for the course. The label will be the CourseTOC label, and the form
+      element name will be "toc" + tocId (e.g. toc_2_1)
+    </description>
+    <attribute>
+      <name>courseId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Course ID of the Course we're displaying content for</description>
+    </attribute>
+    <attribute>
+      <name>formName</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The String associated with the form name attribute in the HTML,for example
+        <![CDATA[<form name="theForm">]]>
+        Used to reference form input elements via Javascript
+      </description>
+    </attribute>
+    <attribute>
+      <name>isCourseCopy</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description><![CDATA[<i>deprecated</i>]]></description>
+    </attribute>
+    <attribute>
+      <name>isShowAlignmentCourseMaterial</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Whether to include Alignments in the list of Course Materials.  Default is true.</description>
+    </attribute>
+    <attribute>
+      <name>checkedComponents</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>A list of components that should have checkboxes checked during rendering of this list. Default is empty list.</description>
+    </attribute>
+    <attribute>
+      <name>isOrgContext</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Whether this list is being rendered in an Organization context as opposed to Course context. Default is false.</description>
+    </attribute>       
+    <attribute>
+      <name>isCourse</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description><![CDATA[Default: true or based on courseId if specified.  Used to decide which type of tool availability checks to do (true=check course availability, false=check organization availability)]]></description>
+    </attribute>
+    <attribute>
+      <name>isShowGranularSettings</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description><![CDATA[Default: false.  If set to true then the settings area will be have additional sub-areas]]></description>
+    </attribute>
+    <attribute>
+      <name>preselectHistoricImportSettings</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description><![CDATA[Only applicable if isShowGranular settings is true.
+      Default: false.  If set to true then selecting 'settings' will only auto-check the settings associated with the old import logic.]]></description>
+    </attribute>
+    <attribute>
+      <name>preselectHistoricCopySettings</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description><![CDATA[Only applicable if isShowGranular settings is true.
+      Default: false.  If set to true then selecting 'settings' will only auto-check the settings associated with the old copy logic.]]></description>
+    </attribute>
+    
+  </tag>
+
+  <tag>
+    <name>selectCourseId</name>
+    <tag-class>blackboard.servlet.tags.SelectCourseIdTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Displays a textfield for entering a courseId. Depending on the attributes, the
+      widget may provide the ability to browse for a course, or enforce choosing only
+      courses for which the specified user has administrative rights.
+    </description>
+    <attribute>
+      <name>formName</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The String associated with the form name attribute in the HTML,for example
+        <![CDATA[<form name="theForm">]]>
+        Used to reference form input elements via Javascript
+      </description>
+    </attribute>
+    <attribute>
+      <name>tfName</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>The form element name for the textfield</description>
+    </attribute>
+    <attribute>
+      <name>tfValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The value for the textfield (optional, if not specified will be pulled off the
+        request)
+      </description>
+    </attribute>
+    <attribute>
+      <name>fromControlPanel</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Boolean that specifies if the entry point is from a control panel. Requiring
+        further filtering based on membership role
+      </description>
+    </attribute>
+    <attribute>
+      <name>label</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>The label that is displayed before the textfield</description>
+    </attribute>
+    <attribute>
+      <name>selectionType</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Can be either "origin" or "destination". "Origin" means that the courseId is the
+        origin course from which content is being copied. "Destination" means that the
+        courseId refers to the course to which content is being copied
+      </description>
+    </attribute>
+    <attribute>
+      <name>isNewCourseIdsOnly</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Boolean that may only be set to true if the selectionType = "destination" and that
+        enforces that the entered courseId is a unique one
+      </description>
+    </attribute>
+    <attribute>
+      <name>userId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        _x_y version of the userId that is specified when the selected courseId should
+        only be one for which the specified user has course admin rights. If no userId is
+        specified, all courses are allowed and will show up when browsing
+      </description>
+    </attribute>
+    <attribute>
+      <name>isReadOnly</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Boolean that makes the textfield read only and hides the browse button if set to
+        true
+      </description>
+    </attribute>
+    <attribute>
+      <name>isRequired</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Boolean that displays red * before the label if set to true
+      </description>
+    </attribute>
+    <attribute>
+      <name>isCleared</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Boolean that controls appearance of clear button
+      </description>
+    </attribute>
+    <attribute>
+      <name>isButton</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Boolean that controls appearance of submit button
+      </description>
+    </attribute>
+    <attribute>
+      <name>courseType</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Can be either "course" or "org". The default is "course". This attribute switches
+        the label appropriately and changes searching between course and organization
+        service level
+      </description>
+    </attribute>
+    <attribute>
+      <name>selectMultiple</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Allows the user to select multiple courses</description>
+    </attribute>
+    <attribute>
+      <name>buttonAlignment</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Changes location of browse button</description>
+    </attribute>
+    <attribute>
+      <name>isDomainInUse</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Boolean that controls use of domains in course search
+      </description>
+    </attribute>
+    <attribute>
+      <name>crossListFilterMode</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+         <![CDATA[
+        Filters the course search results for cross listed courses.  The following modes are supported: 
+        <ul>
+        <li><code>EXCLUDE_CROSS_LISTED</code> - filter out parent and child courses</li>
+        <li><code>EXCLUDE_CHILDREN</code> - filter out child courses</li>
+        <li><code>SHOW_ALL</code> - show all courses (this is the default)</li>
+        </ul>
+        ]]>
+      </description>
+    </attribute>
+    <attribute>
+      <name>excludeCourseId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Id of Course to exclude from search results
+      </description>
+    </attribute>
+    <attribute>
+      <name>useLineItem</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Boolean that controls whether to wrap the output in a HTML list tag.  Default is true.
+      </description>
+    </attribute>
+  </tag>
+    
+  <tag>
+    <name>attrListSearchBar</name>
+    <tag-class>blackboard.servlet.tags.AttrListSearchBarTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      This tag provides a simple search bar with a dropdown of attributes to search on and a 
+      text field for doing a contains search.  Include SearchOptionsTag in the Tag body
+      to set the options in the drop down.
+    </description>
+    <attribute>
+      <name>searchLabel</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The search bar label to display.  If not specified, defaults to action.search 
+        bundle key in common.properties, which in en_US is "Search".
+      </description>
+    </attribute>
+    <attribute>
+      <name>model</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        AttributeListModel       
+      </description>
+    </attribute> 
+     <attribute>
+      <name>allowedRefColumns</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        List of attribute names of String reference columns that are allowed to 
+        appear in the search key drop down.
+      </description>
+    </attribute> 
+    <attribute>
+      <name>onClick</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        the value of the go button onclick.
+      </description>
+    </attribute>
+  </tag>
+  
+  <tag>
+     <name>requestParameter</name>
+    <tag-class>blackboard.servlet.tags.RequestParameterTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      This tag adds all existing request parameters as hidden input fields. Used to allow easy
+      pass of state from one request to another.
+    </description>
+     <attribute>
+      <name>parameterMap</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute> 
+     <attribute>
+      <name>filter</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute> 
+  </tag>
+
+</taglib>
