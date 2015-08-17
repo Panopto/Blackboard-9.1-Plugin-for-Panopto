@@ -4,7 +4,11 @@
         <name value="Panopto Connector" />
         <description value="Provision Panopto courses from Blackboard.  View live listing of available Panopto content from within the associated Blackboard course.  Import Panopto lecture links as Blackboard content items." />
         <handle value="PanoptoCourseTool" />
+<<<<<<< HEAD
         <version value="4.8.92" />
+=======
+        <version value="4.8.90" />
+>>>>>>> master
         <requires>
             <bbversion value="9.1" />
         </requires>
