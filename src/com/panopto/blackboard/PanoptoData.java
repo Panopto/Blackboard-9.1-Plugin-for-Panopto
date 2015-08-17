@@ -685,14 +685,15 @@ public class PanoptoData
     }
 
     // Insert a content item in the current course with a link to the specified delivery.
-    public LinkAddedSuccess addBlackboardContentItem(String content_id, String lectureUrl, String title, String description)
+    public LinkAddedResult addBlackboardContentItem(String content_id, String lectureUrl, String title, String description)
     {
         Session[] sessionArray;
+        LinkAddedResult linkAddedResult = LinkAddedResult.FAILURE;
         try
         {
             
             //Get folder ID from URL param and add to an array to pass into updateFoldersAvailabilityStartSettings();
-            Map<String, String> urlParams = getQueryMap(lectureUrl);            
+            Map<String, String> urlParams = this.getQueryMap(lectureUrl);            
             String sessionID = urlParams.get("id");            
             String[] sessionIds = {sessionID};
             
@@ -720,14 +721,14 @@ public class PanoptoData
             if(isCreator)
             {
                 //If user is a creator on Panopto, check if the session is in its availability window.
-                boolean isInAvailabilityWindow = isSessionInAvailabilityWindow(
+                boolean isInAvailabilityWindow = this.isSessionInAvailabilityWindow(
                         sessionIds, auth); 
                 
                 if(isInAvailabilityWindow){
                    // If the session is in its availability window. add it to the course and return success.
                     addSessionLinkToCourse(content_id, lectureUrl, title, description,
                             bbPm);
-                    return LinkAddedSuccess.SUCCESS;
+                    linkAddedResult =  LinkAddedResult.SUCCESS;
                 }
                 else
                 {
@@ -738,12 +739,12 @@ public class PanoptoData
                     {
                         sessionManagement.updateSessionsAvailabilityStartSettings(auth, sessionIds, SessionStartSettingType.Immediately, null);
                         addSessionLinkToCourse(content_id, lectureUrl, title, description, bbPm);
-                        return LinkAddedSuccess.SUCCESS;
+                        linkAddedResult = LinkAddedResult.SUCCESS;
                     }
                     catch(Exception e)
                     {
                         //Needs publisher access
-                        return LinkAddedSuccess.NOTPUBLISHER;
+                        linkAddedResult = LinkAddedResult.NOTPUBLISHER;
                     }
                 }
             }
@@ -755,22 +756,24 @@ public class PanoptoData
                 {
                     //If no session is returned, it means the session is not in its availability window, and the current user cannot make it,
                     //available. Return failure indicating the user must ask a creator to make the session available.
-                    return LinkAddedSuccess.NOTCREATOR;
+                    linkAddedResult = LinkAddedResult.NOTCREATOR;
                 }
                 else
                 {
                     //If the session is currently in its availability window, it can be added to the course without having to make any API call.
                     //Return success.
                     addSessionLinkToCourse(content_id, lectureUrl, title, description, bbPm);
-                    return LinkAddedSuccess.SUCCESS;
+                    linkAddedResult = LinkAddedResult.SUCCESS;
                 }
             }
+            return linkAddedResult;
         }
         catch(Exception e)
         {
             //General error when trying to add a session to a course. Print details to log.
             Utils.log(e, String.format("Error adding content item (content ID: %s, lecture Url: %s, title: %s, description: %s).", content_id, lectureUrl, title, description));
-            return LinkAddedSuccess.FAILURE;
+            linkAddedResult = LinkAddedResult.FAILURE;
+            return linkAddedResult;
         }
     }
 
@@ -789,10 +792,10 @@ public class PanoptoData
         Calendar endDate;
         DateTimeOffset startOffset = sessionAvailabilitySettings.getStartSettingDate();        
         
-        //If the start sate time offset is not null, then extract the date from it. Otherwise, set the date to null.
+        //If the start date time offset is not null, then extract the date from it. Otherwise, set the date to null.
         if (startOffset != null){
             startDate = startOffset.getDateTime();
-            startDate.add(Calendar.MINUTE, sessionAvailabilitySettings.getStartSettingDate().getOffsetMinutes());
+            startDate.add(Calendar.MINUTE, startOffset.getOffsetMinutes());
         }
         else
         {
@@ -800,10 +803,11 @@ public class PanoptoData
         }
 
         DateTimeOffset endOffset = sessionAvailabilitySettings.getEndSettingDate();      
-        //If the start sate time offset is not null, then extract the date from it. Otherwise, set the date to null.
+        
+        //If the end date time offset is not null, then extract the date from it. Otherwise, set the date to null.
         if (endOffset != null){
             endDate = endOffset.getDateTime();
-            endDate.add(Calendar.MINUTE, sessionAvailabilitySettings.getEndSettingDate().getOffsetMinutes());
+            endDate.add(Calendar.MINUTE, endOffset.getOffsetMinutes());
         }
         else
         {
@@ -813,10 +817,15 @@ public class PanoptoData
         SessionStartSettingType startType = sessionAvailabilitySettings.getStartSettingType();
         SessionEndSettingType endType = sessionAvailabilitySettings.getEndSettingType();
         
+        //If session start date is either "Immediately" or is a specific date in the past,
+        //we are currently past the start time of the availability window.
         if(startType.equals(SessionStartSettingType.Immediately)
            || (startType.equals(SessionStartSettingType.SpecificDate)     
                 && startDate.after(Calendar.getInstance(TimeZone.getTimeZone("UTC")))))
         {
+            //If the session availability end date is "Forever", or a date in the future,
+            //we are currently before the availability window's end time, and are therefore
+            //within the session's availability window.
             if(endType.equals(SessionEndSettingType.Forever)
                || (endType.equals(SessionEndSettingType.SpecificDate)  
                        && endDate.before(Calendar.getInstance(TimeZone.getTimeZone("UTC")))))
@@ -832,11 +841,10 @@ public class PanoptoData
     private void addSessionLinkToCourse(String content_id, String lectureUrl,
             String title, String description, BbPersistenceManager bbPm)
             throws PersistenceException, ValidationException {
-        // cSreate a course document and set all desired attributes
+        // Create a course document and set all desired attributes
         Content content = new Content();
         content.setTitle(title);
-        FormattedText text = new FormattedText(description, FormattedText.Type.HTML);
-        content.setBody(text);
+        content.setBody(new FormattedText(description, FormattedText.Type.HTML));
         content.setUrl(lectureUrl);
         content.setRenderType(Content.RenderType.URL);
         content.setLaunchInNewWindow(true);
@@ -857,21 +865,21 @@ public class PanoptoData
 
     
     //Returns map of url's query parameters and their values. Used for getting session ID for session to make available.
-    public static Map<String, String> getQueryMap(String url)  
+    public Map<String, String> getQueryMap(String url)  
     {
+        Map<String, String> map = null;        
         String[] splitURL = url.split("\\?");
-        if(!splitURL[1].isEmpty() && splitURL[1] != null){
+        if(splitURL[1] != null && !splitURL[1].isEmpty()){
             String[] params = splitURL[1].split("&");
-            Map<String, String> map = new HashMap<String, String>();
+            map = new HashMap<String, String>();
             for (String param : params)
             {
                 String name = param.split("=")[0];
                 String value = param.split("=")[1];
                 map.put(name, value);
-            }
-            return map;  
+            }  
         }
-        else return null;
+        return map;
     }
 
     // Sync's a user with Panopto so that his course memberships are up to date.
@@ -1757,7 +1765,7 @@ public class PanoptoData
     }
     
     //Enum types returned by addBlackboardContentItem, indicating whether a Panopto link has been successfully added to a course.
-    public static enum LinkAddedSuccess{
+    public static enum LinkAddedResult{
         SUCCESS, //Link was added successfully.
         NOTCREATOR, //Link was not added because the session is not available and the user does not have creator access in order to make it available.
         NOTPUBLISHER, //Link was not added because session requires publisher approval.

@@ -71,13 +71,13 @@ if (!ccCourse.userMayAddLinks())
 	</bbUI:docTemplate>
 </c:catch>
 <%
-	return;
+    return;
 }
 
 if(lectureURL != null)
 {
-	PanoptoData.LinkAddedSuccess linkCreationOutput = ccCourse.addBlackboardContentItem(content_id, lectureURL, title, description);
-	if(linkCreationOutput.equals(PanoptoData.LinkAddedSuccess.SUCCESS))
+	PanoptoData.LinkAddedResult linkCreationOutput = ccCourse.addBlackboardContentItem(content_id, lectureURL, title, description);
+	if(linkCreationOutput.equals(PanoptoData.LinkAddedResult.SUCCESS))
 	{
 %>
 <c:catch>
@@ -89,9 +89,9 @@ if(lectureURL != null)
 </c:catch>
 <%
     }
-    else if(linkCreationOutput.equals(PanoptoData.LinkAddedSuccess.NOTCREATOR))
+    else if(linkCreationOutput.equals(PanoptoData.LinkAddedResult.NOTCREATOR))
     {
-    %>
+%>
     <c:catch>
         <bbUI:docTemplate title="<%=page_title%>">
             <bbUI:receipt type="FAILURE" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
@@ -99,9 +99,9 @@ if(lectureURL != null)
             </bbUI:receipt>
         </bbUI:docTemplate>
     </c:catch><%
-    }
-    else if(linkCreationOutput.equals(PanoptoData.LinkAddedSuccess.NOTPUBLISHER))
-    {
+        }
+        else if(linkCreationOutput.equals(PanoptoData.LinkAddedResult.NOTPUBLISHER))
+        {
     %>
     <c:catch>
         <bbUI:docTemplate title="<%=page_title%>">
