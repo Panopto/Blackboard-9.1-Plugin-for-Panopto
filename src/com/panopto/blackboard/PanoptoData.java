@@ -766,15 +766,14 @@ public class PanoptoData
                     linkAddedResult = LinkAddedResult.SUCCESS;
                 }
             }
-            return linkAddedResult;
         }
         catch(Exception e)
         {
             //General error when trying to add a session to a course. Print details to log.
             Utils.log(e, String.format("Error adding content item (content ID: %s, lecture Url: %s, title: %s, description: %s).", content_id, lectureUrl, title, description));
             linkAddedResult = LinkAddedResult.FAILURE;
-            return linkAddedResult;
         }
+        return linkAddedResult;
     }
 
     
