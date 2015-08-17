@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+  version="2.0">
+  <description>
+    Contains tags used for rendering html and javascript tree controls.
+  </description>
+  <tlib-version>1.0</tlib-version>
+  <short-name>bbTree</short-name>
+  <uri>/bbTree</uri>
+
+  <!-- tag, tag file and function declarations go here -->
+  
+  <tag>
+    <description>
+      Creates the HTML and Javascript to render a tree control. Unlike
+      the treeNavTag, the dynamicTreeNav expects its data to be provided
+      by javascript functions that retrieve JS TreeNode objects.
+
+      This tag can be used in conjunction with Ajax based data loads to
+      populate the tree data on the fly. The tree executes a
+      loaderFunction for nodes that haven't been marked as having lazy
+      loading (an isLazy TreeNode attribute).
+    </description>
+    <name>dynamicTreeNav</name>
+    <tag-class>blackboard.servlet.tags.DynamicTreeNavTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+      <description>
+        The name to use for the tree instance. Must be unique within a
+        page.
+      </description>
+      <name>name</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        The node name for the root Node of this tree. This nodeName will
+        be passed to the loaderFunction to perform the initial
+        population of the tree.
+      </description>
+      <name>rootNodeName</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        Defines the default html frame that tree links should be
+        targeted to.
+      </description>
+      <name>target</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        The name of a javascript function that will retrieve TreeNode
+        objects. The function is expected to have the following
+        signature: function(nodeName,callback) where nodeName is the
+        name of the node to retrieve and callback is a reference to a
+        function.
+
+        The loader function is expected to retrieve a TreeNode object
+        representing the subtree at nodeName and then execute the
+        callback function passing the retrieved TreeNode as its only
+        argument.
+      </description>
+      <name>loaderFunctionName</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        The name for the contextMenu to be used with this tree.
+      </description>
+      <name>contextMenuName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        The url to the CSS stylesheet to be used for the tree. If
+        specified, the treeStylePrefix attribute must also be specified.
+      </description>
+      <name>treeStyleSheet</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        The string that is prefixed to all the style selectors for the
+        tree's stylesheet. If specified, the treeStyleSheet attribute
+        must also be defined.
+      </description>
+      <name>treeStylePrefix</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        A reference to a TreeOptions object that will be used to control
+        tree rendering and display behavior.
+      </description>
+      <name>treeOptions</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <example>
+      The example below has a loader function that just creates nodes
+      locally.
+      <![CDATA[
+<script type="text/javascript">
+
+// this function just creates a node object with two lazy children and passes that object to the callback.
+function generateNode(nodeName,callback){
+  var node = new Object();
+  node.name = nodeName;
+  node.label = nodeName;
+  var leftChild = new Object();
+  leftChild.name = nodeName + "-" + "a";
+  leftChild.label = leftChild.name;
+  leftChild.attributes = new Object();
+  leftChild.attributes.isLazy = true;
+  leftChild.children = new Array();
+  var rightChild = new Object();
+  rightChild.name = nodeName + "-" + "b";
+  rightChild.label = rightChild.name;
+  rightChild.attributes = new Object();
+  rightChild.attributes.isLazy = true;
+  rightChild.children = new Array(); 
+  // add the children to the node
+  node.children = new Array();
+  node.children[0] = leftChild;
+  node.children[1] = rightChild;
+  callback(node);
+}
+</script>
+
+<bbUI:dynamicTreeNav name="dynamicTree1" rootNodeName="root"
+  loaderFunctionName="generateNode" />    
+    
+    ]]>
+    </example>
+  </tag>
+
+  <tag>
+    <description>
+      Creates the HTML and Javascript to render a tree control's context
+      menu. The menu is built using treeNavMenuItem tags.
+    </description>
+    <name>treeNavMenu</name>
+    <tag-class>blackboard.servlet.tags.TreeNavMenuTag</tag-class>
+    <body-content>scriptless</body-content>
+    <attribute>
+      <description>
+        The name for the tree menu, must be unique within a page.
+      </description>
+      <name>name</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the path to the css stylesheet for the tree menu, if specified
+        menuStylePefix must also be specified.
+      </description>
+      <name>menuStyleSheet</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        The string that is prefixed to all the style selectors for the
+        menu's stylesheet. If specified, the menuStyleSheet attribute
+        must also be defined.
+      </description>
+      <name>menuStylePrefix</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <example>
+      <![CDATA[
+<script type="text/javascript">
+
+// handler for item1
+function item1Handler(selNode, menuId, itemId){
+  alert('You clicked Item1, nodeId is ' + selNode.orgId);
+}
+
+// handler for item2
+function item2Handler(selNode, menuId, itemId){
+  
+  document.getElementById('results').innerHTML = 'You clicked Item2, nodeId is ' + selNode.orgId;
+}
+
+// this function deletes a node.
+function deleteHandler(selNode, menuId, itemId){
+  document.getElementById('results').innerHTML = 'You deleted nodeId: ' + selNode.orgId;
+  var tree = nlsctxmenu[menuId].container;
+  tree.remove(selNode.orgId);
+}
+
+//function to determine if a menu item is available
+//only returns true if the selected node has no children
+function showLeafItem(selNode){
+  return (selNode.fc == null)
+}
+</script>    
+    
+<!-- Definition of a menu with multiple items and a separator -->
+<bbTree:treeNavMenu name="menu1">
+  <bbTree:treeNavMenuItem name="item1" caption="action1"
+    handlerName="item1Handler" />
+  <bbTree:treeNavMenuItem name="item2" caption="action2"
+    handlerName="item2Handler" />
+  <bbTree:treeNavMenuItem name="deleteItem" caption="delete"
+    iconUrl="../img/Delete24.gif" handlerName="deleteHandler"
+    showHandlerName="showLeafItem" />
+</bbTree:treeNavMenu>
+    ]]>
+    </example>
+  </tag>
+
+  <tag>
+    <description>
+      Represents a menu item in a TreeNavMenu. Menu items can either
+      have associated urls to go to when clicked, or javascript
+      functions to be executed when clicked. They also support a
+      javascript showHandler function that will be invoked before the
+      menu is displayed that is used to toggle the availability of the
+      menu.
+
+      The handlerFunction will be passed in a reference to the selected
+      node, the menu name, and the menu item name as parameters in that
+      order.
+
+      The showHandlerFunction will be passed a reference to the selected
+      node and should return true if the menu item should be enabled for
+      that node, and false otherwise.
+    </description>
+    <name>treeNavMenuItem</name>
+    <tag-class>blackboard.servlet.tags.TreeNavMenuItemTag</tag-class>
+    <body-content>scriptless</body-content>
+    <attribute>
+      <description>
+        the name for this menu item. Must be unique within a menu.
+      </description>
+      <name>name</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>the label for this menu item.</description>
+      <name>caption</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the url to navigate to when this menu item is clicked.
+      </description>
+      <name>url</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>the path to an icon for this menu item.</description>
+      <name>iconUrl</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the name of a javascript function to be called when this menu
+        item is clicked.
+      </description>
+      <name>handlerName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the name of a javascript function that will be called to
+        determine if this menu item should be enabled for a given tree
+        node.
+      </description>
+      <name>showHandlerName</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+
+
+
+  <tag>
+    <description>
+      This tag creates an object that specifies the options for a Tree
+      Control. The option tag can either be nested within a treeNav or
+      dynamicTreeNav tag, or it can have its values exported as a scoped
+      variable for use by those tags.
+    </description>
+    <name>treeOptions</name>
+    <tag-class>blackboard.servlet.tags.TreeOptionsTag</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <description>
+        The attribute name used to export the TreeOptions object
+        generated by this tag. Used in conjunction with the scope
+        attribute. If not specified, this tag must be nested within a
+        treeNav/dynamicTreeNav tag.
+      </description>
+      <name>var</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        The scope to use to export the TreeNode object reference. Can be
+        one of: page, request, session, or application. Default is page.
+      </description>
+      <name>scope</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        boolean value for whether the tree menu should display
+        checkboxes for tree nodes. Default is false
+      </description>
+      <name>checkboxEnabled</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the path to the image to be used as the default leaf icon.
+      </description>
+      <name>leafIcon</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        boolean flag to indicate whether or not node captions should be
+        editable by clicking on the node. Default is false.
+      </description>
+      <name>nodeEditable</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the path to the image to be used as the default node icon.
+      </description>
+      <name>nodeIcon</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        boolean flag to indicate whether clicking on a node's caption
+        should expand/collaps the node. Default is true.
+      </description>
+      <name>oneClickExpand</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the path to the image to be used as the default root node icon.
+      </description>
+      <name>rootIcon</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        boolean flag to indicate whether the tree should store the
+        currently selected node in a cookie. Default is false.
+      </description>
+      <name>selectedCookieEnabled</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the path to the image to be used as the default selected node
+        icon.
+      </description>
+      <name>selectedNodeIcon</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        boolean flag to indicate whether icons should be displayed for
+        items in the tree. Defaults to true.
+      </description>
+      <name>showIcons</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        boolean flag to indicate whether selection highlighting should
+        be applied to the entire row, or just the tree item. Defaults to
+        false.
+      </description>
+      <name>useRowSelectionMode</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        boolean flag to indicate whether only one tree on a page can
+        have a selected node. Defaults to false.
+      </description>
+      <name>oneTreeSelect</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+</taglib>

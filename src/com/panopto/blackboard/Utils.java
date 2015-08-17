@@ -19,8 +19,12 @@
 package com.panopto.blackboard;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
@@ -50,6 +54,8 @@ public class Utils {
     // These identify the Building Block to Blackboard.  Set in bb-manifest.xml.
     public static final String vendorID = "ppto";
     public static final String pluginHandle = "PanoptoCourseTool";
+    // By default read at least 1024 standard length lines  
+    public static final long defaultLogLimit = 1024 * 128;
 
     // Global settings for the plugin, applicable across all courses.
     public static final Settings pluginSettings = new Settings();
@@ -114,25 +120,36 @@ public class Utils {
         }
     }
 
-    public static String getLogData()
+    // Reads data from a log file up to a max number of bytes.  The byte limit ensures we don't attempt to read in a 
+    // huge log file, unless it's explicitly asked for
+    public static String getLogData(long maxBytesToRead)
     {
         StringBuilder contents = new StringBuilder();
 
+        String lineSeparator = System.getProperty("line.separator");
         try
         {
             File configDir = PlugInUtil.getConfigDirectory(vendorID, pluginHandle);
             File logFile = new File(configDir, logFilename);
+            long fileLength = logFile.length(); 
 
             BufferedReader input =  new BufferedReader(new FileReader(logFile));
 
             try
             {
                 String line = null;
+                if (fileLength > maxBytesToRead)
+                {
+                    // Skip ahead to avoid reading too much of the file
+                    input.skip(fileLength - maxBytesToRead);
+                    // Read the first line so we don't print a partial line
+                    line = input.readLine();
+                }
 
                 while (( line = input.readLine()) != null)
                 {
-                  contents.append(line);
-                  contents.append(System.getProperty("line.separator"));
+                    contents.append(line);
+                    contents.append(lineSeparator);
                 }
             }
             finally
@@ -142,6 +159,13 @@ public class Utils {
         }
         catch(Exception e)
         {
+            // If there's an exception reading the file at least return the exception
+            contents.append(e.toString());
+            contents.append(lineSeparator);
+            
+            StringWriter trace = new StringWriter();
+            e.printStackTrace(new PrintWriter(trace));
+            contents.append(trace.toString());
         }
 
         return contents.toString();

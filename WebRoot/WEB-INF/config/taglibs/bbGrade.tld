@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="bbAlign.xsl"?>
+    
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd" 
+        version="2.0"> 
+                                                                                              
+  <tlib-version>1.0</tlib-version>    
+  <short-name>bbGrade</short-name>  
+  <uri>/bbGrade</uri>
+  <description>   
+    Grading widget taglib. This contains tags related to grading.
+  </description>
+  
+  <tag>
+    <name>jumpToPanelButton</name>
+    <tag-class>blackboard.servlet.tags.grade.JumpToPanelButtonTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Displays the jump to panel. Note that the panel is actually initialized in the browser
+      using JavaScript, explaining the limited number of parameters here.
+    </description>
+    <attribute>
+      <name>smartDisplay</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       Default: false.  If true, then the panel will only be displayed if there is a sequenceId in the request
+      </description>
+    </attribute>
+    <attribute>
+      <name>gradingAnonymousItem</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       Default: false.  If true, then the panel will not display the User and Attempt drop downs
+      </description>
+    </attribute>
+    <attribute>
+      <name>formElementsToIgnore</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       A comma separated list of form element names to ignore when determining if there are
+       any uncommitted form changes before unloading the current grade attempt page. This is 
+       useful if the page has its own buttons that change a form element, such as a hidden,
+       and want that change to not be considered when checking if anything changed in the form
+       since the page was loaded. 
+      </description>
+    </attribute>
+  </tag> 
+
+  <tag>
+    <name>attemptStatusPanelButton</name>
+    <tag-class>blackboard.servlet.tags.grade.AttemptStatusPanelButtonTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Displays the attempt status panel. Note that the panel is actually initialized with data from
+      the AttemptNavController, explaining the limited number of parameters here.
+    </description>
+    <attribute>
+      <name>interactiveTool</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       Default: false.  If true, then this panel will display in an interactive-tool mode and will only display if
+       there is a sequenceId in the request.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onSubmit</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       JavaScript function called to validate the form before submit. 
+       Return false to abort submit, true to continue.
+      </description>
+    </attribute>
+    <attribute>
+      <name>navOnly</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       Defaults to false.  If set to true then the controls are rendered in a navigation-only mode.
+       i.e. the next button is just viewNext, not saveAndViewNext.
+      </description>
+    </attribute>
+    <attribute>
+      <name>gradingAnonymousItem</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       Default: false.  If true, the panel will display an anonymized user name
+      </description>
+    </attribute>
+  </tag> 
+   
+  <tag>
+    <name>bottomNavBar</name>
+    <tag-class>blackboard.servlet.tags.grade.BottomNavBarTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Displays the navigation bar at the bottom of the page. Note that the bar is actually initialized with data from
+      the AttemptNavController, explaining the limited number of parameters here.
+    </description>
+    <attribute>
+      <name>interactiveTool</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       Default: false.  If true, then this will display in an interactive-tool mode and will only display if
+       there is a sequenceId in the request.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onSubmit</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       JavaScript function called to validate the form before submit. 
+       Return false to abort submit, true to continue.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onClick</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       When not generating a nav bar, this is the onclick for the return/ok link.
+      </description>
+    </attribute>
+    <attribute>
+      <name>cancelUrl</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       If there is no navcontroller on the page, render a return link to this url
+      </description>
+    </attribute>
+    <attribute>
+      <name>label</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>The label for the button.</description>
+    </attribute>
+    <attribute>
+      <name>type</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        <![CDATA[        
+        The type of button that should be rendered. This must be the string representation of one
+        of the ButtonTag.Type enum values. The default value is "ComponentLevel" (<code>ButtonTag.Type.ComponentLevel</code>).
+        ]]>
+      </description>
+    </attribute>
+    <attribute>
+      <name>navOnly</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       Defaults to false.  If set to true then the controls are rendered in a navigation-only mode.
+       i.e. the next button is just viewNext, not saveAndViewNext.
+      </description>
+    </attribute>
+   </tag> 
+  
+  <tag>
+    <name>attemptNavButtons</name>
+    <tag-class>blackboard.servlet.tags.grade.AttemptNavButtonsTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Displays the attempt navigation buttons in a submit step.
+    </description>
+    <attribute>
+      <name>onSubmit</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       JavaScript function called to validate the form before submit. 
+       Return false to abort submit, true to continue.
+      </description>
+    </attribute>
+    <attribute>
+      <name>navOnly</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+       Defaults to false.  If set to true then the controls are rendered in a navigation-only mode.
+       i.e. the next button is just viewNext, not saveAndViewNext.
+      </description>
+    </attribute>
+  </tag> 
+
+  <tag>
+    <name>activityCountOptions</name>
+    <tag-class>blackboard.servlet.tags.grade.ActivityCountOptionsTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Renders the elements required for setting activity count trigger points used by interactive tools to
+      determine when an attempt needs grading. 
+    </description>
+    <attribute>
+      <name>dataMapKey</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+      Request attribute name of the dataMap. The dataMapKey is also prepended to the form element names to allow the submit 
+      proc to retreive data from the request properly and store it.
+      </description>
+    </attribute>
+  </tag>
+ 
+  <function>
+    <name>retainAttemptNavAttributes</name>
+    <function-class>blackboard.platform.gradebook2.AttemptNavHelper</function-class>
+    <function-signature>
+      String retainAttemptNavAttributes(javax.servlet.http.HttpServletRequest, java.lang.String)
+    </function-signature>
+    <description>
+      Add any attempt navigation attributes from the current request to the given URL
+    </description>
+  </function>  
+
+</taglib>

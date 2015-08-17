@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="bbNG.xsl"?>
+    
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd" 
+        version="2.0"> 
+                                                                                              
+  <tlib-version>1.0</tlib-version>    
+  <short-name>bbNav</short-name>
+  <uri>/bbNav</uri>
+  <description>
+    Special tags for handling navigation through the Blackboard application.
+  </description>
+
+  <tag>
+    <name>parameters</name>
+    <tag-class>blackboard.servlet.tags.navigation.ParametersTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+        Renders the navigation bridges and required parameters to effectively navigate
+        the application.  Navigation bridges allow jumping between independent
+        navigation item paths.  This tag can render both URL params and form inputs.
+    </description>
+    <attribute>
+      <name>var</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Variable name for the parameters</description>
+    </attribute>
+    <attribute>
+      <name>scope</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Scope to store the parameters variable in
+      </description>
+    </attribute>
+    <attribute>
+      <name>form</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Indicates whether to render form inputs or url params</description>
+    </attribute>
+    <attribute>
+      <name>appendTo</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Indicates which attribute to append the navigation parameters to</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>bridge</name>
+    <tag-class>blackboard.servlet.tags.navigation.BridgeTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+        Renders the name and parameters for a single navigation bridge.  This allows
+        a JSP to reference a particular bridge nav item to initiate a new navigation
+        path.
+    </description>
+    <attribute>
+      <name>var</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Variable name for the parameters</description>
+    </attribute>
+    <attribute>
+      <name>scope</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        Scope to store the parameters variable in
+      </description>
+    </attribute>
+    <attribute>
+      <name>form</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Indicates whether to render form inputs or url params</description>
+    </attribute>
+    <attribute>
+      <name>item</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Internal handle for the bridge nav item</description>
+    </attribute>
+  </tag>
+  
+  <tag>
+    <name>url</name>
+    <tag-class>blackboard.servlet.tags.navigation.UrlTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+        Renders...
+    </description>
+    <attribute>
+      <name>navItem</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description></description>
+    </attribute>
+    <attribute>
+      <name>contextParameters</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Accepts additional context information</description>
+    </attribute>
+  </tag>
+  
+</taglib>

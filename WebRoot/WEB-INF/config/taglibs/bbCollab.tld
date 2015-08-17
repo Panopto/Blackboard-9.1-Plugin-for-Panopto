@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="bbAlign.xsl"?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
+
+  <tlib-version>1.0</tlib-version>
+  <short-name>bbCollab</short-name>
+  <uri>/bbCollab</uri>
+  <description>
+    Taglib for collaborative course tools (Wiki, Blog). This contains tags for rendering these collab
+    pages, entries, comments, and grading tools.
+  </description>
+
+  <tag>
+    <name>collab</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.CollabTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Constructs the general layout of collaboration pages such as the Wiki and Blog.
+      This should be used in conjunction with the collabLeftColumn and collabRightColumn
+      tags.
+    </description>
+    <attribute>
+      <name>cssPrefix</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+      CSS Prefix to append to layout classes
+      </description>
+    </attribute>
+  </tag>
+  <tag>
+    <name>collabLeftColumn</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.CollabLeftColumnTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Constructs the contents of the collab left side panel list.
+    </description>
+  </tag>
+  <tag>
+    <name>collabRightColumn</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.CollabRightColumnTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Constructs the contents of the collab right side panel list.
+    </description>
+  </tag>
+
+  <tag>
+    <name>collabPanel</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.CollabPanelTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Constructs a section of the right side collab panel list.
+    </description>
+    <attribute>
+      <name>panelId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+      Panel id value
+      </description>
+    </attribute>
+    <attribute>
+      <name>title</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+      Panel title
+      </description>
+    </attribute>
+    <attribute>
+      <name>visible</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+      Panel Visibility. Default value is true.
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>collabPanelLegend</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.CollabPanelLegendTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Constructs a legend section of the right side collab panel list.
+    </description>
+  </tag>
+
+  <tag>
+    <name>collapsibleInstructions</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.CollapsibleInstructionsTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Constructs a collapsible instructions widget
+    </description>
+    <attribute>
+      <name>description</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+      Display text
+      </description>
+    </attribute>
+    <attribute>
+      <name>collapseMsg</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+      Collapse alt message
+      </description>
+    </attribute>
+    <attribute>
+      <name>expandMsg</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+      Expand alt message
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>collabEntry</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.CollabEntryTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      The shell around display of a collab entry (wiki/blog/etc).  Should contain one each of the
+      collabEntryHeader, collabEntryContent, and collabEntryFooter tags.
+    </description>
+    <attribute>
+      <name>cssClass</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The css class (or classes) to be applied to the shell around collaboration display
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>collabEntryHeader</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.CollabEntryHeaderTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Constructs the header of a collab entry. see collabEntry tag.
+      Any body content of this tag will be rendered inside the header tag.
+      If both buttonUrl and buttonLabel are specified, a button will be floated to the 
+      right of the header.
+    </description>
+    <attribute>
+      <name>name</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The name of this collab entry
+      </description>
+    </attribute>
+    <attribute>
+      <name>nameAnchor</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The html anchor to assign to this entry's name
+      </description>
+    </attribute>
+    <attribute>
+      <name>buttonUrl</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        url for the optional header button
+      </description>
+    </attribute>
+    <attribute>
+      <name>buttonLabel</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        label for the optional header button
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>collabEntryDate</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.CollabEntryDateTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Basic shell to surround the "entry date" display for a collab entry.  see collabEntry tag.
+    </description>
+    <attribute>
+      <name>cssClass</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The style to be applied to this shell
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>collabEntryContent</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.CollabEntryContentTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Basic shell to surround the content of a collab entry.  see collabEntry tag.
+    </description>
+    <attribute>
+      <name>cssClass</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The style to be applied to this shell
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>collabEntryComments</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.CollabEntryCommentsTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Tag that displays the standard Bb "comment" ui.
+    </description>
+    <attribute>
+      <name>jsProxy</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        js class that must provide the following functions:
+        getComments, addComment, deleteComment
+      </description>
+    </attribute>
+    <attribute>
+      <name>entryId</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        string identifier for the current collab entry
+      </description>
+    </attribute>
+    <attribute>
+      <name>entryTitle</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        string title for the collab entry (for instance, the blog entry's title)
+      </description>
+    </attribute>
+    <attribute>
+      <name>entryParentId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        string identifier for the current collab entry's parent (for instance, the blog that contains blog entries)
+      </description>
+    </attribute>
+    <attribute>
+      <name>commentToFocusId</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        string identifier for the comment to put focus on when the comment block is displayed
+      </description>
+    </attribute>
+    <attribute>
+      <name>numComments</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Integer</type>
+      <description>
+        int for the number of comments on this entry
+      </description>
+    </attribute>
+    <attribute>
+      <name>showNewCommentsMessage</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>
+        whether or not to show the "new" label on new comments
+      </description>
+    </attribute>
+    <attribute>
+      <name>canComment</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>
+        whether or not the current user has permission to add comments
+      </description>
+    </attribute>
+    <attribute>
+      <name>maxCommentLen</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Integer</type>
+      <description>
+        largest number of characters that will be accepted for a new comment save.
+      </description>
+    </attribute>
+    <attribute>
+      <name>lastCommentModifiedDate</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Long</type>
+      <description>
+        date in milliseconds since the last comment was modified
+      </description>
+    </attribute>
+    <attribute>
+      <name>allowAnonymous</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>
+        whether or not the current user can add anonymous comments
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>collabTemplates</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.CollabTemplatesTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Generates the hidden html snippets used by collab js to build up comment entry html
+    </description>
+    <attribute>
+      <name>jsProxy</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        js class that will do the comment deletion
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>viewContributorsLegend</name>
+    <tag-class>blackboard.servlet.tags.ngui.collab.ViewContributorsLegendTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Tag that displays the legend for the viewContributors tag.
+    </description>
+    <attribute>
+      <name>canGrade</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>java.lang.Boolean</type>
+      <description>
+        Whether to display grade related legends or not.
+      </description>    
+    </attribute>    
+  </tag>
+</taglib>
+

@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="bbNG.xsl"?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:bb="http://www.blackboard.com/tld-public-api"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
+
+  <tlib-version>1.0</tlib-version>
+  <short-name>bbFn</short-name>
+  <uri>/bbFunctions</uri>
+  <description>
+    The Blackboard Data tag library standard functions for JSP consumption.
+  </description>
+
+  <function bb:public="true">
+    <name>property</name>
+    <function-class>blackboard.servlet.jstl.PropertyUtility</function-class>
+    <function-signature>
+      String getPropertyValue(java.util.Properties,java.lang.String)
+    </function-signature>
+  </function>
+
+  <function bb:public="true">
+    <name>set</name>
+    <function-class>blackboard.servlet.jstl.ObjectUtility</function-class>
+    <function-signature>
+      String setValue(java.lang.Object,java.lang.String,java.lang.Object)
+    </function-signature>
+    <description>
+      Set a given Object value to the specified field in the given Object.
+    </description>
+    <example>
+      <![CDATA[
+        <!-- The example below illustrates usage of bbFn:set() -->
+        <!-- Make Java Objects available in Request -->
+		<%
+		   TitlebarButtonBean item = new TitlebarButtonBean( "Title", "#", null, null, null );
+		   request.setAttribute( "item1", item );
+		   String newTitle = new String( "New Title" );
+		   request.setAttribute( "newTitle", newTitle );
+		%>
+
+        <!-- Call bbFn:set() in JavaScript -->
+           ${bbFn:set(item1, '_title', newTitle)}
+		   var theTitle = "${bbFn:get(item1, '_title')}";
+		   alert( "The title is " + theTitle );
+
+        <!-- Or Call bbFn:set() in Html code -->
+        ${bbFn:set(item1, '_title', newTitle)}
+        <h> The title of this test is ${bbFn:get(item1, '_title')} </h>
+      ]]>
+    </example>
+  </function>
+
+  <function bb:public="true">
+    <name>get</name>
+    <function-class>blackboard.servlet.jstl.ObjectUtility</function-class>
+    <function-signature>
+      String getValue(java.lang.Object,java.lang.String)
+    </function-signature>
+    <description>
+      Get the value of the specified field from the given Object.
+    </description>
+    <example>
+      <![CDATA[
+        <!-- The example below illustrates usage of bbFn:get() -->
+        <!-- Make Java Object available in Request -->
+		<%
+		   TitlebarButtonBean item = new TitlebarButtonBean( "Title", "#", null, null, null );
+		   request.setAttribute( "item1", item );
+		%>
+
+        <!-- Call bbFn:get() in JavaScript -->
+		   var theTitle = "${bbFn:get(item1, '_title')}";
+		   alert( "The title is " + theTitle );
+
+        <!-- Or Call bbFn:get() in Html code -->
+        <h> The title of this test is ${bbFn:get(item1, '_title')} </h>
+      ]]>
+    </example>
+  </function>
+
+  <function bb:public="true">
+    <name>contains</name>
+    <function-class>blackboard.servlet.jstl.ObjectUtility</function-class>
+    <function-signature>
+      boolean collectionContains(java.lang.Object,java.lang.String)
+    </function-signature>
+  </function>
+
+  <function bb:public="true">
+    <name>jsEncodeHtml</name>
+    <function-class>blackboard.servlet.jstl.EncodeUtility</function-class>
+    <function-signature>
+      String jsEncodeHtml(java.lang.String)
+    </function-signature>
+    <description>
+      Escape Javascript string that appears as HTML format for given input html string.
+      It is calling JsResource.encodeHTML( StringUtil.valueOf( given_input_html_string, "" )).
+    </description>
+    <example>
+      <![CDATA[
+        <!-- The example below illustrates usage of bbFn:jsEncodeHtml() -->
+		<%
+		   request.setAttribute( "htmlCode", someHtmlCode );
+		%>
+
+        <!-- Call bbFn:jsEncodeHtml() -->
+        ${bbFn:jsEncodeHtml(htmlCode)}
+      ]]>
+    </example>
+  </function>
+
+  <function bb:public="true">
+    <name>jsEncode</name>
+    <function-class>blackboard.servlet.jstl.EncodeUtility</function-class>
+    <function-signature>
+      String jsEncode(java.lang.String)
+    </function-signature>
+    <description>
+      Escape ', " and \n for Javascript for given input string.
+      It is calling JsResource.encode( StringUtil.valueOf( given_input_string, "" )).
+    </description>
+    <example>
+      <![CDATA[
+        <!-- The example below illustrates usage of bbFn:jsEncode() -->
+		<%
+		   request.setAttribute( "inputString", someInputString );
+		%>
+
+        <!-- Call bbFn:jsEncode() -->
+        ${bbFn:jsEncode(inputString)}
+      ]]>
+    </example>
+  </function>
+
+  <function bb:public="true">
+    <name>textEscape</name>
+    <function-class>blackboard.servlet.jstl.EncodeUtility</function-class>
+    <function-signature>
+      String textEscape(java.lang.String)
+    </function-signature>
+    <description>
+      Performs text substitutions required for HTML display.
+    </description>
+  </function>
+
+  <function bb:public="true">
+    <name>urlEncode</name>
+    <function-class>blackboard.servlet.jstl.EncodeUtility</function-class>
+    <function-signature>
+      String urlEncode(java.lang.String)
+    </function-signature>
+  </function>
+
+  <function bb:public="true">
+    <name>urlDecode</name>
+    <function-class>blackboard.util.UrlUtil</function-class>
+    <function-signature>
+      String decodeUrl(java.lang.String)
+    </function-signature>
+  </function>
+
+  <function bb:public="true">
+	  <name>userHasEntitlement</name>
+	  <function-class>blackboard.platform.security.SecurityUtil</function-class>
+	  <function-signature>
+		  boolean userHasEntitlement(java.lang.String)
+	  </function-signature>
+  </function>
+
+  <function bb:public="true">
+    <name>userHasEntitlementInContext</name>
+    <function-class>blackboard.platform.security.SecurityUtil</function-class>
+    <function-signature>
+      boolean userHasEntitlementInContext(java.lang.String, blackboard.persist.Id)
+    </function-signature>
+    <description>
+      Checks if the current user in the specified context has the specified entitlement.
+    </description>
+  </function>
+
+  <function bb:public="true">
+	  <name>isContentEditable</name>
+	  <function-class>blackboard.data.coursemap.impl.MapItemUtil</function-class>
+	  <function-signature>
+		  boolean isContentEditable(java.lang.String, java.lang.String)
+	  </function-signature>
+  </function>
+
+  <function>
+	  <name>getViewModeUrlString</name>
+	  <function-class>blackboard.data.navigation.NavigationApplicationUtil</function-class>
+	  <function-signature>java.lang.String loadNavigationItemByApplicationNameAndViewType(java.lang.String, boolean)</function-signature>
+  </function>
+
+  <function bb:public="true">
+	  <name>isSameDay</name>
+	  <function-class>blackboard.servlet.jstl.DateUtility</function-class>
+	  <function-signature>boolean isSameDay(java.util.Calendar, java.util.Calendar)</function-signature>
+  </function>
+
+  <function bb:public="true">
+    <name>isCurrentInDateRange</name>
+    <function-class>blackboard.util.CalendarUtil</function-class>
+    <function-signature>boolean isCurrentInDateRange(java.util.Calendar, java.util.Calendar)</function-signature>
+  </function>
+
+  <function>
+    <name>writeFileToWriter</name>
+    <function-class>blackboard.util.FileUtil</function-class>
+    <function-signature>void writeFileToWriter(java.io.File, java.io.Writer)</function-signature>
+  </function>
+
+  <function>
+    <name>setViewModeOnEditPage</name>
+    <function-class>blackboard.servlet.util.ContentRendererUtil</function-class>
+    <function-signature>void setViewModeOnEditPage(java.lang.String, javax.servlet.http.HttpServletRequest)</function-signature>
+  </function>
+
+  <function>
+    <name>lessonPlanCustomFormBuilderConfig</name>
+    <function-class>blackboard.webapps.blackboard.lessonplan.web.LessonPlanComponentsCustomFormBuilderConfig</function-class>
+    <function-signature>void configure(javax.servlet.http.HttpServletRequest)</function-signature>
+  </function>
+
+  <function bb:public="true">
+    <name>getThumbnailUrl</name>
+    <function-class>blackboard.webapps.xythoswfs.FileSystemEntryFacade</function-class>
+    <function-signature>String getThumbnailUrl(blackboard.webapps.xythoswfs.FileSystemEntryFacade,java.lang.String)</function-signature>
+  </function>
+
+  <function bb:public="true">
+    <name>convertTagToTagData</name>
+    <function-class>blackboard.servlet.data.ngui.TagData</function-class>
+  <function-signature>
+    java.util.List convertTagToTagData( java.util.List )
+    </function-signature>
+  </function>
+
+  <function bb:public="true">
+    <name>toLocaleNumber</name>
+    <function-class>blackboard.servlet.util.BbLocaleUtil</function-class>
+	  <function-signature>
+	    String toLocaleNumber( java.lang.Object )
+	  </function-signature>
+	  <description>
+      Will format incoming Number or String to the current user's locale format.
+    </description>
+  </function>
+
+  <function bb:public="true">
+    <name>formatTime</name>
+    <function-class>blackboard.servlet.util.BbLocaleUtil</function-class>
+    <function-signature>String formatTime( java.util.Date, java.lang.Object )</function-signature>
+    <description>
+      This is will format the given date as per given time style represented by an object of kind BbLocale$Time.
+      Internally it is just calling back BbLocale's formatTime() method.
+    </description>
+  </function>
+
+  <function bb:public="true">
+    <name>formatDate</name>
+    <function-class>blackboard.servlet.util.BbLocaleUtil</function-class>
+    <function-signature>String formatDate( java.util.Date, java.lang.Object )</function-signature>
+    <description>
+      This is will format the given date as per given date style represented by an object of kind BbLocale$Date.
+      Internally it is just calling back BbLocale's formatDate() method.
+    </description>
+  </function>
+
+  <function bb:public="true">
+    <name>truncateString</name>
+    <function-class>blackboard.util.StringUtil</function-class>
+    <function-signature>java.lang.String truncate( java.lang.String, int )</function-signature>
+    <description>
+      Returns a truncated version of the specified string by the specified number of characters.
+    </description>
+  </function>
+
+  <function bb:public="true">
+    <name>truncateStringEllipsis</name>
+    <function-class>blackboard.util.StringUtil</function-class>
+    <function-signature>java.lang.String truncate( java.lang.String, int, boolean )</function-signature>
+    <description>
+      Returns a truncated version of the specified string by the specified number of characters. The boolean
+      is whether to append an ellipsis or not.
+    </description>
+  </function>
+
+  <function bb:public="true">
+    <name>stripTags</name>
+    <function-class>blackboard.util.TextFormat</function-class>
+    <function-signature>java.lang.String stripTags( java.lang.String )</function-signature>
+    <description>
+      Strips everything surrounded by &lt; &gt; including the brackets.
+    </description>
+  </function>
+
+  <function bb:public="true">
+    <name>toJSONArray</name>
+    <function-class>blackboard.util.CollectionUtils</function-class>
+    <function-signature>net.sf.json.JSONArray toJSONArray( java.util.Collection )</function-signature>
+    <description>
+      Converts given Collection of String objects into a JSONArray.
+    </description>
+  </function>
+  
+  <function bb:public="false">
+    <name>getUserIdStrByUsername</name>
+    <function-class>blackboard.util.UserIdUtil</function-class>
+    <function-signature>java.lang.String getUserIdStrByUsername( java.lang.String )</function-signature>
+    <description>
+      Returns an external user id of the user whose username was passed in.
+    </description>
+  </function>
+  
+  <function bb:public="false">
+    <name>getUserIdStrByCourseMembership</name>
+    <function-class>blackboard.util.UserIdUtil</function-class>
+    <function-signature>java.lang.String getUserIdStrByCourseMembership( blackboard.persist.Id )</function-signature>
+    <description>
+      Returns an external user id of the user whose course membership id was passed in.
+    </description>
+  </function>
+
+</taglib>

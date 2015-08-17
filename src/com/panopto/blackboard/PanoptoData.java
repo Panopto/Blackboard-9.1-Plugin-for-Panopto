@@ -22,10 +22,14 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import blackboard.base.FormattedText;
 import blackboard.data.ValidationException;
@@ -57,6 +61,7 @@ import blackboard.platform.security.CourseRole;
 
 import com.panopto.services.AccessManagementLocator;
 import com.panopto.services.AuthenticationInfo;
+import com.panopto.services.DateTimeOffset;
 import com.panopto.services.Folder;
 import com.panopto.services.FolderSortField;
 import com.panopto.services.IAccessManagement;
@@ -68,8 +73,11 @@ import com.panopto.services.ListSessionsRequest;
 import com.panopto.services.ListSessionsResponse;
 import com.panopto.services.Pagination;
 import com.panopto.services.Session;
+import com.panopto.services.SessionAvailabilitySettings;
+import com.panopto.services.SessionEndSettingType;
 import com.panopto.services.SessionManagementLocator;
 import com.panopto.services.SessionSortField;
+import com.panopto.services.SessionStartSettingType;
 import com.panopto.services.SessionState;
 import com.panopto.services.UserManagementLocator;
 
@@ -634,6 +642,7 @@ public class PanoptoData
         }
         else
         {
+            Utils.log("Folder ID: " + folderID);
             Session[] sessions = this.getSessions(folderID);
             if(sessions != null)
             {
@@ -676,41 +685,200 @@ public class PanoptoData
     }
 
     // Insert a content item in the current course with a link to the specified delivery.
-    public Content addBlackboardContentItem(String content_id, String lectureUrl, String title, String description)
+    public LinkAddedResult addBlackboardContentItem(String content_id, String lectureUrl, String title, String description)
     {
-        Content content = null;
+        Session[] sessionArray;
+        LinkAddedResult linkAddedResult = LinkAddedResult.FAILURE;
         try
         {
+            
+            //Get folder ID from URL param and add to an array to pass into updateFoldersAvailabilityStartSettings();
+            Map<String, String> urlParams = this.getQueryMap(lectureUrl);            
+            String sessionID = urlParams.get("id");            
+            String[] sessionIds = {sessionID};
+            
             // retrieve the Db persistence manager from the persistence service
             BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
+            
+            //Generate AuthenticationInfo for calling availability window update method.
+            AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
 
-            // create a course document and set all desired attributes
-            content = new Content();
-            content.setTitle(title);
-            FormattedText text = new FormattedText(description, FormattedText.Type.HTML);
-            content.setBody(text);
-            content.setUrl(lectureUrl);
-            content.setRenderType(Content.RenderType.URL);
-            content.setLaunchInNewWindow(true);
-            content.setContentHandler("hyperlink/coursecast");
-
-            // Set course and parent content IDs (required)
-            Id parentId = bbPm.generateId(Content.DATA_TYPE, content_id);
-            content.setParentId(parentId);
-
-            Id courseId = bbCourse.getId();
-            content.setCourseId(courseId);
-
-            // retrieve the content persister and persist the content item
-            ContentDbPersister persister = (ContentDbPersister) bbPm.getPersister(ContentDbPersister.TYPE);
-            persister.persist(content);
+            //Get user's blackboard ID from their username
+            UserDbLoader userLoader = (UserDbLoader)bbPm.getLoader(UserDbLoader.TYPE);
+            User user = userLoader.loadByUserName(bbUserName);
+            Id bbUserId = user.getId();
+            
+            //Load the user's membership in the current course to get their role
+            CourseMembershipDbLoader membershipLoader = (CourseMembershipDbLoader)bbPm.getLoader(CourseMembershipDbLoader.TYPE);
+            CourseMembership usersCourseMembership = membershipLoader.loadByCourseAndUserId(bbCourse.getId(), bbUserId);
+            Role userRole = usersCourseMembership.getRole();
+            
+            //Determine if current user has creator access to session.
+            boolean isCreator = (   isInstructorRole(userRole)
+                                 || (   isTARole(userRole)
+                                     && Utils.pluginSettings.getGrantTACreator()));
+            
+            if(isCreator)
+            {
+                //If user is a creator on Panopto, check if the session is in its availability window.
+                boolean isInAvailabilityWindow = this.isSessionInAvailabilityWindow(
+                        sessionIds, auth); 
+                
+                if(isInAvailabilityWindow){
+                   // If the session is in its availability window. add it to the course and return success.
+                    addSessionLinkToCourse(content_id, lectureUrl, title, description,
+                            bbPm);
+                    linkAddedResult =  LinkAddedResult.SUCCESS;
+                }
+                else
+                {
+                    //If the session ios not in its availability window, try to call the API to make the session available immediately. If the call
+                    // is successful, add the session to the course and return success, otherwise it means that the session requires publisher
+                    //approval and the calling user is not a publisher.
+                    try
+                    {
+                        sessionManagement.updateSessionsAvailabilityStartSettings(auth, sessionIds, SessionStartSettingType.Immediately, null);
+                        addSessionLinkToCourse(content_id, lectureUrl, title, description, bbPm);
+                        linkAddedResult = LinkAddedResult.SUCCESS;
+                    }
+                    catch(Exception e)
+                    {
+                        //Needs publisher access
+                        linkAddedResult = LinkAddedResult.NOTPUBLISHER;
+                    }
+                }
+            }
+            else
+            {
+                //If the user does not have a creator role, first call API to determine whether session is already available.
+                sessionArray = sessionManagement.getSessionsById(auth, sessionIds);
+                if(sessionArray.length < 1)
+                {
+                    //If no session is returned, it means the session is not in its availability window, and the current user cannot make it,
+                    //available. Return failure indicating the user must ask a creator to make the session available.
+                    linkAddedResult = LinkAddedResult.NOTCREATOR;
+                }
+                else
+                {
+                    //If the session is currently in its availability window, it can be added to the course without having to make any API call.
+                    //Return success.
+                    addSessionLinkToCourse(content_id, lectureUrl, title, description, bbPm);
+                    linkAddedResult = LinkAddedResult.SUCCESS;
+                }
+            }
         }
         catch(Exception e)
         {
+            //General error when trying to add a session to a course. Print details to log.
             Utils.log(e, String.format("Error adding content item (content ID: %s, lecture Url: %s, title: %s, description: %s).", content_id, lectureUrl, title, description));
+            linkAddedResult = LinkAddedResult.FAILURE;
+        }
+        return linkAddedResult;
+    }
+
+    
+    //Determines if a given Panopto session is currently within its availability window.
+    private boolean isSessionInAvailabilityWindow(String[] sessionIds,
+            AuthenticationInfo auth) throws RemoteException {
+        
+        boolean isAvailable = false;
+        
+        //Get availability window settings for session.
+        SessionAvailabilitySettings sessionAvailabilitySettings = sessionManagement.getSessionsAvailabilitySettings(auth, sessionIds).getResults()[0];
+
+        //Get datetime component of StartSettingDate and add the offset to get UTC time.
+        Calendar startDate;
+        Calendar endDate;
+        DateTimeOffset startOffset = sessionAvailabilitySettings.getStartSettingDate();        
+        
+        //If the start date time offset is not null, then extract the date from it. Otherwise, set the date to null.
+        if (startOffset != null){
+            startDate = startOffset.getDateTime();
+            startDate.add(Calendar.MINUTE, startOffset.getOffsetMinutes());
+        }
+        else
+        {
+            startDate = null;
         }
 
-        return content;
+        DateTimeOffset endOffset = sessionAvailabilitySettings.getEndSettingDate();      
+        
+        //If the end date time offset is not null, then extract the date from it. Otherwise, set the date to null.
+        if (endOffset != null){
+            endDate = endOffset.getDateTime();
+            endDate.add(Calendar.MINUTE, endOffset.getOffsetMinutes());
+        }
+        else
+        {
+            endDate = null;
+        }
+        
+        SessionStartSettingType startType = sessionAvailabilitySettings.getStartSettingType();
+        SessionEndSettingType endType = sessionAvailabilitySettings.getEndSettingType();
+        
+        //If session start date is either "Immediately" or is a specific date in the past,
+        //we are currently past the start time of the availability window.
+        if(startType.equals(SessionStartSettingType.Immediately)
+           || (startType.equals(SessionStartSettingType.SpecificDate)     
+                && startDate.after(Calendar.getInstance(TimeZone.getTimeZone("UTC")))))
+        {
+            //If the session availability end date is "Forever", or a date in the future,
+            //we are currently before the availability window's end time, and are therefore
+            //within the session's availability window.
+            if(endType.equals(SessionEndSettingType.Forever)
+               || (endType.equals(SessionEndSettingType.SpecificDate)  
+                       && endDate.before(Calendar.getInstance(TimeZone.getTimeZone("UTC")))))
+            {
+                isAvailable = true;
+            }
+
+        }
+        return isAvailable;
+    }
+
+    //Adds a link to a Panopto session to the content area of the current Blackboard course.
+    private void addSessionLinkToCourse(String content_id, String lectureUrl,
+            String title, String description, BbPersistenceManager bbPm)
+            throws PersistenceException, ValidationException {
+        // Create a course document and set all desired attributes
+        Content content = new Content();
+        content.setTitle(title);
+        content.setBody(new FormattedText(description, FormattedText.Type.HTML));
+        content.setUrl(lectureUrl);
+        content.setRenderType(Content.RenderType.URL);
+        content.setLaunchInNewWindow(true);
+        content.setContentHandler("hyperlink/coursecast");
+
+        // Set course and parent content IDs (required)
+        Id parentId = bbPm.generateId(Content.DATA_TYPE, content_id);
+        content.setParentId(parentId);
+
+        Id courseId = bbCourse.getId();
+        content.setCourseId(courseId);
+
+        // retrieve the content persister and persist the content item
+        ContentDbPersister persister = (ContentDbPersister) bbPm.getPersister(ContentDbPersister.TYPE);
+        persister.persist(content);
+    }
+
+
+    
+    //Returns map of url's query parameters and their values. Used for getting session ID for session to make available.
+    public Map<String, String> getQueryMap(String url)  
+    {
+        Map<String, String> map = null;        
+        String[] splitURL = url.split("\\?");
+        if(splitURL[1] != null && !splitURL[1].isEmpty()){
+            String[] params = splitURL[1].split("&");
+            map = new HashMap<String, String>();
+            for (String param : params)
+            {
+                String name = param.split("=")[0];
+                String value = param.split("=")[1];
+                map.put(name, value);
+            }  
+        }
+        return map;
     }
 
     // Sync's a user with Panopto so that his course memberships are up to date.
@@ -756,7 +924,7 @@ public class PanoptoData
                 else
                 {
                     studentCourses.add(courseLoader.loadById(membership.getCourseId()));
-                }  
+                }
             }
 
             ArrayList<String> externalGroupIds = new ArrayList<String>();
@@ -1200,7 +1368,7 @@ public class PanoptoData
         return lstInstructors;
     }
 
-    /*Returns true if role should be treated as an Intstructor. Instructors get creator access in Panopto.*/
+    /*Returns true if role should be treated as an Instructor. Instructors get creator access in Panopto.*/
     private static boolean isInstructorRole(
             blackboard.data.course.CourseMembership.Role membershipRole) 
     {
@@ -1415,7 +1583,6 @@ public class PanoptoData
     private String[] getCourseRegistryEntries(String key)
     {
         String[] values = null;
-
         try
         {
             Utils.logVerbose("Getting CourseRegistry for course: " + bbCourse.getId().toExternalString());
@@ -1594,5 +1761,13 @@ public class PanoptoData
             panLink.setUrl(URIRoot + "?course_id=" + cid.toExternalString());
             CourseTocDbPersister.Default.getInstance().persist(panLink);
         }
+    }
+    
+    //Enum types returned by addBlackboardContentItem, indicating whether a Panopto link has been successfully added to a course.
+    public static enum LinkAddedResult{
+        SUCCESS, //Link was added successfully.
+        NOTCREATOR, //Link was not added because the session is not available and the user does not have creator access in order to make it available.
+        NOTPUBLISHER, //Link was not added because session requires publisher approval.
+        FAILURE; //Link was not added for an unspecified reason.
     }
 }

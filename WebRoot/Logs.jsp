@@ -61,14 +61,44 @@ if(!SecurityUtil.userHasEntitlement("course.panopto.EXECUTE"))
 }
 else
 {
-	String logData = Utils.getLogData();
+	// Parse out the limit parameter to know how much of the log to show
+	String limitString = request.getParameter("limit");
+	long limit = Utils.defaultLogLimit;
+	if (limitString != null 
+		&& limitString.length() > 0)
+	{
+		try
+		{
+			limit = Long.parseLong(limitString);
+		}
+		catch (NumberFormatException ex)
+		{
+		}
+	}
+	
+	String logData = Utils.getLogData(limit);
 	
 	if(logData != null)
 	{
 	%>
 		<div>
-			<bbUI:button type="INLINE" name="Refresh" alt="Refresh" action="LINK" targetUrl='<%= "?action=refresh&nonce=" + System.currentTimeMillis() %>' />
+			<bbUI:button type="INLINE" name="Refresh" alt="Refresh" action="LINK" targetUrl='<%= "?action=refresh&nonce=" + System.currentTimeMillis() + "&limit=" + limit %>' />
 			<bbUI:button type="INLINE" name="Clear Log" alt="Clear Log" action="LINK" targetUrl="?action=delete" />
+		<%
+		// Show a button to display all log content, or the most recent based on the current limit
+		if (limit != Long.MAX_VALUE)
+		{
+		%>
+			<bbUI:button type="INLINE" name="View All" alt="View All" action="LINK" targetUrl='<%= "?limit=" + Long.MAX_VALUE %>' />
+		<%
+		}
+		else
+		{
+		%>
+			<bbUI:button type="INLINE" name="View Recent" alt="View Recent" action="LINK" targetUrl='<%= "?limit=" + Utils.defaultLogLimit %>' />
+		<%
+		}
+		%>
 		</div>
 
 		<br/>

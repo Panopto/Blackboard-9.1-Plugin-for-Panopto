@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="bbNG.xsl"?>
+    
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd" 
+        version="2.0"> 
+                                                                                              
+  <tlib-version>1.0</tlib-version>    
+  <short-name>localeUI</short-name>
+  <uri>/localeUI</uri>
+  <description>
+    The Blackboard Locale User Interface tag library encapsulates Blackboard locale
+    availability to allow easy view and modification.
+  </description>
+
+  <tag>
+    <name>localePicker</name>
+    <tag-class>blackboard.servlet.tags.LocalePickerTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      The Blackboard Locale User Interface tag library encapsulates Blackboard locale
+      availability to allow easy view and modification.
+      <![CDATA[Two types of picker are currently in use: <ul>]]>
+      <![CDATA[<li>]]>
+      an in-form dropdown select list only: size="1" - used in
+      webapps/blackboard/web/course/edit_course_manager.jsp
+      <![CDATA[<li>]]>
+      an on-page series of javascript links: displayType="inline" - used in
+      /webapps/portal/web/portal_jsp/moduletype/locale/view.jsp
+      <![CDATA[<li>]]>
+      an in-form read-only mode: displayType="readonly" - used in cases 
+      where passed in locale needs to be displayed as a label
+      <![CDATA[</ul>]]>
+    </description>
+    <attribute>
+      <name>target</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The target used for redirection after locale has been updated
+      </description>
+    </attribute>
+    <attribute>
+      <name>type</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        String that describes what type of localePicker to display. This controls which
+        locales are displayed, based on whether the locale is enabled for this type. Valid
+        values: "USER", "ORG", "COURSE", "DISPLAY". Default: "USER"
+      </description>
+    </attribute>
+    <attribute>
+      <name>displayType</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        String that controls whether the form is inline or not. Valid values: "inline", "readonly".
+        Default: empty
+      </description>
+    </attribute>
+    <attribute>
+      <name>size</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>Number of locales to display at once. Default: 5</description>
+    </attribute>
+    <attribute>
+      <name>locale</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The locale name to mark as "selected" in case of dropdown or the locale name to be
+        displayed as a label in case of displayType = "readonly".
+      </description>
+    </attribute>
+    <attribute>
+      <name>displayDefaultOption</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Boolean: whether to show the default locale or not.</description>
+    </attribute>
+    <attribute>
+      <name>script</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Javascript to attach to the select tag on a non-inline instance. Not currently
+        used by any page. Default: ""
+      </description>
+    </attribute>
+    <attribute>
+      <name>isForm</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Deprecated attribute.</description>
+    </attribute>
+  </tag>
+
+</taglib>

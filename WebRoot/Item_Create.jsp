@@ -71,12 +71,14 @@ if (!ccCourse.userMayAddLinks())
 	</bbUI:docTemplate>
 </c:catch>
 <%
-	return;
+    return;
 }
 
 if(lectureURL != null)
 {
-	ccCourse.addBlackboardContentItem(content_id, lectureURL, title, description);
+	PanoptoData.LinkAddedResult linkCreationOutput = ccCourse.addBlackboardContentItem(content_id, lectureURL, title, description);
+	if(linkCreationOutput.equals(PanoptoData.LinkAddedResult.SUCCESS))
+	{
 %>
 <c:catch>
 	<bbUI:docTemplate title="<%=page_title%>">
@@ -86,7 +88,42 @@ if(lectureURL != null)
 	</bbUI:docTemplate>
 </c:catch>
 <%
+    }
+    else if(linkCreationOutput.equals(PanoptoData.LinkAddedResult.NOTCREATOR))
+    {
+%>
+    <c:catch>
+        <bbUI:docTemplate title="<%=page_title%>">
+            <bbUI:receipt type="FAILURE" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
+                <font color = "red">The session cannot be added. Please have the creator approve the session in Panopto and then add the session.</font>
+            </bbUI:receipt>
+        </bbUI:docTemplate>
+    </c:catch><%
+        }
+        else if(linkCreationOutput.equals(PanoptoData.LinkAddedResult.NOTPUBLISHER))
+        {
+    %>
+    <c:catch>
+        <bbUI:docTemplate title="<%=page_title%>">
+            <bbUI:receipt type="FAILURE" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
+                <font color = "red">The session cannot be added. Please have the publisher make the session available in Panopto and then add the session.</font>
+            </bbUI:receipt>
+        </bbUI:docTemplate>
+    </c:catch><%
+    }
+    else
+    {
+    %>
+    <c:catch>
+        <bbUI:docTemplate title="<%=page_title%>">
+            <bbUI:receipt type="FAILURE" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
+                <font color = "red">The session could not be added to the course. See logs for details.</font>
+            </bbUI:receipt>
+        </bbUI:docTemplate>
+    </c:catch><%
+    }
 	return;
+	
 }
 %>
 
