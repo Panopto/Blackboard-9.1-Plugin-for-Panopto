@@ -277,29 +277,49 @@ public class PanoptoData
     // Gets all the sessions in a folder from the Panopto server. Returns null on error.
     public Session[] getSessions(String folderId)
     {
+        Session[] returnValue;
         try
         {
-            int maxPages = 100;
+            // Get all the sessions
+            int page = 0;
+            int responseCount = 0;
+            int maxPages = 100; // Do we want an upper cap on the number of pages?
+            int perPage = 25;
+            int totalSessionsExpected = -1;
+            ListSessionsResponse listResponse;
+            List<Session> allSessions = new ArrayList<Session>();
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-            ListSessionsRequest request = new ListSessionsRequest();
-            request.setFolderId(folderId);
-            request.setPagination(new Pagination(maxPages, 0));
-            request.setSortBy(SessionSortField.Date);
-            request.setSortIncreasing(true);
-            request.setStates(new SessionState[] { SessionState.Broadcasting, SessionState.Complete, SessionState.Recording });
-            ListSessionsResponse response = sessionManagement.getSessionsList(auth, request, null);
-            Session[] retVal = response.getResults();
-            if (retVal == null)
+            do
             {
-                retVal = new Session[0];
-            }
-            return retVal;
+                ListSessionsRequest request = new ListSessionsRequest();
+                
+                request.setFolderId(folderId);
+                request.setPagination(new Pagination(perPage, page));
+                request.setSortBy(SessionSortField.Date);
+                request.setSortIncreasing(true);
+                request.setStates(new SessionState[] { SessionState.Broadcasting, SessionState.Complete, SessionState.Recording });
+                
+                listResponse = sessionManagement.getSessionsList(auth, request, null);
+                allSessions.addAll(Arrays.asList(listResponse.getResults()));
+                if (totalSessionsExpected == -1)
+                {
+                    // First time through, grab the expected total count.
+                    totalSessionsExpected = listResponse.getTotalNumberResults();
+                }
+                Session[] returnedSessions = listResponse.getResults();
+                responseCount += returnedSessions.length;
+                page++;
+            } while ((responseCount < totalSessionsExpected) && (page < maxPages));
+            
+            returnValue = new Session[allSessions.size()];
+            returnValue = allSessions.toArray(returnValue);
         }
         catch(Exception e)
         {
             Utils.log(e, String.format("Error getting sessions (folder ID: %s, api user: %s).", folderId, apiUserKey));
-            return null;
+            returnValue = null;
         }
+        return  returnValue;
     }
 
     // Gets all the folders associated with this course. Any folder we can't get will return as null.
@@ -732,7 +752,7 @@ public class PanoptoData
                 }
                 else
                 {
-                    //If the session ios not in its availability window, try to call the API to make the session available immediately. If the call
+                    //If the session is not in its availability window, try to call the API to make the session available immediately. If the call
                     // is successful, add the session to the course and return success, otherwise it means that the session requires publisher
                     //approval and the calling user is not a publisher.
                     try
