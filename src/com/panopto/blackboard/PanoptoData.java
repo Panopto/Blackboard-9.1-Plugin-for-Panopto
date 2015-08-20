@@ -1,4 +1,4 @@
-/* Copyright Panopto 2009 - 2011
+/* Copyright Panopto 2009 - 2015
  *
  * This file is part of the Panopto plugin for Blackboard.
  *
@@ -89,6 +89,10 @@ public class PanoptoData
     private static final String sessionGroupIDRegistryKey = "CourseCast_SessionGroupID";
     private static final String sessionGroupDisplayNameRegistryKey = "CourseCast_SessionGroupDisplayName";
     private static final String originalContextRegistryKey = "CourseCast_OriginalContext";
+
+    //Constants used for paging.
+    private final int maxPages = 100;
+    private final int perPage = 100;
 
     // Blackboard course we are associating with
     private Course bbCourse;
@@ -283,8 +287,6 @@ public class PanoptoData
             // Get all the sessions
             int page = 0;
             int responseCount = 0;
-            int maxPages = 100; // Do we want an upper cap on the number of pages?
-            int perPage = 25;
             int totalSessionsExpected = -1;
             ListSessionsResponse listResponse;
             List<Session> allSessions = new ArrayList<Session>();
@@ -294,7 +296,7 @@ public class PanoptoData
                 ListSessionsRequest request = new ListSessionsRequest();
                 
                 request.setFolderId(folderId);
-                request.setPagination(new Pagination(perPage, page));
+                request.setPagination(new Pagination(this.perPage, page));
                 request.setSortBy(SessionSortField.Date);
                 request.setSortIncreasing(true); //sortIncreasing = true
                 request.setStates(new SessionState[] { SessionState.Broadcasting, SessionState.Complete, SessionState.Recording });
@@ -309,7 +311,7 @@ public class PanoptoData
                 Session[] returnedSessions = listResponse.getResults();
                 responseCount += returnedSessions.length;
                 page++;
-            } while ((responseCount < totalSessionsExpected) && (page < maxPages));
+            } while ((responseCount < totalSessionsExpected) && (page < this.maxPages));
             
             returnValue = new Session[allSessions.size()];
             returnValue = allSessions.toArray(returnValue);
@@ -403,14 +405,12 @@ public class PanoptoData
             // Get all the folders
             int page = 0;
             int responseCount = 0;
-            int maxPages = 100; // Do we want an upper cap on the number of pages?
-            int perPage = 25;
             int totalFoldersExpected = -1;
             ListFoldersResponse listResponse;
             List<Folder> allFolders = new ArrayList<Folder>();
             do
             {
-                ListFoldersRequest foldersRequest = new ListFoldersRequest( new Pagination( perPage, page ), null, false, FolderSortField.Name, true );
+                ListFoldersRequest foldersRequest = new ListFoldersRequest( new Pagination(this.perPage, page ), null, false, FolderSortField.Name, true );
                 listResponse = getPanoptoSessionManagementSOAPService(serverName).getCreatorFoldersList(auth, foldersRequest, null);
                 allFolders.addAll(Arrays.asList(listResponse.getResults()));
 
@@ -432,7 +432,7 @@ public class PanoptoData
 
                 responseCount += returnedFolders.length;
                 page++;
-            } while ((responseCount < totalFoldersExpected) && (page < maxPages));
+            } while ((responseCount < totalFoldersExpected) && (page < this.maxPages));
 
             Utils.logVerbose(String.format("Expected %d folders, returned %d folders", totalFoldersExpected, allFolders.size()));
 
@@ -456,8 +456,6 @@ public class PanoptoData
 
             int page = 0;
             int responseCount = 0;
-            int maxPages = 100;
-            int perPage = 25;
             int totalFoldersExpected = -1;
             ListFoldersResponse listResponse;
             List<Folder> allFolders = new ArrayList<Folder>();
@@ -466,7 +464,7 @@ public class PanoptoData
             {
                 ListFoldersRequest request = new ListFoldersRequest();
                 request.setPublicOnly(true);
-                request.setPagination(new Pagination(perPage, page));
+                request.setPagination(new Pagination(this.perPage, page));
                 listResponse =getPanoptoSessionManagementSOAPService(serverName).getCreatorFoldersList(auth, request, null);
                 allFolders.addAll(Arrays.asList(listResponse.getResults()));
 
@@ -488,7 +486,7 @@ public class PanoptoData
 
                 responseCount += returnedFolders.length;
                 page++;
-            } while ((responseCount < totalFoldersExpected) && (page < maxPages));
+            } while ((responseCount < totalFoldersExpected) && (page < this.maxPages));
             Utils.logVerbose(String.format("Expected %d folders, returned %d folders", totalFoldersExpected, allFolders.size()));
             return allFolders.toArray(new Folder[allFolders.size()]);
 
