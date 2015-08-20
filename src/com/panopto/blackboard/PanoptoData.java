@@ -296,10 +296,10 @@ public class PanoptoData
                 request.setFolderId(folderId);
                 request.setPagination(new Pagination(perPage, page));
                 request.setSortBy(SessionSortField.Date);
-                request.setSortIncreasing(true);
+                request.setSortIncreasing(true); //sortIncreasing = true
                 request.setStates(new SessionState[] { SessionState.Broadcasting, SessionState.Complete, SessionState.Recording });
                 
-                listResponse = sessionManagement.getSessionsList(auth, request, null);
+                listResponse = sessionManagement.getSessionsList(auth, request, null); //searchQuery = null
                 allSessions.addAll(Arrays.asList(listResponse.getResults()));
                 if (totalSessionsExpected == -1)
                 {
