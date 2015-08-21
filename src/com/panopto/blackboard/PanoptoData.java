@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 import blackboard.base.FormattedText;
 import blackboard.data.ValidationException;
@@ -57,6 +58,7 @@ import blackboard.persist.user.UserDbLoader;
 import blackboard.platform.context.Context;
 import blackboard.platform.persistence.PersistenceServiceFactory;
 import blackboard.platform.plugin.PlugInUtil;
+import blackboard.platform.reporting.service.birt.jdbc.Util;
 import blackboard.platform.security.CourseRole;
 
 import com.panopto.services.AccessManagementLocator;
@@ -928,21 +930,35 @@ public class PanoptoData
 
             List<CourseMembership> allCourseMemberships = courseMembershipLoader.loadByUserId(bbUserId);
 
+            Course currentCourse;
             for(CourseMembership membership: allCourseMemberships)
             {
-                Role membershipRole = membership.getRole();
-                if(isInstructorRole(membershipRole))
-                {
-                    instructorCourses.add(courseLoader.loadById(membership.getCourseId()));
-                }
-                else if(isTARole(membershipRole))
-                {
-                    taCourses.add(courseLoader.loadById(membership.getCourseId()));
-                }
-                else
-                {
-                    studentCourses.add(courseLoader.loadById(membership.getCourseId()));
-                }
+            	try
+            	{
+	                Role membershipRole = membership.getRole();
+	                currentCourse = courseLoader.loadById(membership.getCourseId());
+	                if(isInstructorRole(membershipRole))
+	                {
+	                    instructorCourses.add(currentCourse);
+	                }
+	                else if(isTARole(membershipRole))
+	                {
+	                    taCourses.add(currentCourse);
+	                }
+	                else
+	                {
+	                    studentCourses.add(currentCourse);
+	                }
+            	}
+            	catch (Exception ex)
+            	{
+            		Utils.log(
+        				ex, 
+        				String.format(
+    						"Failed to load course %1$s for membership %2$s",
+    						membership.getCourseId(),
+    						membership.getId()));
+            	}
             }
 
             ArrayList<String> externalGroupIds = new ArrayList<String>();

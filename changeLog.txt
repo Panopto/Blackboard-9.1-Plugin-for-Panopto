@@ -1,0 +1,41 @@
+Blackboard change-log from 4.8.0 +:
+
+4.8.0: 
+    - Added Panopto mashup tool for blackboard wysiwyg editor.
+
+4.8.1: 
+    - Hotfix - Increase timeout for API responses
+
+4.8.2: 
+    - Paged response for call to getPublicFolders();
+
+4.8.4: 
+    - Adds check for already existing course-menu link with the same name in a course when auto creating a link on provision.
+
+4.8.5: 
+    - Added option to add a link to a provisioned course when provisioning access is constrained. (TAs may create links setting)
+
+4.8.6: 
+    - API change-- replaced deprecated components we used from blackboard.platform.integration 
+	- fixed TAsCanCreateLinks not working when checked.
+
+4.8.7: 
+    Removed double scrollbar from embedded view of folder.
+
+4.8.80 - 4.8.84: 
+    - Collection of small fixes. 
+	- Changed usage of "CourseBean" objects to native blackboard "course" objects. 
+	- Reverted timeout for api requests back to 100 seconds from max int. 
+	- Source cleanup.
+
+4.8.88: 
+    - Fixed reset/configure buttons hidden in classic view.  
+	
+4.8.92 - 2015/08/13 - (optional):
+    Recommended for anyone experiencing problems with Logs.jsp
+    - Limits the amount of the log file that's read to display the log page, including options to see more of the file
+	- Show the error if there's a problem reading the log file
+	
+4.8.95 - 2015/08/21 - (optional):
+    Recommended for anyone experiencing problems synchronizing a user's memberships
+	- Adds error handling that allows synchronization to continue if an enrolled course returns an error during retrieval
