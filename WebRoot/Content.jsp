@@ -178,7 +178,6 @@ Boolean useOldLayout = false;
                             if (isIe9or10 || folders.length > 1)
                             {
                                 useOldLayout = true;
-                                %><div id="classicView"><%
                             }
 
                             for (int i = 0; i < folders.length; i++)
@@ -311,7 +310,7 @@ Boolean useOldLayout = false;
                         %><br><br><span class='error'>Error getting Panopto course content.</span><%
                     }
                 } %>
-            </div></div></div></div>
+            </div></div>
 <%
             if(ccCourse.isMapped() && ccCourse.userMayConfig())
             { %>
