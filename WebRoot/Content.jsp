@@ -1,7 +1,7 @@
 <!-- Copyright Panopto 2009 - 2013
- * 
+ *
  * This file is part of the Panopto plugin for Blackboard.
- * 
+ *
  * The Panopto plugin for Blackboard is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -38,7 +38,7 @@ String course_id = request.getParameter("course_id");
 
 String courseConfigURL = Utils.courseConfigScriptURL
                             + "?course_id=" + course_id;
-                            
+
 String courseResetURL = Utils.courseResetURL
                             + "?course_id=" + course_id;
 
@@ -50,7 +50,7 @@ Boolean useOldLayout = false;
 
 %>
     <bbNG:learningSystemPage>
-        <bbNG:cssFile href="css/main.css" />
+        <bbNG:cssFile href="main.css" />
             <style>
             #containerdiv
             {
@@ -63,27 +63,27 @@ Boolean useOldLayout = false;
             {
                 overflow: auto;
                 padding:0px 0px;
-                height: auto;
+                height: 100%;
                 width:100%
             }
-            
+
             .configureText
             {
                 margin: 5px 0px;
             }
-            
+
             .configureButtons
             {
                 margin: 5px 0px;
                 display: inline-block;
             }
-            
+
             .configureButtonPrompt, .configureButtonBox
             {
                 margin-top: 5px;
-                padding: 5px;   
+                padding: 5px;
             }
-            
+
             .configureButtonBox
             {
                 border-radius: 0px 0px 4px 4px;
@@ -91,13 +91,13 @@ Boolean useOldLayout = false;
                 border: 1px solid #AAA;
             }
             </style>
-            <div id="courseContent" style="padding:0px 0px; height: 800px; overflow: auto">
-            
+            <div id="courseContent" style="padding:0px 0px; height: 800px;">
+
                 <!-- Add POST parameter to links into Panopto to activate SSO auto-login -->
                 <form name="SSO" method="post">
                     <input type="hidden" name="instance" value="<%=Utils.pluginSettings.getInstanceName()%>" />
                 </form>
-                
+
                 <%
                 // In the case that a course was copied, the provisioning is not going to work, so we need to reset it.
                 if (!ccCourse.isOriginalContext())
@@ -125,10 +125,10 @@ Boolean useOldLayout = false;
                     </div>
                     <%
                     }
-                } 
-                
+                }
+
                 if(!ccCourse.isMapped() || courseHasBeenReset)
-                { 
+                {
                     if(ccCourse.userMayConfig())
                     { %>
                         <div id="configButton" class="configureButtonPrompt">
@@ -152,7 +152,7 @@ Boolean useOldLayout = false;
                     </div><%
                     }
                     else
-                    { 
+                    {
                         %> Please contact your administrator or instructor.<%
                     }
                 }
@@ -172,12 +172,13 @@ Boolean useOldLayout = false;
                         {
                             String ua = request.getHeader("User-Agent");
                             boolean isIe9or10 = (
-                                   ua != null 
+                                   ua != null
                                 && (   ua.indexOf("MSIE 10") != -1
                                     || ua.indexOf("MSIE 9") != -1));
                             if (isIe9or10 || folders.length > 1)
                             {
                                 useOldLayout = true;
+                                %><div id="classicView"><%
                             }
 
                             for (int i = 0; i < folders.length; i++)
@@ -198,7 +199,7 @@ Boolean useOldLayout = false;
                                             // New layout for modern browsers
                                             String folderUrl = folders[i].getEmbedUrl();
                                             String contentHostName = "courseContent";
-                                             
+
                                             %><iframe src="<%=folderUrl%>" height="100%" width="100%" ></iframe><%
                                     }
                                     else
@@ -208,7 +209,7 @@ Boolean useOldLayout = false;
                                         Session[] sessions = ccCourse.getSessions(folders[i].getId());
                                         if (sessions == null)
                                         {
-                                            %><div class="error">Error getting the recordings from the Panopto server.</div><%                                
+                                            %><div class="error">Error getting the recordings from the Panopto server.</div><%
                                         }
                                         else if (sessions.length == 0)
                                         {
@@ -253,7 +254,7 @@ Boolean useOldLayout = false;
                                             }
                                         }
                                     }
-                                    
+
                                     // Write out the podcast links for this folder
                                     String audioPodcastURL = folders[i].getAudioPodcastITunesUrl();
                                     if((audioPodcastURL != null) && !audioPodcastURL.equals(""))
@@ -266,7 +267,7 @@ Boolean useOldLayout = false;
                                             >)</span>
                                           </div><%
                                     }
-                                    
+
                                     String videoPodcastURL = folders[i].getVideoPodcastITunesUrl();
                                     if((videoPodcastURL != null) && !videoPodcastURL.equals(""))
                                     {
@@ -278,7 +279,7 @@ Boolean useOldLayout = false;
                                             >)</span>
                                           </div><%
                                     }
-                                    
+
                                     // If applicable, write out the config links for this folder
                                     if(ccCourse.IsInstructor())
                                     {
@@ -286,7 +287,7 @@ Boolean useOldLayout = false;
                                                <a href="<%=folders[i].getSettingsUrl()%>" onclick="return startSSO(this)"
                                                    >Panopto Folder Settings</a>
                                              </div><%
-                                       } 
+                                       }
 
                                         // Finally output the recorder downloads
                                         if(ccCourse.IsInstructor())
@@ -300,7 +301,6 @@ Boolean useOldLayout = false;
                                                  </div><%
                                         }
                                     }
-                                    %></div><%
                                 }
                             }
                         }
@@ -310,8 +310,10 @@ Boolean useOldLayout = false;
                         %><br><br><span class='error'>Error getting Panopto course content.</span><%
                     }
                 } %>
-            </div></div>
-<%
+            </div></div></div>
+            <% if(useOldLayout) { %>
+            </div></div></div><%
+            }
             if(ccCourse.isMapped() && ccCourse.userMayConfig())
             { %>
                 <div id="configButtons" class="configureButtonBox">
@@ -356,21 +358,21 @@ Boolean useOldLayout = false;
                     // Ensure the new window is brought to the front of the z-order.
                     notesWindow.focus();
                 }
-                
+
                 function startSSO(linkElem)
                 {
                     document.SSO.action = linkElem.href;
                     document.SSO.target = "_blank";
                     document.SSO.submit();
-                    
+
                     // Cancel default link navigation.
                       return false;
                 }
-                
+
                 window.onload = function(){ fitToWindow(); };
-                
+
                 window.onresize = function () { setTimeout(fitToWindow(), 150); };
-                
+
                 function fitToWindow()
                 {
                     var heightBuffer = 190;
@@ -392,7 +394,6 @@ Boolean useOldLayout = false;
                     // Set height of content divs column.
                     // Containerdiv is created by the BBNG presets.
                     document.getElementById("containerdiv").style.height = contentHeight;
-                    
                     document.getElementById("courseContent").style.height = contentHeight;
                     document.getElementById("contentPanel").style.height = blackboardPageHeight;
                 }
