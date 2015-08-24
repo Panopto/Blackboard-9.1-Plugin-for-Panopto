@@ -35,6 +35,9 @@ Blackboard change-log from 4.8.0 +:
     Recommended for anyone experiencing problems with Logs.jsp
     - Limits the amount of the log file that's read to display the log page, including options to see more of the file
 	- Show the error if there's a problem reading the log file
+
+4.8.94 - 2015/08/20:
+	-Fixes paging for retrieving sessions. Should fix issues with only first 100 sessions being returned for a folder.
 	
 4.8.95 - 2015/08/21 - (optional):
     Recommended for anyone experiencing problems synchronizing a user's memberships
