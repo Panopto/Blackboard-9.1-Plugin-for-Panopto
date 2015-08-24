@@ -42,3 +42,7 @@ Blackboard change-log from 4.8.0 +:
 4.8.95 - 2015/08/21 - (optional):
     Recommended for anyone experiencing problems synchronizing a user's memberships
 	- Adds error handling that allows synchronization to continue if an enrolled course returns an error during retrieval
+	
+4.8.96 - 2015/08/24 - (optional):
+	Reccomended for anyone using classic view to view folder contents.
+	-Fixes scrolling in classic view.
