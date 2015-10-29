@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 import blackboard.base.FormattedText;
 import blackboard.data.ValidationException;
@@ -57,6 +58,7 @@ import blackboard.persist.user.UserDbLoader;
 import blackboard.platform.context.Context;
 import blackboard.platform.persistence.PersistenceServiceFactory;
 import blackboard.platform.plugin.PlugInUtil;
+import blackboard.platform.reporting.service.birt.jdbc.Util;
 import blackboard.platform.security.CourseRole;
 
 import com.panopto.services.AccessManagementLocator;
@@ -294,13 +296,13 @@ public class PanoptoData
             do
             {
                 ListSessionsRequest request = new ListSessionsRequest();
-
+                
                 request.setFolderId(folderId);
                 request.setPagination(new Pagination(this.perPage, page));
                 request.setSortBy(SessionSortField.Date);
                 request.setSortIncreasing(true); //sortIncreasing = true
                 request.setStates(new SessionState[] { SessionState.Broadcasting, SessionState.Complete, SessionState.Recording });
-
+                
                 listResponse = sessionManagement.getSessionsList(auth, request, null); //searchQuery = null
                 allSessions.addAll(Arrays.asList(listResponse.getResults()));
                 if (totalSessionsExpected == -1)
@@ -312,7 +314,7 @@ public class PanoptoData
                 responseCount += returnedSessions.length;
                 page++;
             } while ((responseCount < totalSessionsExpected) && (page < this.maxPages));
-
+            
             returnValue = new Session[allSessions.size()];
             returnValue = allSessions.toArray(returnValue);
         }
@@ -584,9 +586,9 @@ public class PanoptoData
             result.append("<option value=''>-- Select a Folder --</option>");
 
             // Only use option groups if we have elements in both groups
-            boolean useOptionalGroups =    sessionGroupDisplayNames != null
+            boolean useOptionalGroups =    sessionGroupDisplayNames != null 
                     && sessionGroupDisplayNames.length > 0
-                    && publicFolders != null
+                    && publicFolders != null 
                     && publicFolders.length > 0;
 
                     // Add all the mapped folders
@@ -709,15 +711,15 @@ public class PanoptoData
         LinkAddedResult linkAddedResult = LinkAddedResult.FAILURE;
         try
         {
-
+            
             //Get folder ID from URL param and add to an array to pass into updateFoldersAvailabilityStartSettings();
-            Map<String, String> urlParams = this.getQueryMap(lectureUrl);
-            String sessionID = urlParams.get("id");
+            Map<String, String> urlParams = this.getQueryMap(lectureUrl);            
+            String sessionID = urlParams.get("id");            
             String[] sessionIds = {sessionID};
-
+            
             // retrieve the Db persistence manager from the persistence service
             BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
-
+            
             //Generate AuthenticationInfo for calling availability window update method.
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
 
@@ -725,33 +727,23 @@ public class PanoptoData
             UserDbLoader userLoader = (UserDbLoader)bbPm.getLoader(UserDbLoader.TYPE);
             User user = userLoader.loadByUserName(bbUserName);
             Id bbUserId = user.getId();
-
+            
             //Load the user's membership in the current course to get their role
             CourseMembershipDbLoader membershipLoader = (CourseMembershipDbLoader)bbPm.getLoader(CourseMembershipDbLoader.TYPE);
             CourseMembership usersCourseMembership = membershipLoader.loadByCourseAndUserId(bbCourse.getId(), bbUserId);
             Role userRole = usersCourseMembership.getRole();
-
+            
             //Determine if current user has creator access to session.
             boolean isCreator = (   isInstructorRole(userRole)
                                  || (   isTARole(userRole)
                                      && Utils.pluginSettings.getGrantTACreator()));
-
+            
             if(isCreator)
             {
-                boolean isInAvailabilityWindow = true;
-                try{
-                    //If user is a creator on Panopto, check if the session is in its availability window.
-                    isInAvailabilityWindow = this.isSessionInAvailabilityWindow(
-                            sessionIds, auth);
-                }
-                catch(Exception e)
-                {
-                    //Panopto version is too old and this api doesn't exist. Just return true, so we will add the link,
-                    //even though it might not be in the availability window.
-                    Utils.log(e, "Error getting availability information for sessions from server. This is most likely due to the Panopto version"
-                            + " being too old. Adding course links while ignoring availability settings.");
-                    
-                }
+                //If user is a creator on Panopto, check if the session is in its availability window.
+                boolean isInAvailabilityWindow = this.isSessionInAvailabilityWindow(
+                        sessionIds, auth); 
+                
                 if(isInAvailabilityWindow){
                    // If the session is in its availability window. add it to the course and return success.
                     addSessionLinkToCourse(content_id, lectureUrl, title, description,
@@ -804,21 +796,21 @@ public class PanoptoData
         return linkAddedResult;
     }
 
-
+    
     //Determines if a given Panopto session is currently within its availability window.
     private boolean isSessionInAvailabilityWindow(String[] sessionIds,
             AuthenticationInfo auth) throws RemoteException {
-
+        
         boolean isAvailable = false;
-
+        
         //Get availability window settings for session.
         SessionAvailabilitySettings sessionAvailabilitySettings = sessionManagement.getSessionsAvailabilitySettings(auth, sessionIds).getResults()[0];
 
         //Get datetime component of StartSettingDate and add the offset to get UTC time.
         Calendar startDate;
         Calendar endDate;
-        DateTimeOffset startOffset = sessionAvailabilitySettings.getStartSettingDate();
-
+        DateTimeOffset startOffset = sessionAvailabilitySettings.getStartSettingDate();        
+        
         //If the start date time offset is not null, then extract the date from it. Otherwise, set the date to null.
         if (startOffset != null){
             startDate = startOffset.getDateTime();
@@ -829,8 +821,8 @@ public class PanoptoData
             startDate = null;
         }
 
-        DateTimeOffset endOffset = sessionAvailabilitySettings.getEndSettingDate();
-
+        DateTimeOffset endOffset = sessionAvailabilitySettings.getEndSettingDate();      
+        
         //If the end date time offset is not null, then extract the date from it. Otherwise, set the date to null.
         if (endOffset != null){
             endDate = endOffset.getDateTime();
@@ -840,21 +832,21 @@ public class PanoptoData
         {
             endDate = null;
         }
-
+        
         SessionStartSettingType startType = sessionAvailabilitySettings.getStartSettingType();
         SessionEndSettingType endType = sessionAvailabilitySettings.getEndSettingType();
-
+        
         //If session start date is either "Immediately" or is a specific date in the past,
         //we are currently past the start time of the availability window.
         if(startType.equals(SessionStartSettingType.Immediately)
-           || (startType.equals(SessionStartSettingType.SpecificDate)
+           || (startType.equals(SessionStartSettingType.SpecificDate)     
                 && startDate.after(Calendar.getInstance(TimeZone.getTimeZone("UTC")))))
         {
             //If the session availability end date is "Forever", or a date in the future,
             //we are currently before the availability window's end time, and are therefore
             //within the session's availability window.
             if(endType.equals(SessionEndSettingType.Forever)
-               || (endType.equals(SessionEndSettingType.SpecificDate)
+               || (endType.equals(SessionEndSettingType.SpecificDate)  
                        && endDate.before(Calendar.getInstance(TimeZone.getTimeZone("UTC")))))
             {
                 isAvailable = true;
@@ -890,11 +882,11 @@ public class PanoptoData
     }
 
 
-
+    
     //Returns map of url's query parameters and their values. Used for getting session ID for session to make available.
-    public Map<String, String> getQueryMap(String url)
+    public Map<String, String> getQueryMap(String url)  
     {
-        Map<String, String> map = null;
+        Map<String, String> map = null;        
         String[] splitURL = url.split("\\?");
         if(splitURL[1] != null && !splitURL[1].isEmpty()){
             String[] params = splitURL[1].split("&");
@@ -904,7 +896,7 @@ public class PanoptoData
                 String name = param.split("=")[0];
                 String value = param.split("=")[1];
                 map.put(name, value);
-            }
+            }  
         }
         return map;
     }
@@ -961,7 +953,7 @@ public class PanoptoData
             	catch (Exception ex)
             	{
             		Utils.log(
-        				ex,
+        				ex, 
         				String.format(
     						"Failed to load course %1$s for membership %2$s",
     						membership.getCourseId(),
@@ -1282,7 +1274,7 @@ public class PanoptoData
 
         return courseMemberships;
     }
-
+    
     // Gets all the members of the course from Blackboard
     private static List<CourseMembership> getCourseMembershipsByRole(Course bbCourse, CourseMembership.Role role)
     {
@@ -1308,7 +1300,7 @@ public class PanoptoData
     public List<String> getTAs()
     {
         ArrayList<String> lstTAs = new ArrayList<String>();
-
+        
         // Get the course membership (instructors, students, etc.)
         List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
 
@@ -1334,7 +1326,7 @@ public class PanoptoData
                     String courseUserKey = Utils.decorateBlackboardUserName(courseUser.getUserName());
                     lstTAs.add(courseUserKey);
                 }
-            }
+            }   
         }
         return lstTAs;
     }
@@ -1343,7 +1335,7 @@ public class PanoptoData
     public List<String> getStudents()
     {
         ArrayList<String> lstStudents = new ArrayList<String>();
-
+        
         // Get the course membership (instructors, students, etc.)
         List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
 
@@ -1359,7 +1351,7 @@ public class PanoptoData
         }
         if(!studentCourseMemberships.isEmpty())
         {
-
+            
             for(Object membershipObject : studentCourseMemberships)
             {
                 CourseMembership courseMembership = (CourseMembership)membershipObject;
@@ -1367,10 +1359,10 @@ public class PanoptoData
                 if(courseUser != null)
                 {
                     String courseUserKey = Utils.decorateBlackboardUserName(courseUser.getUserName());
-
+                   
                     lstStudents.add(courseUserKey);
                 }
-            }
+            }   
         }
         return lstStudents;
     }
@@ -1379,7 +1371,7 @@ public class PanoptoData
     public List<String> getInstructors()
     {
         ArrayList<String> lstInstructors = new ArrayList<String>();
-
+        
         // Get the course membership (instructors, students, etc.)
         List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
 
@@ -1412,7 +1404,7 @@ public class PanoptoData
 
     /*Returns true if role should be treated as an Instructor. Instructors get creator access in Panopto.*/
     private static boolean isInstructorRole(
-            blackboard.data.course.CourseMembership.Role membershipRole)
+            blackboard.data.course.CourseMembership.Role membershipRole) 
     {
         //Role is instructor role if it is the 'Instructor' or 'Course Builder' built in blackboard role,
         //or if it is any role marked with the 'Act As Instructor' flag.
@@ -1423,7 +1415,7 @@ public class PanoptoData
 
     /*Returns true if role should be treated as a Student. Students get viewer access in Panopto.*/
     private static boolean isStudentRole(
-            blackboard.data.course.CourseMembership.Role membershipRole)
+            blackboard.data.course.CourseMembership.Role membershipRole) 
     {
         //Role is student role if it is not a built in instructor role or a custom role.
         return    !isInstructorRole(membershipRole)
@@ -1433,9 +1425,9 @@ public class PanoptoData
     /*Returns true if role should be treated as a TA. TA's get viewer access in Panopto, unless otherwise specified in the
        Blackboard block settings. Any custom blackboard roles are treated as TAs, unless they are marked with the 'Act As Instructor' flag.*/
     private static boolean isTARole(
-            blackboard.data.course.CourseMembership.Role membershipRole)
-    {
-        //Role is a TA role if it is the 'Teaching Assistant' built in blackboard role
+            blackboard.data.course.CourseMembership.Role membershipRole) 
+    {  
+        //Role is a TA role if it is the 'Teaching Assistant' built in blackboard role 
         //or if it is a custom role without the 'Act as Instructor' flag.
         CourseRole dbRole = membershipRole.getDbRole();
         return membershipRole.equals(Role.TEACHING_ASSISTANT)
@@ -1480,26 +1472,26 @@ public class PanoptoData
     //If checkTACanCreateLinks is true, a check will be performed if either getGrantTAProvision
     //or getTAsCanCreateLinks returns true. This is used when checking if TAs may add course menu links
     public static boolean isUserInstructor(Id bbCourseId, String bbUserName, boolean checkTACanCreateLinks)
-    {
+    {      
         BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
-
+        
         try
         {
             //Get user's blackboard ID from their username
             UserDbLoader userLoader = (UserDbLoader)bbPm.getLoader(UserDbLoader.TYPE);
             User user = userLoader.loadByUserName(bbUserName);
             Id bbUserId = user.getId();
-
+            
             //Load the user's membership in the current course to get their role
             CourseMembershipDbLoader membershipLoader = (CourseMembershipDbLoader)bbPm.getLoader(CourseMembershipDbLoader.TYPE);
             CourseMembership usersCourseMembership = membershipLoader.loadByCourseAndUserId(bbCourseId, bbUserId);
             Role userRole = usersCourseMembership.getRole();
-
+            
             if (isInstructorRole(userRole))
             {
                 return true;
             }
-
+            
             //If settings are configured to treat TAs as an instructor, and the user is either a Teaching Assistant or has a custom role, return true.
             else if(    Utils.pluginSettings.getGrantTAProvision()
                     || (    checkTACanCreateLinks
@@ -1525,14 +1517,14 @@ public class PanoptoData
     public static boolean canUserAddLinks(Id bbCourseId, String bbUserName) {
         return isUserInstructor(bbCourseId, bbUserName, true);
     }
-
+    
     private static IAccessManagement getPanoptoAccessManagementSOAPService(String serverName)
     {
         IAccessManagement port = null;
 
         try
         {
-            URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/AccessManagement.svc");
+            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/AccessManagement.svc");
 
             // Connect to the SessionManagement SOAP service on the specified Panopto server
             AccessManagementLocator service = new AccessManagementLocator();
@@ -1552,7 +1544,7 @@ public class PanoptoData
 
         try
         {
-            URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/SessionManagement.svc");
+            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/SessionManagement.svc");
 
             // Connect to the SessionManagement SOAP service on the specified Panopto server
             SessionManagementLocator service = new SessionManagementLocator();
@@ -1572,7 +1564,7 @@ public class PanoptoData
 
         try
         {
-            URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/UserManagement.svc");
+            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/UserManagement.svc");
 
             // Connect to the UserManagement SOAP service on the specified Panopto server
             UserManagementLocator service = new UserManagementLocator();
@@ -1804,7 +1796,7 @@ public class PanoptoData
             CourseTocDbPersister.Default.getInstance().persist(panLink);
         }
     }
-
+    
     //Enum types returned by addBlackboardContentItem, indicating whether a Panopto link has been successfully added to a course.
     public static enum LinkAddedResult{
         SUCCESS, //Link was added successfully.
