@@ -20,6 +20,7 @@ package com.panopto.blackboard;
 
 import java.net.URL;
 import java.rmi.RemoteException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1805,24 +1806,30 @@ public class PanoptoData
     //Determines whether or not the block is able to call session or folder availability window API methods
     //based on the version of the current Panopto server.            
     //Availability window api functions were introduced in server version 4.9.0,
-    //If the current server version is less than 4.9.0.00000, or null, Availability Window API should not be called.
-    private boolean canCallAvailabilityWindowAPIMethods() {
+    //If the current server version is less than 4.9.0.00000, Availability Window API should not be called.
+    private boolean canCallAvailabilityWindowAPIMethods() throws ParseException {
         boolean canCallAvailabilityWindow = false;
-        if(serverVersion != null)
-        {
-            //The server version is in a string with '.' separated integers of the form x.x.x.xxxxx
-            String[] versionParts = serverVersion.split(".");
-            //If the version is grteater or equal to 4.9, we can call the Availability window API.
-            if(
-                    Integer.parseInt(versionParts[0]) >= 4
-                &&  Integer.parseInt(versionParts[1]) >= 9)
-            {
-                canCallAvailabilityWindow = true;
-            }
+        try{
+                if(     serverVersion != null
+                   &&   isCorrectServerVersionFormat(serverVersion))
+                {
+                    //If the version is grteater or equal to 4.9, we can call the Availability window API.
+                    if(versionCompare(serverVersion, "4.9.0.0") >= 0)
+                    {
+                        canCallAvailabilityWindow = true;
+                    }
+                }
+                else
+                {
+                    throw new ParseException("The server version was invalid.", 0);
+                }
+        }
+        catch(ParseException e)
+        {    
+            Utils.log(e, "The server version could not be parsed.");
         }
         return canCallAvailabilityWindow;
     }
-
     
     private String getServerVersion() {
         //Generate AuthenticationInfo for making call to Auth to get server info.
@@ -1837,6 +1844,39 @@ public class PanoptoData
             Utils.log(e, "Error retrieving Panopto server version from the server.");
         }
         return serverVersion;
+    }
+    
+    //Method for comparing version strings taken from:
+    //http://stackoverflow.com/questions/6701948/efficient-way-to-compare-version-strings-in-java#answer-6702029
+    public Integer versionCompare(String str1, String str2)
+    {
+        String[] vals1 = str1.split("\\.");
+        String[] vals2 = str2.split("\\.");
+        int i = 0;
+        // set index to first non-equal ordinal or length of shortest version string
+        while (i < vals1.length && i < vals2.length && vals1[i].equals(vals2[i])) 
+        {
+          i++;
+        }
+        // compare first non-equal ordinal number
+        if (i < vals1.length && i < vals2.length) 
+        {
+            int diff = Integer.valueOf(vals1[i]).compareTo(Integer.valueOf(vals2[i]));
+            return Integer.signum(diff);
+        }
+        // the strings are equal or one string is a substring of the other
+        // e.g. "1.2.3" = "1.2.3" or "1.2.3" < "1.2.3.4"
+        else
+        {
+            return Integer.signum(vals1.length - vals2.length);
+        }
+    }
+
+    private boolean isCorrectServerVersionFormat(String serverVersion){        
+        
+        //Valid server version will be of the form x.x.x.xxxxx where x is a decimal the last 
+        //portion may consist of one or more decimals.
+        return serverVersion.matches("\\d\\.\\d\\.\\d\\.\\d+");
     }
     
     private void addCourseMenuLink() throws ValidationException, PersistenceException
