@@ -60,11 +60,13 @@ import blackboard.platform.plugin.PlugInUtil;
 import blackboard.platform.security.CourseRole;
 
 import com.panopto.services.AccessManagementLocator;
+import com.panopto.services.AuthLocator;
 import com.panopto.services.AuthenticationInfo;
 import com.panopto.services.DateTimeOffset;
 import com.panopto.services.Folder;
 import com.panopto.services.FolderSortField;
 import com.panopto.services.IAccessManagement;
+import com.panopto.services.IAuth;
 import com.panopto.services.ISessionManagement;
 import com.panopto.services.IUserManagement;
 import com.panopto.services.ListFoldersRequest;
@@ -104,7 +106,10 @@ public class PanoptoData
 
     // Panopto server to talk to
     private String serverName;
-
+    
+    //Version number of the current Panopto server
+    private String serverVersion;
+    
     // User key to use when talking to Panopto SOAP services
     // (Instance-decorated username of currently-logged-in Blackboard user)
     private String apiUserKey;
@@ -118,6 +123,7 @@ public class PanoptoData
     // SOAP port for talking to Panopto
     private ISessionManagement sessionManagement;
 
+    
     // Construct the PanoptoData object using the current Blackboard context (e.g. from <bbData:context ...> tag)
     // Pulls in stored property values from BB course registry if available.
     // Ensure that serverName and sessionGroupPublicIDs are set before calling any instance methods that rely on these properties (most).
@@ -154,6 +160,7 @@ public class PanoptoData
         this.bbUserName = bbUserName;
         this.isInstructor = PanoptoData.isUserInstructor(this.bbCourse.getId(), this.bbUserName, false);
         this.canAddLinks = PanoptoData.canUserAddLinks(this.bbCourse.getId(), this.bbUserName);
+        
         List<String> serverList = Utils.pluginSettings.getServerList();
         // If there is only one server available, use it
         if(serverList.size() == 1)
@@ -166,7 +173,7 @@ public class PanoptoData
         }
         sessionGroupPublicIDs = getCourseRegistryEntries(sessionGroupIDRegistryKey);
         sessionGroupDisplayNames = getCourseRegistryEntries(sessionGroupDisplayNameRegistryKey);
-
+        
         // Check that the list of Ids and names are valid. They must both be the same length
         if ((sessionGroupPublicIDs == null && sessionGroupDisplayNames != null)
                 || (sessionGroupPublicIDs != null && sessionGroupDisplayNames == null)
@@ -229,12 +236,15 @@ public class PanoptoData
             apiUserKey = Utils.decorateBlackboardUserName(bbUserName);
             apiUserAuthCode = Utils.generateAuthCode(serverName, apiUserKey + "@" + serverName);
             sessionManagement = getPanoptoSessionManagementSOAPService(serverName);
+            serverVersion = getServerVersion(); 
+            
         }
         else
         {
             apiUserKey = null;
             apiUserAuthCode = null;
             sessionManagement = null;
+            serverVersion = null;
         }
     }
 
@@ -738,19 +748,22 @@ public class PanoptoData
 
             if(isCreator)
             {
+                //isInAvailabilityWindow defaults to true, so sessions will be added if calls to the availability window API cannot be made.
                 boolean isInAvailabilityWindow = true;
-                try{
-                    //If user is a creator on Panopto, check if the session is in its availability window.
-                    isInAvailabilityWindow = this.isSessionInAvailabilityWindow(
-                            sessionIds, auth);
-                }
-                catch(Exception e)
-                {
-                    //Panopto version is too old and this api doesn't exist. Just return true, so we will add the link,
-                    //even though it might not be in the availability window.
-                    Utils.log(e, "Error getting availability information for sessions from server. This is most likely due to the Panopto version"
-                            + " being too old. Adding course links while ignoring availability settings.");
-                    
+                
+                if(canCallAvailabilityWindowAPIMethods()){
+                    try{
+                        //If user is a creator on Panopto, check if the session is in its availability window.
+                        isInAvailabilityWindow = this.isSessionInAvailabilityWindow(
+                                sessionIds, auth);
+                    }
+                    catch(Exception e)
+                    {
+                        //Problem getting availability window information freom the API. Do not add the session to the course.
+                        isInAvailabilityWindow = false;
+                        Utils.log(e, "Error getting availability information for sessions from server.");
+                        
+                    }
                 }
                 if(isInAvailabilityWindow){
                    // If the session is in its availability window. add it to the course and return success.
@@ -1585,6 +1598,26 @@ public class PanoptoData
 
         return port;
     }
+    
+    private static IAuth getPanoptoAuthSOAPService(String serverName)
+    {
+        IAuth port = null;
+
+        try
+        {
+            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/Auth.svc");
+
+            // Connect to the UserManagement SOAP service on the specified Panopto server
+            AuthLocator service = new AuthLocator();
+            port = (IAuth) service.getBasicHttpBinding_IAuth(SOAP_URL);
+        }
+        catch(Exception e)
+        {
+            Utils.log(e, String.format("Error getting Auth SOAP service (server: %s).", serverName));
+        }
+
+        return port;
+    }
 
     // Instance method just calls out to static method below
     private String getCourseRegistryEntry(String key)
@@ -1768,7 +1801,44 @@ public class PanoptoData
         catch (KeyNotFoundException knfe) {}
         catch (PersistenceException pe) {}
     }
+    
+    //Determines whether or not the block is able to call session or folder availability window API methods
+    //based on the version of the current Panopto server.            
+    //Availability window api functions were introduced in server version 4.9.0,
+    //If the current server version is less than 4.9.0.00000, or null, Availability Window API should not be called.
+    private boolean canCallAvailabilityWindowAPIMethods() {
+        boolean canCallAvailabilityWindow = false;
+        if(serverVersion != null)
+        {
+            //The server version is in a string with '.' separated integers of the form x.x.x.xxxxx
+            String[] versionParts = serverVersion.split(".");
+            //If the version is grteater or equal to 4.9, we can call the Availability window API.
+            if(
+                    Integer.parseInt(versionParts[0]) >= 4
+                &&  Integer.parseInt(versionParts[1]) >= 9)
+            {
+                canCallAvailabilityWindow = true;
+            }
+        }
+        return canCallAvailabilityWindow;
+    }
 
+    
+    private String getServerVersion() {
+        //Generate AuthenticationInfo for making call to Auth to get server info.
+        AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
+        
+        IAuth iAuth = getPanoptoAuthSOAPService(serverName);
+        
+        String serverVersion = null;
+        try {
+            serverVersion = iAuth.getServerVersion();
+        } catch (RemoteException e) {
+            Utils.log(e, "Error retrieving Panopto server version from the server.");
+        }
+        return serverVersion;
+    }
+    
     private void addCourseMenuLink() throws ValidationException, PersistenceException
     {
         Id cid;
