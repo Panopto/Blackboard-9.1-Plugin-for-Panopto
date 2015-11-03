@@ -20,7 +20,6 @@ package com.panopto.blackboard;
 
 import java.net.URL;
 import java.rmi.RemoteException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1807,26 +1806,16 @@ public class PanoptoData
     //based on the version of the current Panopto server.            
     //Availability window api functions were introduced in server version 4.9.0,
     //If the current server version is less than 4.9.0.00000, Availability Window API should not be called.
-    private boolean canCallAvailabilityWindowAPIMethods() throws ParseException {
+    private boolean canCallAvailabilityWindowAPIMethods(){
         boolean canCallAvailabilityWindow = false;
-        try{
-                if(     serverVersion != null
-                   &&   isCorrectServerVersionFormat(serverVersion))
-                {
-                    //If the version is grteater or equal to 4.9, we can call the Availability window API.
-                    if(versionCompare(serverVersion, "4.9.0.0") >= 0)
-                    {
-                        canCallAvailabilityWindow = true;
-                    }
-                }
-                else
-                {
-                    throw new ParseException("The server version was invalid.", 0);
-                }
-        }
-        catch(ParseException e)
-        {    
-            Utils.log(e, "The server version could not be parsed.");
+        if(     serverVersion != null
+           &&   isCorrectServerVersionFormat(serverVersion))
+        {
+            //If the version is grteater or equal to 4.9, we can call the Availability window API.
+            if(versionCompare(serverVersion, "4.9.0.0") >= 0)
+            {
+                canCallAvailabilityWindow = true;
+            }
         }
         return canCallAvailabilityWindow;
     }
@@ -1848,6 +1837,7 @@ public class PanoptoData
     
     //Method for comparing version strings taken from:
     //http://stackoverflow.com/questions/6701948/efficient-way-to-compare-version-strings-in-java#answer-6702029
+    //Returns negative int if str1 < str2, 0 if they are equal, and positive int if str1 > str2.
     public Integer versionCompare(String str1, String str2)
     {
         String[] vals1 = str1.split("\\.");
@@ -1874,7 +1864,7 @@ public class PanoptoData
 
     private boolean isCorrectServerVersionFormat(String serverVersion){        
         
-        //Valid server version will be of the form x.x.x.xxxxx where x is a decimal the last 
+        //Valid server version will be of the form x.x.x.xxxxx where x is a decimal. The last 
         //portion may consist of one or more decimals.
         return serverVersion.matches("\\d\\.\\d\\.\\d\\.\\d+");
     }
