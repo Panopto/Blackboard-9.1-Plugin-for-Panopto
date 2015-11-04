@@ -3,6 +3,8 @@ package com.panopto.blackboard;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class PanoptoVersionTest {
 
@@ -57,5 +59,15 @@ public class PanoptoVersionTest {
 
         assertEquals(-1, version49.compareTo(version492));
         assertEquals(1, version492.compareTo(version49));
+    }
+
+    @Test
+    public void canCallWindowsApi() throws Exception {
+        assertTrue(PanoptoVersion.from("4.9").canCallAvailabilityWindowApiMethods());
+        assertTrue(PanoptoVersion.from("4.9.0").canCallAvailabilityWindowApiMethods());
+        assertTrue(PanoptoVersion.from("4.9.0.0").canCallAvailabilityWindowApiMethods());
+        assertTrue(PanoptoVersion.from("4.9.2").canCallAvailabilityWindowApiMethods());
+
+        assertFalse(PanoptoVersion.from("4.8").canCallAvailabilityWindowApiMethods());
     }
 }

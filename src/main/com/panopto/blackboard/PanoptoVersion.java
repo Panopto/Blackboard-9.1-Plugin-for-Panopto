@@ -20,6 +20,8 @@ package com.panopto.blackboard;
 
 class PanoptoVersion implements Comparable<PanoptoVersion> {
 
+    static final PanoptoVersion V4_9 = PanoptoVersion.from("4.9");
+
     static PanoptoVersion from(String versionString){
         final String[] stringParts = versionString.split("\\.");
         final int[] parts = new int[stringParts.length];
@@ -43,6 +45,10 @@ class PanoptoVersion implements Comparable<PanoptoVersion> {
 
     public int getPart(int i){
         return parts[i];
+    }
+
+    public boolean canCallAvailabilityWindowApiMethods(){
+        return this.compareTo(V4_9) >= 0;
     }
 
     @Override
