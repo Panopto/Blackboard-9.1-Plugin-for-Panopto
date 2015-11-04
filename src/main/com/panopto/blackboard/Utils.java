@@ -537,7 +537,7 @@ public class Utils {
             i++;
         }
 
-        return retVal.toArray(new String[0]);
+        return retVal.toArray(new String[retVal.size()]);
     }
 
     // <summary>

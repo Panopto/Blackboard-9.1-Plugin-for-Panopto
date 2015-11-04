@@ -437,7 +437,7 @@ public class PanoptoData
                 {
                     foldersWithCreatorAccess.add(folder.getId());
                 }
-                String[] folderIdList = foldersWithCreatorAccess.toArray(new String[0]);
+                String[] folderIdList = foldersWithCreatorAccess.toArray(new String[foldersWithCreatorAccess.size()]);
                 Utils.logVerbose(String.format("getFoldersWithCreatorAccess. User: %s, page: %d, returned from getCreatorFoldersList: %s", bbUserName, page, Utils.encodeArrayOfStrings(folderIdList)));
 
                 responseCount += returnedFolders.length;
@@ -491,7 +491,7 @@ public class PanoptoData
                 {
                     publicFolders.add(folder.getId());
                 }
-                String[] folderIdList = publicFolders.toArray(new String[0]);
+                String[] folderIdList = publicFolders.toArray(new String[publicFolders.size()]);
                 Utils.logVerbose(String.format("getPublicFolders. User: %s, page: %d, returned from getPublicFolders: %s", bbUserName, page, Utils.encodeArrayOfStrings(folderIdList)));
 
                 responseCount += returnedFolders.length;
@@ -1072,7 +1072,7 @@ public class PanoptoData
                     user.getFamilyName(),
                     user.getEmailAddress(),
                     Utils.pluginSettings.getMailLectureNotifications(),
-                    externalGroupIds.toArray(new String[0]));
+                    externalGroupIds.toArray(new String[externalGroupIds.size()]));
         }
         catch(Exception e)
         {
