@@ -751,7 +751,7 @@ public class PanoptoData
                 //isInAvailabilityWindow defaults to true, so sessions will be added if calls to the availability window API cannot be made.
                 boolean isInAvailabilityWindow = true;
 
-                if(serverVersion.canCallAvailabilityWindowApiMethods()){
+                if(PanoptoVersions.canCallAvailabilityWindowApiMethods(serverVersion)){
                     try{
                         //If user is a creator on Panopto, check if the session is in its availability window.
                         isInAvailabilityWindow = this.isSessionInAvailabilityWindow(

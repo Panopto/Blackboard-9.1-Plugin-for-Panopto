@@ -20,10 +20,6 @@ package com.panopto.blackboard;
 
 import com.panopto.services.IAuth;
 
-
-/**
- * Internal class for determining compatibility using Panopto api version
- */
 class PanoptoVersion implements Comparable<PanoptoVersion> {
 
     static final PanoptoVersion EMPTY = new PanoptoVersion(new int[0]);
@@ -74,14 +70,6 @@ class PanoptoVersion implements Comparable<PanoptoVersion> {
 
     public int getPart(int i){
         return parts[i];
-    }
-
-    //Determines whether or not the block is able to call session or folder availability window API methods
-    //based on the version of the current Panopto server.
-    //Availability window api functions were introduced in server version 4.9.0,
-    //If the current server version is less than 4.9.0.00000, Availability Window API should not be called.
-    public boolean canCallAvailabilityWindowApiMethods(){
-        return this.compareTo(V4_9) >= 0;
     }
 
     @Override
