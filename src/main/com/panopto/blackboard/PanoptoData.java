@@ -517,7 +517,7 @@ public class PanoptoData
             for (int i = 0; i < sessionGroupDisplayNames.length; i++)
             {
                 result.append("<option");
-                result.append(" value='" + sessionGroupPublicIDs[i] + "'");
+                result.append(" value='").append(sessionGroupPublicIDs[i]).append("'");
                 result.append(">");
                 result.append(Utils.escapeHTML(sessionGroupDisplayNames[i]));
                 result.append("</option>\n");
@@ -550,7 +550,7 @@ public class PanoptoData
             if (!currentFolderIds.contains(folder.getId()))
             {
                 result.append("<option");
-                result.append(" value='" + folder.getId() + "'");
+                result.append(" value='").append(folder.getId()).append("'");
                 result.append(">");
                 result.append(Utils.escapeHTML(folder.getName()));
                 result.append("</option>\n");
@@ -612,7 +612,7 @@ public class PanoptoData
                             String strID = sessionGroupPublicIDs[i];
 
                             result.append("<option");
-                            result.append(" value='" + strID + "'");
+                            result.append(" value='").append(strID).append("'");
                             if(strID.equals(folderId))
                             {
                                 result.append(" SELECTED");
@@ -640,7 +640,7 @@ public class PanoptoData
                             String strID = publicFolders[i].getId();
 
                             result.append("<option");
-                            result.append(" value='" + strID + "'");
+                            result.append(" value='").append(strID).append("'");
                             if(strID.equals(folderId))
                             {
                                 result.append(" SELECTED");
@@ -687,7 +687,7 @@ public class PanoptoData
                         String strDisplayName = Utils.escapeHTML(session.getName());
 
                         result.append("<option");
-                        result.append(" value='" + session.getViewerUrl() + "'");
+                        result.append(" value='").append(session.getViewerUrl()).append("'");
                         result.append(">");
                         result.append(strDisplayName);
                         result.append("</option>\n");
@@ -993,7 +993,7 @@ public class PanoptoData
                 {
                     String groupName = Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_viewers";
                     externalGroupIds.add(groupName);
-                    courseList.append('(' + groupName + ')');
+                    courseList.append('(').append(groupName).append(')');
                 }
                 else if (courseServerName == null)
                 {
@@ -1001,7 +1001,7 @@ public class PanoptoData
                 }
                 else
                 {
-                    courseList.append("(provisioned against " + courseServerName + ")");
+                    courseList.append("(provisioned against ").append(courseServerName).append(")");
                 }
 
                 courseList.append(';');
@@ -1018,7 +1018,7 @@ public class PanoptoData
                 {
                     String groupName = Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_creators";
                     externalGroupIds.add(groupName);
-                    courseList.append('(' + groupName + ')');
+                    courseList.append('(').append(groupName).append(')');
                 }
                 else if (courseServerName == null)
                 {
@@ -1026,7 +1026,7 @@ public class PanoptoData
                 }
                 else
                 {
-                    courseList.append("(provisioned against " + courseServerName + ")");
+                    courseList.append("(provisioned against ").append(courseServerName).append(")");
                 }
 
                 courseList.append(';');
@@ -1051,7 +1051,7 @@ public class PanoptoData
                         groupName = Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_viewers";
                     }
                     externalGroupIds.add(groupName);
-                    courseList.append('(' + groupName + ')');
+                    courseList.append('(').append(groupName).append(')');
                 }
                 else if (courseServerName == null)
                 {
@@ -1059,7 +1059,7 @@ public class PanoptoData
                 }
                 else
                 {
-                    courseList.append("(provisioned against " + courseServerName + ")");
+                    courseList.append("(provisioned against ").append(courseServerName).append(")");
                 }
 
                 courseList.append(';');

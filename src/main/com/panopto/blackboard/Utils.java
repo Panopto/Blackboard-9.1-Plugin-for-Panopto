@@ -218,7 +218,7 @@ public class Utils {
         for(String strServerName : getServerList())
         {
             result.append("<option");
-            result.append(" value='" + strServerName + "'");
+            result.append(" value='").append(strServerName).append("'");
             if(strServerName.equals(serverName))
             {
                 result.append(" SELECTED");
