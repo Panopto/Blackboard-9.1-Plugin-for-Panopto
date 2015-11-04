@@ -4,7 +4,7 @@
   <artifactId>Blackboard-9.1-Plugin-for-Panopto</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <build>
-    <sourceDirectory>src</sourceDirectory>
+    <sourceDirectory>src/main</sourceDirectory>
     <outputDirectory>WebRoot/WEB-INF/classes</outputDirectory>
     <plugins>
     	<plugin>
