@@ -211,7 +211,7 @@ public class Utils {
     // Generate options for drop-down list of servers with optional current selection (serverName)
     public static String generateServerOptionsHTML(String serverName)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         boolean hasSelection = false;
 
@@ -366,7 +366,7 @@ public class Utils {
         {
             return "";
         }
-        StringBuffer buffer = new StringBuffer(String.valueOf(iter.next()));
+        StringBuilder buffer = new StringBuilder(String.valueOf(iter.next()));
         while (iter.hasNext())
         {
             buffer.append(delimiter).append(String.valueOf(iter.next()));

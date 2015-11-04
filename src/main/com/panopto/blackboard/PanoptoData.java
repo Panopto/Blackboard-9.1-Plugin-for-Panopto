@@ -511,7 +511,7 @@ public class PanoptoData
     // Generates the list of selected folders for the course config page's listbox
     public String generateCourseConfigSelectedFoldersOptionsHTML()
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         if (sessionGroupDisplayNames != null)
         {
             for (int i = 0; i < sessionGroupDisplayNames.length; i++)
@@ -530,7 +530,7 @@ public class PanoptoData
     // Generates the list of available folders for the course config page's listbox
     public String generateCourseConfigAvailableFoldersOptionsHTML()
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         // Get all the folder the user has access to
         Folder[] folders = getFoldersWithCreatorAccess();
@@ -580,7 +580,7 @@ public class PanoptoData
     // Generate <option>s for available folders. Used by Item_Create to select a folder
     public String generateFolderOptionsHTML(String folderId)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         Folder[] publicFolders = this.getPublicFolders();
         int numFolders = getNumberOfFolders();
@@ -662,7 +662,7 @@ public class PanoptoData
     // Generate <option>s for available sessions. Used by Item_Create to select a session once a fodler is selected
     public String generateSessionOptionsHTML(String folderID)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         if (folderID == null || folderID == "")
         {
