@@ -46,3 +46,7 @@ Blackboard change-log from 4.8.0 +:
 4.8.96 - 2015/08/24 - (optional):
 	Reccomended for anyone using classic view to view folder contents.
 	-Fixes scrolling in classic view.
+
+4.8.97 - 2015/11/4 -(optional for anyone using Panopto version 4.9 or above, needed for older versions)
+	Checks server version before adding panopto content to a course and will not check availability
+	windows for content if version is below 4.9.
