@@ -23,17 +23,20 @@ package com.panopto.blackboard;
  */
 class PanoptoVersions {
 
+    static final PanoptoVersion V4_9 = PanoptoVersion.from("4.9");
+
+    //Determines whether or not the block is able to call session or folder availability window API methods
+    //based on the version of the current Panopto server.
+    //Availability window api functions were introduced in server version 4.9.0,
+    //If the current server version is less than 4.9.0.00000, Availability Window API should not be called.
+    static boolean canCallAvailabilityWindowApiMethods(PanoptoVersion panoptoVersion) {
+        return panoptoVersion.compareTo(V4_9) >= 0;
+    }
+
     /**
      * Not intended to be constructed.
      */
     private PanoptoVersions() {
     }
 
-    //Determines whether or not the block is able to call session or folder availability window API methods
-    //based on the version of the current Panopto server.
-    //Availability window api functions were introduced in server version 4.9.0,
-    //If the current server version is less than 4.9.0.00000, Availability Window API should not be called.
-    public static boolean canCallAvailabilityWindowApiMethods(PanoptoVersion panoptoVersion) {
-        return panoptoVersion.compareTo(PanoptoVersion.V4_9) >= 0;
-    }
 }

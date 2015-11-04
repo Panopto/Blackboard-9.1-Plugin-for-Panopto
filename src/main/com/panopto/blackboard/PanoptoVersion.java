@@ -24,8 +24,6 @@ class PanoptoVersion implements Comparable<PanoptoVersion> {
 
     static final PanoptoVersion EMPTY = new PanoptoVersion(new int[0]);
 
-    static final PanoptoVersion V4_9 = PanoptoVersion.from("4.9");
-
     static PanoptoVersion from(String versionString){
         PanoptoVersion toReturn;
         if(versionString != null){
