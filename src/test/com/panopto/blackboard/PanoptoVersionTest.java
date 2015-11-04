@@ -78,5 +78,6 @@ public class PanoptoVersionTest {
         assertTrue(PanoptoVersion.from("4.9.2").canCallAvailabilityWindowApiMethods());
 
         assertFalse(PanoptoVersion.from("4.8").canCallAvailabilityWindowApiMethods());
+        assertFalse(PanoptoVersion.EMPTY.canCallAvailabilityWindowApiMethods());
     }
 }
