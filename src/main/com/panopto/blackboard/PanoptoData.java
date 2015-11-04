@@ -108,7 +108,7 @@ public class PanoptoData
     private String serverName;
     
     //Version number of the current Panopto server
-    private String serverVersion;
+    private PanoptoVersion serverVersion;
     
     // User key to use when talking to Panopto SOAP services
     // (Instance-decorated username of currently-logged-in Blackboard user)
@@ -750,8 +750,8 @@ public class PanoptoData
             {
                 //isInAvailabilityWindow defaults to true, so sessions will be added if calls to the availability window API cannot be made.
                 boolean isInAvailabilityWindow = true;
-                
-                if(canCallAvailabilityWindowAPIMethods()){
+
+                if(serverVersion.canCallAvailabilityWindowApiMethods()){
                     try{
                         //If user is a creator on Panopto, check if the session is in its availability window.
                         isInAvailabilityWindow = this.isSessionInAvailabilityWindow(
@@ -1801,74 +1801,16 @@ public class PanoptoData
         catch (KeyNotFoundException knfe) {}
         catch (PersistenceException pe) {}
     }
-    
-    //Determines whether or not the block is able to call session or folder availability window API methods
-    //based on the version of the current Panopto server.            
-    //Availability window api functions were introduced in server version 4.9.0,
-    //If the current server version is less than 4.9.0.00000, Availability Window API should not be called.
-    private boolean canCallAvailabilityWindowAPIMethods(){
-        boolean canCallAvailabilityWindow = false;
-        if(     serverVersion != null
-           &&   isCorrectServerVersionFormat(serverVersion))
-        {
-            //If the version is grteater or equal to 4.9, we can call the Availability window API.
-            if(versionCompare(serverVersion, "4.9.0.0") >= 0)
-            {
-                canCallAvailabilityWindow = true;
-            }
-        }
-        return canCallAvailabilityWindow;
-    }
-    
-    private String getServerVersion() {
+
+
+    private PanoptoVersion getServerVersion() {
         //Generate AuthenticationInfo for making call to Auth to get server info.
         AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
         
         IAuth iAuth = getPanoptoAuthSOAPService(serverName);
-        
-        String serverVersion = null;
-        try {
-            serverVersion = iAuth.getServerVersion();
-        } catch (RemoteException e) {
-            Utils.log(e, "Error retrieving Panopto server version from the server.");
-        }
-        return serverVersion;
-    }
-    
-    //Method for comparing version strings taken from:
-    //http://stackoverflow.com/questions/6701948/efficient-way-to-compare-version-strings-in-java#answer-6702029
-    //Returns negative int if str1 < str2, 0 if they are equal, and positive int if str1 > str2.
-    public Integer versionCompare(String str1, String str2)
-    {
-        String[] vals1 = str1.split("\\.");
-        String[] vals2 = str2.split("\\.");
-        int i = 0;
-        // set index to first non-equal ordinal or length of shortest version string
-        while (i < vals1.length && i < vals2.length && vals1[i].equals(vals2[i])) 
-        {
-          i++;
-        }
-        // compare first non-equal ordinal number
-        if (i < vals1.length && i < vals2.length) 
-        {
-            int diff = Integer.valueOf(vals1[i]).compareTo(Integer.valueOf(vals2[i]));
-            return Integer.signum(diff);
-        }
-        // the strings are equal or one string is a substring of the other
-        // e.g. "1.2.3" = "1.2.3" or "1.2.3" < "1.2.3.4"
-        else
-        {
-            return Integer.signum(vals1.length - vals2.length);
-        }
+        return PanoptoVersion.fetchOrEmpty(iAuth);
     }
 
-    private boolean isCorrectServerVersionFormat(String serverVersion){        
-        
-        //Valid server version will be of the form x.x.x.xxxxx where x is a decimal. The last 
-        //portion may consist of one or more decimals.
-        return serverVersion.matches("\\d\\.\\d\\.\\d\\.\\d+");
-    }
-    
     private void addCourseMenuLink() throws ValidationException, PersistenceException
     {
         Id cid;

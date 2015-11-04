@@ -28,14 +28,14 @@ public class PanoptoVersionTest {
     }
 
     @Test
-    public void notAVersionNumber() throws Exception {
+    public void notAVersionNumberMakesEmpty() throws Exception {
         PanoptoVersion defaultedToEmptyVersion = PanoptoVersion.from("NOT A VERSION NUMBER");
         assertEquals(0, defaultedToEmptyVersion.getNumParts());
         assertEquals("", defaultedToEmptyVersion.toString());
     }
 
     @Test
-    public void nullVersion() throws Exception {
+    public void nullVersionStringMakesEmpty() throws Exception {
         PanoptoVersion defaultedToEmptyVersion = PanoptoVersion.from(null);
         assertEquals(0, defaultedToEmptyVersion.getNumParts());
         assertEquals("", defaultedToEmptyVersion.toString());
@@ -43,31 +43,35 @@ public class PanoptoVersionTest {
 
     @Test
     public void compareSingleDigit() throws Exception {
-        PanoptoVersion version4 = PanoptoVersion.from("4");
-        PanoptoVersion version3 = PanoptoVersion.from("3");
-        assertEquals(0, version4.compareTo(version4));
-        assertEquals(-1, version3.compareTo(version4));
-        assertEquals(1, version4.compareTo(version3));
+        PanoptoVersion v4 = PanoptoVersion.from("4");
+        PanoptoVersion v3 = PanoptoVersion.from("3");
+        assertEquals(0, v4.compareTo(v4));
+        assertEquals(-1, v3.compareTo(v4));
+        assertEquals(1, v4.compareTo(v3));
     }
 
     @Test
     public void compareDifferentDigits() throws Exception {
-        PanoptoVersion version49 = PanoptoVersion.from("4.9");
-        PanoptoVersion version492 = PanoptoVersion.from("4.9.2");
-        PanoptoVersion version48 = PanoptoVersion.from("4.8");
-        PanoptoVersion version3 = PanoptoVersion.from("3");
+        PanoptoVersion v49 = PanoptoVersion.from("4.9");
+        PanoptoVersion v492 = PanoptoVersion.from("4.9.2");
+        PanoptoVersion v48 = PanoptoVersion.from("4.8");
+        PanoptoVersion v482 = PanoptoVersion.from("4.8.2");
+        PanoptoVersion v3 = PanoptoVersion.from("3");
 
-        assertEquals(0, version49.compareTo(version49));
-        assertEquals(0, version492.compareTo(version492));
+        assertEquals(0, v49.compareTo(v49));
+        assertEquals(0, v492.compareTo(v492));
 
-        assertEquals(-1, version3.compareTo(version49));
-        assertEquals(1, version49.compareTo(version3));
+        assertEquals(-1, v3.compareTo(v49));
+        assertEquals(1, v49.compareTo(v3));
 
-        assertEquals(-1, version48.compareTo(version49));
-        assertEquals(1, version49.compareTo(version48));
+        assertEquals(-1, v48.compareTo(v49));
+        assertEquals(1, v49.compareTo(v48));
 
-        assertEquals(-1, version49.compareTo(version492));
-        assertEquals(1, version492.compareTo(version49));
+        assertEquals(-1, v49.compareTo(v492));
+        assertEquals(1, v492.compareTo(v49));
+
+        assertEquals(-1, v482.compareTo(v49));
+        assertEquals(-1, v482.compareTo(v492));
     }
 
     @Test
@@ -78,6 +82,10 @@ public class PanoptoVersionTest {
         assertTrue(PanoptoVersion.from("4.9.2").canCallAvailabilityWindowApiMethods());
 
         assertFalse(PanoptoVersion.from("4.8").canCallAvailabilityWindowApiMethods());
+    }
+
+    @Test
+    public void emptyCannotCallWindowsApi() throws Exception {
         assertFalse(PanoptoVersion.EMPTY.canCallAvailabilityWindowApiMethods());
     }
 }
