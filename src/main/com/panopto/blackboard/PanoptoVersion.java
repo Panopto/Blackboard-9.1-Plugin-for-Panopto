@@ -20,17 +20,29 @@ package com.panopto.blackboard;
 
 class PanoptoVersion implements Comparable<PanoptoVersion> {
 
+    static PanoptoVersion EMPTY = new PanoptoVersion(new int[0]);
+
     static final PanoptoVersion V4_9 = PanoptoVersion.from("4.9");
 
     static PanoptoVersion from(String versionString){
-        final String[] stringParts = versionString.split("\\.");
-        final int[] parts = new int[stringParts.length];
+        PanoptoVersion toReturn;
+        if(versionString != null){
+            try {
+                final String[] stringParts = versionString.split("\\.");
+                final int[] parts = new int[stringParts.length];
 
-        for (int i = 0; i < stringParts.length; i++) {
-            parts[i] = Integer.valueOf(stringParts[i]);
+                for (int i = 0; i < stringParts.length; i++) {
+                    parts[i] = Integer.valueOf(stringParts[i]);
+                }
+                toReturn = new PanoptoVersion(parts);
+            } catch (NumberFormatException e) {
+                toReturn = EMPTY;
+            }
+        }else{
+            toReturn = EMPTY;
         }
 
-        return new PanoptoVersion(parts);
+        return toReturn;
     }
 
     private int[] parts;

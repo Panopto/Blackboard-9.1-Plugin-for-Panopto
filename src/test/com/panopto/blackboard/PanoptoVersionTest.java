@@ -27,9 +27,18 @@ public class PanoptoVersionTest {
         assertEquals("4.34.5.6", version.toString());
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void notAVersionNumber() throws Exception {
-        PanoptoVersion.from("NOT A VERSION NUMBER");
+        PanoptoVersion defaultedToEmptyVersion = PanoptoVersion.from("NOT A VERSION NUMBER");
+        assertEquals(0, defaultedToEmptyVersion.getNumParts());
+        assertEquals("", defaultedToEmptyVersion.toString());
+    }
+
+    @Test
+    public void nullVersion() throws Exception {
+        PanoptoVersion defaultedToEmptyVersion = PanoptoVersion.from(null);
+        assertEquals(0, defaultedToEmptyVersion.getNumParts());
+        assertEquals("", defaultedToEmptyVersion.toString());
     }
 
     @Test
