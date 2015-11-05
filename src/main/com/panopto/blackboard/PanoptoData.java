@@ -1736,7 +1736,7 @@ public class PanoptoData
     }
 
     //Enum types returned by addBlackboardContentItem, indicating whether a Panopto link has been successfully added to a course.
-    public static enum LinkAddedResult{
+    public enum LinkAddedResult{
         SUCCESS, //Link was added successfully.
         NOTCREATOR, //Link was not added because the session is not available and the user does not have creator access in order to make it available.
         NOTPUBLISHER, //Link was not added because session requires publisher approval.
