@@ -366,7 +366,6 @@ public class PanoptoData
 
             // Next get the user's access details
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-            Set<String> foldersWithCreatorAccess = new HashSet<>();
 
             // Get all the folders
             int page = 0;
@@ -388,7 +387,7 @@ public class PanoptoData
                 Folder[] returnedFolders = listResponse.getResults();
 
                 // Log which folders we got back. foldersWithCreatorAccess, folderIdList, and returnedFolders are all just in place for logging.
-                foldersWithCreatorAccess = new HashSet<String>();
+                Set<String> foldersWithCreatorAccess = new HashSet<String>();
                 for (Folder folder : returnedFolders)
                 {
                     foldersWithCreatorAccess.add(folder.getId());
@@ -417,7 +416,6 @@ public class PanoptoData
         try
         {
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-            Set<String> publicFolders = new HashSet<>();
             // Get all the folders
 
             int page = 0;
@@ -442,7 +440,7 @@ public class PanoptoData
                 Folder[] returnedFolders = listResponse.getResults();
 
                 // Log which folders we got back. foldersWithCreatorAccess, folderIdList, and returnedFolders are all just in place for logging.
-                publicFolders = new HashSet<>();
+                Set<String> publicFolders = new HashSet<>();
                 for (Folder folder : returnedFolders)
                 {
                     publicFolders.add(folder.getId());
