@@ -791,16 +791,17 @@ public class PanoptoData
 
         //If session start date is either "Immediately" or is a specific date in the past,
         //we are currently past the start time of the availability window.
+        final Calendar now = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         if(startType.equals(SessionStartSettingType.Immediately)
            || (startType.equals(SessionStartSettingType.SpecificDate)
-                && startDate.after(Calendar.getInstance(TimeZone.getTimeZone("UTC")))))
+                && startDate.after(now)))
         {
             //If the session availability end date is "Forever", or a date in the future,
             //we are currently before the availability window's end time, and are therefore
             //within the session's availability window.
             if(endType.equals(SessionEndSettingType.Forever)
                || (endType.equals(SessionEndSettingType.SpecificDate)
-                       && endDate.before(Calendar.getInstance(TimeZone.getTimeZone("UTC")))))
+                       && endDate.before(now)))
             {
                 isAvailable = true;
             }
