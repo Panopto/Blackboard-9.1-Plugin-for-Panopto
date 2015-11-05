@@ -1712,7 +1712,7 @@ public class PanoptoData
 
         //Iterate through each link and check if it's text matches the text of the item to be created
         boolean linkExists = false;
-        while(courseTocList.iterator().hasNext() && linkExists == false)
+        while(courseTocList.iterator().hasNext() && !linkExists)
         {
             CourseToc ct = courseTocList.iterator().next();
 
