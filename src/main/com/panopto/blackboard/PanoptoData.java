@@ -31,7 +31,6 @@ import blackboard.data.registry.RegistryEntry;
 import blackboard.data.user.User;
 import blackboard.persist.BbPersistenceManager;
 import blackboard.persist.Id;
-import blackboard.persist.KeyNotFoundException;
 import blackboard.persist.PersistenceException;
 import blackboard.persist.content.ContentDbPersister;
 import blackboard.persist.course.CourseDbLoader;
