@@ -1153,7 +1153,7 @@ public class PanoptoData
         setCourseRegistryEntry(hostnameRegistryKey, serverName);
 
         // First sort the folders.
-        ArrayList<Folder> sortedFolders = new ArrayList<Folder>();
+        List<Folder> sortedFolders = new ArrayList<>();
         sortedFolders.addAll(Arrays.asList(folders));
         Collections.sort(sortedFolders, new FolderComparator());
 
