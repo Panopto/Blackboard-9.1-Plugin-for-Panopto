@@ -572,15 +572,13 @@ public class PanoptoData
                         {
                             result.append("<optgroup label='Public Folders'>\n");
                         }
-                        for (int i = 0; i < publicFolders.length; i++)
-                        {
-                            String strDisplayName = Utils.escapeHTML(publicFolders[i].getName());
-                            String strID = publicFolders[i].getId();
+                        for (Folder publicFolder : publicFolders) {
+                            String strDisplayName = Utils.escapeHTML(publicFolder.getName());
+                            String strID = publicFolder.getId();
 
                             result.append("<option");
                             result.append(" value='").append(strID).append("'");
-                            if(strID.equals(folderId))
-                            {
+                            if (strID.equals(folderId)) {
                                 result.append(" SELECTED");
                             }
                             result.append(">");
@@ -1100,12 +1098,10 @@ public class PanoptoData
             if (courseFolders.length < 0)
             {
                 List<String> foldersToDelete = new ArrayList<>(courseFolders.length);
-                for (int idx = 0; idx < courseFolders.length; idx++)
-                {
-                    Session[] sessionsInFolder = this.getSessions(courseFolders[idx].getId());
-                    if ((sessionsInFolder == null) || (sessionsInFolder.length == 0))
-                    {
-                        foldersToDelete.add(courseFolders[idx].getId());
+                for (Folder courseFolder : courseFolders) {
+                    Session[] sessionsInFolder = this.getSessions(courseFolder.getId());
+                    if ((sessionsInFolder == null) || (sessionsInFolder.length == 0)) {
+                        foldersToDelete.add(courseFolder.getId());
                     }
                 }
 
