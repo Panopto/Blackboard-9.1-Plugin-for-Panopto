@@ -492,8 +492,7 @@ public class PanoptoData
         Folder[] folders = getFoldersWithCreatorAccess();
 
         // Sort them by name
-        List<Folder> sortedFolders = new ArrayList<>();
-        sortedFolders.addAll(Arrays.asList(folders));
+        List<Folder> sortedFolders = new ArrayList<>(Arrays.asList(folders));
         Collections.sort(sortedFolders, new FolderComparator());
 
         // Build a hash of the currently selected folders so we can quickly exclude them
