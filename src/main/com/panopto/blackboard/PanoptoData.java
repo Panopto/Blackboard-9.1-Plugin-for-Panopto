@@ -596,7 +596,7 @@ public class PanoptoData
     {
         StringBuilder result = new StringBuilder();
 
-        if (folderID == null || folderID == "")
+        if (folderID == null || folderID.isEmpty())
         {
             result.append("<option value=''>-- Please select a folder first --</option>\n");
         }
