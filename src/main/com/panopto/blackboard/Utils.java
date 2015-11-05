@@ -445,7 +445,7 @@ public class Utils {
         StringBuilder retVal = new StringBuilder();
         for (String val : input)
         {
-            retVal.append('"' + val.replaceAll("\"", "\"\"") + "\",");
+            retVal.append('"').append(val.replaceAll("\"", "\"\"")).append("\",");
         }
 
         return retVal.toString();
