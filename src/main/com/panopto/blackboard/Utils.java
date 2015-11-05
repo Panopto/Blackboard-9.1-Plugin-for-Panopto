@@ -191,12 +191,6 @@ public class Utils {
         return SecurityUtil.userHasEntitlement("system.panopto.EXECUTE");
     }
 
-    // Check for course tools conifguration entitlement
-    public static boolean userCanConfigureCourse()
-    {
-        return SecurityUtil.userHasEntitlement("course.panopto.EXECUTE");
-    }
-
     // URL to Course Documents page (for custom content importer).
     public static String getCourseDocsURL(String course_id, String content_id)
     {

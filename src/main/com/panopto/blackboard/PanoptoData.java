@@ -18,19 +18,6 @@
 
 package com.panopto.blackboard;
 
-import java.net.URL;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-
 import blackboard.base.FormattedText;
 import blackboard.data.ValidationException;
 import blackboard.data.content.Content;
@@ -58,30 +45,11 @@ import blackboard.platform.context.Context;
 import blackboard.platform.persistence.PersistenceServiceFactory;
 import blackboard.platform.plugin.PlugInUtil;
 import blackboard.platform.security.CourseRole;
+import com.panopto.services.*;
 
-import com.panopto.services.AccessManagementLocator;
-import com.panopto.services.AuthLocator;
-import com.panopto.services.AuthenticationInfo;
-import com.panopto.services.DateTimeOffset;
-import com.panopto.services.Folder;
-import com.panopto.services.FolderSortField;
-import com.panopto.services.IAccessManagement;
-import com.panopto.services.IAuth;
-import com.panopto.services.ISessionManagement;
-import com.panopto.services.IUserManagement;
-import com.panopto.services.ListFoldersRequest;
-import com.panopto.services.ListFoldersResponse;
-import com.panopto.services.ListSessionsRequest;
-import com.panopto.services.ListSessionsResponse;
-import com.panopto.services.Pagination;
-import com.panopto.services.Session;
-import com.panopto.services.SessionAvailabilitySettings;
-import com.panopto.services.SessionEndSettingType;
-import com.panopto.services.SessionManagementLocator;
-import com.panopto.services.SessionSortField;
-import com.panopto.services.SessionStartSettingType;
-import com.panopto.services.SessionState;
-import com.panopto.services.UserManagementLocator;
+import java.net.URL;
+import java.rmi.RemoteException;
+import java.util.*;
 
 // Wrap interaction with DB and Panopto SOAP services for a particular Blackboard course
 public class PanoptoData
@@ -248,21 +216,10 @@ public class PanoptoData
         }
     }
 
-    public boolean isServerSet()
-    {
-        return (serverName != null);
-    }
-
     // i.e. a Panopto course been selected for this Blackboard course
     public boolean isMapped()
     {
         return (sessionGroupPublicIDs != null);
-    }
-
-    // Get the Panopto user being used for SOAP calls
-    public String getApiUserKey()
-    {
-        return apiUserKey;
     }
 
     // Determine if this course is in the original context and the course has NOT been copied.
@@ -558,23 +515,6 @@ public class PanoptoData
         }
 
         return result.toString();
-    }
-
-    // Looks up the display string for a given folderID. The folderId must be already mapped with the course
-    public String getFolderDisplayString(String folderId)
-    {
-        if (folderId != null)
-        {
-            for (int i = 0; i < sessionGroupDisplayNames.length; i++)
-            {
-                if(sessionGroupPublicIDs[i].equals(folderId))
-                {
-                    return sessionGroupDisplayNames[i];
-                }
-            }
-        }
-
-        return null;
     }
 
     // Generate <option>s for available folders. Used by Item_Create to select a folder
@@ -902,8 +842,6 @@ public class PanoptoData
         persister.persist(content);
     }
 
-
-
     //Returns map of url's query parameters and their values. Used for getting session ID for session to make available.
     public Map<String, String> getQueryMap(String url)
     {
@@ -920,12 +858,6 @@ public class PanoptoData
             }
         }
         return map;
-    }
-
-    // Sync's a user with Panopto so that his course memberships are up to date.
-    public void syncUser()
-    {
-        PanoptoData.syncUser(serverName, bbUserName);
     }
 
     // Sync's a user with Panopto so that his course memberships are up to date.
@@ -1296,27 +1228,6 @@ public class PanoptoData
         return courseMemberships;
     }
 
-    // Gets all the members of the course from Blackboard
-    private static List<CourseMembership> getCourseMembershipsByRole(Course bbCourse, CourseMembership.Role role)
-    {
-        BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
-
-        // Get the course membership (instructors, students, etc.)
-        List<CourseMembership> courseMemberships = null;
-        try
-        {
-            CourseMembershipDbLoader courseMembershipLoader = (CourseMembershipDbLoader) bbPm.getLoader(CourseMembershipDbLoader.TYPE);
-
-            courseMemberships = courseMembershipLoader.loadByCourseIdAndRole(bbCourse.getId(), role, null, true);
-        }
-        catch(Exception e)
-        {
-            Utils.log(e, String.format("Error getting course membership (course ID: %s).", bbCourse.getId()));
-        }
-
-        return courseMemberships;
-    }
-
     // Gets the user key of all the students of the course
     public List<String> getTAs()
     {
@@ -1537,26 +1448,6 @@ public class PanoptoData
     //isUserInstructor but includes a check for TAsCanCreateLinks
     public static boolean canUserAddLinks(Id bbCourseId, String bbUserName) {
         return isUserInstructor(bbCourseId, bbUserName, true);
-    }
-
-    private static IAccessManagement getPanoptoAccessManagementSOAPService(String serverName)
-    {
-        IAccessManagement port = null;
-
-        try
-        {
-            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/AccessManagement.svc");
-
-            // Connect to the SessionManagement SOAP service on the specified Panopto server
-            AccessManagementLocator service = new AccessManagementLocator();
-            port = (IAccessManagement) service.getBasicHttpBinding_IAccessManagement(SOAP_URL);
-        }
-        catch(Exception e)
-        {
-            Utils.log(e, String.format("Error getting Access Management SOAP service (server: %s).", serverName));
-        }
-
-        return port;
     }
 
     private static ISessionManagement getPanoptoSessionManagementSOAPService(String serverName)
