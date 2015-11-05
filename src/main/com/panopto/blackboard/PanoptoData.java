@@ -487,10 +487,8 @@ public class PanoptoData
         StringBuilder result = new StringBuilder();
 
         // Get all the folder the user has access to
-        Folder[] folders = getFoldersWithCreatorAccess();
-
         // Sort them by name
-        List<Folder> sortedFolders = new ArrayList<>(Arrays.asList(folders));
+        List<Folder> sortedFolders = new ArrayList<>(Arrays.asList(getFoldersWithCreatorAccess()));
         Collections.sort(sortedFolders, new FolderComparator());
 
         // Build a hash of the currently selected folders so we can quickly exclude them
