@@ -1460,7 +1460,7 @@ public class PanoptoData
 
             // Connect to the SessionManagement SOAP service on the specified Panopto server
             SessionManagementLocator service = new SessionManagementLocator();
-            port = (ISessionManagement) service.getBasicHttpBinding_ISessionManagement(SOAP_URL);
+            port = service.getBasicHttpBinding_ISessionManagement(SOAP_URL);
         }
         catch(Exception e)
         {
@@ -1480,7 +1480,7 @@ public class PanoptoData
 
             // Connect to the UserManagement SOAP service on the specified Panopto server
             UserManagementLocator service = new UserManagementLocator();
-            port = (IUserManagement) service.getBasicHttpBinding_IUserManagement(SOAP_URL);
+            port = service.getBasicHttpBinding_IUserManagement(SOAP_URL);
         }
         catch(Exception e)
         {
@@ -1500,7 +1500,7 @@ public class PanoptoData
 
             // Connect to the UserManagement SOAP service on the specified Panopto server
             AuthLocator service = new AuthLocator();
-            port = (IAuth) service.getBasicHttpBinding_IAuth(SOAP_URL);
+            port = service.getBasicHttpBinding_IAuth(SOAP_URL);
         }
         catch(Exception e)
         {
