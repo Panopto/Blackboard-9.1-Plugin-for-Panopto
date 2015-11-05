@@ -1688,9 +1688,7 @@ public class PanoptoData
         try
         {
             crePersister.deleteByKeyAndCourseId(keyToDelete, courseId);
-        }
-        catch (KeyNotFoundException knfe) {}
-        catch (PersistenceException pe) {}
+        } catch (PersistenceException pe) {}
     }
 
 
