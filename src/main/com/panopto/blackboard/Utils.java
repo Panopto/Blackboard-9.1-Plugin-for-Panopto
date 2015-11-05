@@ -464,7 +464,7 @@ public class Utils {
             return new String[] { input };
         }
 
-        ArrayList<String> retVal = new ArrayList<String>();
+        List<String> retVal = new ArrayList<>();
         StringBuilder val = new StringBuilder();
         int i = 0;
 

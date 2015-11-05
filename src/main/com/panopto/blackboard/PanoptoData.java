@@ -255,7 +255,7 @@ public class PanoptoData
             int responseCount = 0;
             int totalSessionsExpected = -1;
             ListSessionsResponse listResponse;
-            List<Session> allSessions = new ArrayList<Session>();
+            List<Session> allSessions = new ArrayList<>();
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
             do
             {
@@ -366,14 +366,14 @@ public class PanoptoData
 
             // Next get the user's access details
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-            HashSet<String> foldersWithCreatorAccess = new HashSet<String>();
+            Set<String> foldersWithCreatorAccess = new HashSet<>();
 
             // Get all the folders
             int page = 0;
             int responseCount = 0;
             int totalFoldersExpected = -1;
             ListFoldersResponse listResponse;
-            List<Folder> allFolders = new ArrayList<Folder>();
+            List<Folder> allFolders = new ArrayList<>();
             do
             {
                 ListFoldersRequest foldersRequest = new ListFoldersRequest( new Pagination(this.perPage, page ), null, false, FolderSortField.Name, true );
@@ -417,14 +417,14 @@ public class PanoptoData
         try
         {
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-            HashSet<String> publicFolders = new HashSet<String>();
+            Set<String> publicFolders = new HashSet<>();
             // Get all the folders
 
             int page = 0;
             int responseCount = 0;
             int totalFoldersExpected = -1;
             ListFoldersResponse listResponse;
-            List<Folder> allFolders = new ArrayList<Folder>();
+            List<Folder> allFolders = new ArrayList<>();
 
             do
             {
@@ -442,7 +442,7 @@ public class PanoptoData
                 Folder[] returnedFolders = listResponse.getResults();
 
                 // Log which folders we got back. foldersWithCreatorAccess, folderIdList, and returnedFolders are all just in place for logging.
-                publicFolders = new HashSet<String>();
+                publicFolders = new HashSet<>();
                 for (Folder folder : returnedFolders)
                 {
                     publicFolders.add(folder.getId());
@@ -492,12 +492,12 @@ public class PanoptoData
         Folder[] folders = getFoldersWithCreatorAccess();
 
         // Sort them by name
-        ArrayList<Folder> sortedFolders = new ArrayList<Folder>();
+        List<Folder> sortedFolders = new ArrayList<>();
         sortedFolders.addAll(Arrays.asList(folders));
         Collections.sort(sortedFolders, new FolderComparator());
 
         // Build a hash of the currently selected folders so we can quickly exclude them
-        HashSet<String> currentFolderIds = new HashSet<String>();
+        Set<String> currentFolderIds = new HashSet<>();
         currentFolderIds.addAll(Arrays.asList(sessionGroupPublicIDs));
 
         // Finally write out the options in sorted order
@@ -848,7 +848,7 @@ public class PanoptoData
         String[] splitURL = url.split("\\?");
         if(splitURL[1] != null && !splitURL[1].isEmpty()){
             String[] params = splitURL[1].split("&");
-            map = new HashMap<String, String>();
+            map = new HashMap<>();
             for (String param : params)
             {
                 String name = param.split("=")[0];
@@ -876,9 +876,9 @@ public class PanoptoData
 
             CourseDbLoader courseLoader = (CourseDbLoader) bbPm.getLoader(CourseDbLoader.TYPE);
             CourseMembershipDbLoader courseMembershipLoader = (CourseMembershipDbLoader) bbPm.getLoader(CourseMembershipDbLoader.TYPE);
-            List<Course> instructorCourses = new ArrayList<Course>();
-            List<Course> studentCourses = new ArrayList<Course>();
-            List<Course> taCourses = new ArrayList<Course>();
+            List<Course> instructorCourses = new ArrayList<>();
+            List<Course> studentCourses = new ArrayList<>();
+            List<Course> taCourses = new ArrayList<>();
 
             List<CourseMembership> allCourseMemberships = courseMembershipLoader.loadByUserId(bbUserId);
 
@@ -913,7 +913,7 @@ public class PanoptoData
             	}
             }
 
-            ArrayList<String> externalGroupIds = new ArrayList<String>();
+            List<String> externalGroupIds = new ArrayList<>();
             StringBuilder courseList = new StringBuilder();
             for(Course course : studentCourses)
             {
@@ -1100,7 +1100,7 @@ public class PanoptoData
             // This also reduces provisioning errors when a folder already exists.
             if (courseFolders.length < 0)
             {
-                ArrayList<String> foldersToDelete = new ArrayList<String>(courseFolders.length);
+                List<String> foldersToDelete = new ArrayList<>(courseFolders.length);
                 for (int idx = 0; idx < courseFolders.length; idx++)
                 {
                     Session[] sessionsInFolder = this.getSessions(courseFolders[idx].getId());
@@ -1230,12 +1230,12 @@ public class PanoptoData
     // Gets the user key of all the students of the course
     public List<String> getTAs()
     {
-        ArrayList<String> lstTAs = new ArrayList<String>();
+        ArrayList<String> lstTAs = new ArrayList<>();
 
         // Get the course membership (instructors, students, etc.)
         List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
 
-        List<CourseMembership> TACourseMemberships = new ArrayList<CourseMembership>();
+        List<CourseMembership> TACourseMemberships = new ArrayList<>();
         for(CourseMembership membership: courseMemberships)
         {
 
@@ -1265,12 +1265,12 @@ public class PanoptoData
     // Gets the user key of all the students of the course
     public List<String> getStudents()
     {
-        ArrayList<String> lstStudents = new ArrayList<String>();
+        List<String> lstStudents = new ArrayList<>();
 
         // Get the course membership (instructors, students, etc.)
         List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
 
-        List<CourseMembership> studentCourseMemberships = new ArrayList<CourseMembership>();
+        List<CourseMembership> studentCourseMemberships = new ArrayList<>();
         for(CourseMembership membership: courseMemberships)
         {
 
@@ -1301,12 +1301,12 @@ public class PanoptoData
     // Gets info about all the instructors of the course
     public List<String> getInstructors()
     {
-        ArrayList<String> lstInstructors = new ArrayList<String>();
+        List<String> lstInstructors = new ArrayList<>();
 
         // Get the course membership (instructors, students, etc.)
         List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
 
-        List<CourseMembership> instructorCourseMemberships = new ArrayList<CourseMembership>();
+        List<CourseMembership> instructorCourseMemberships = new ArrayList<>();
         for(CourseMembership membership: courseMemberships)
         {
             blackboard.data.course.CourseMembership.Role membershipRole = membership.getRole();
