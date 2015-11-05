@@ -406,7 +406,7 @@ public class PanoptoData
         catch (RemoteException e)
         {
             Utils.log(e, String.format("Error getting folders with creator access (server: %s, apiUserKey: %s).", serverName, apiUserKey));
-            return null;
+            return new Folder[0];
         }
     }
 
