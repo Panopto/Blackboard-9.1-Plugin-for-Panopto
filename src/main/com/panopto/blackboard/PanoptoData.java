@@ -387,7 +387,7 @@ public class PanoptoData
                 Folder[] returnedFolders = listResponse.getResults();
 
                 // Log which folders we got back. foldersWithCreatorAccess, folderIdList, and returnedFolders are all just in place for logging.
-                Set<String> foldersWithCreatorAccess = new HashSet<String>();
+                Set<String> foldersWithCreatorAccess = new HashSet<>();
                 for (Folder folder : returnedFolders)
                 {
                     foldersWithCreatorAccess.add(folder.getId());
