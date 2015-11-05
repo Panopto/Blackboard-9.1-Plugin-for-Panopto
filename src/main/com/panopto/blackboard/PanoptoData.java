@@ -352,7 +352,7 @@ public class PanoptoData
     {
         public int compare(Folder f1, Folder f2)
         {
-            return f1.getName().toLowerCase().compareTo(f2.getName().toLowerCase());
+            return f1.getName().compareToIgnoreCase(f2.getName());
         }
     }
 
