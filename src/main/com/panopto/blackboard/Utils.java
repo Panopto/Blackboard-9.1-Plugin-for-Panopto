@@ -191,12 +191,6 @@ public class Utils {
         return SecurityUtil.userHasEntitlement("system.panopto.EXECUTE");
     }
 
-    // Check for course tools conifguration entitlement
-    public static boolean userCanConfigureCourse()
-    {
-        return SecurityUtil.userHasEntitlement("course.panopto.EXECUTE");
-    }
-
     // URL to Course Documents page (for custom content importer).
     public static String getCourseDocsURL(String course_id, String content_id)
     {
@@ -211,14 +205,14 @@ public class Utils {
     // Generate options for drop-down list of servers with optional current selection (serverName)
     public static String generateServerOptionsHTML(String serverName)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         boolean hasSelection = false;
 
         for(String strServerName : getServerList())
         {
             result.append("<option");
-            result.append(" value='" + strServerName + "'");
+            result.append(" value='").append(strServerName).append("'");
             if(strServerName.equals(serverName))
             {
                 result.append(" SELECTED");
@@ -366,7 +360,7 @@ public class Utils {
         {
             return "";
         }
-        StringBuffer buffer = new StringBuffer(String.valueOf(iter.next()));
+        StringBuilder buffer = new StringBuilder(String.valueOf(iter.next()));
         while (iter.hasNext())
         {
             buffer.append(delimiter).append(String.valueOf(iter.next()));
@@ -451,7 +445,7 @@ public class Utils {
         StringBuilder retVal = new StringBuilder();
         for (String val : input)
         {
-            retVal.append('"' + val.replaceAll("\"", "\"\"") + "\",");
+            retVal.append('"').append(val.replaceAll("\"", "\"\"")).append("\",");
         }
 
         return retVal.toString();
@@ -470,7 +464,7 @@ public class Utils {
             return new String[] { input };
         }
 
-        ArrayList<String> retVal = new ArrayList<String>();
+        List<String> retVal = new ArrayList<>();
         StringBuilder val = new StringBuilder();
         int i = 0;
 
@@ -537,7 +531,7 @@ public class Utils {
             i++;
         }
 
-        return retVal.toArray(new String[0]);
+        return retVal.toArray(new String[retVal.size()]);
     }
 
     // <summary>

@@ -18,19 +18,6 @@
 
 package com.panopto.blackboard;
 
-import java.net.URL;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-
 import blackboard.base.FormattedText;
 import blackboard.data.ValidationException;
 import blackboard.data.content.Content;
@@ -44,7 +31,6 @@ import blackboard.data.registry.RegistryEntry;
 import blackboard.data.user.User;
 import blackboard.persist.BbPersistenceManager;
 import blackboard.persist.Id;
-import blackboard.persist.KeyNotFoundException;
 import blackboard.persist.PersistenceException;
 import blackboard.persist.content.ContentDbPersister;
 import blackboard.persist.course.CourseDbLoader;
@@ -58,30 +44,11 @@ import blackboard.platform.context.Context;
 import blackboard.platform.persistence.PersistenceServiceFactory;
 import blackboard.platform.plugin.PlugInUtil;
 import blackboard.platform.security.CourseRole;
+import com.panopto.services.*;
 
-import com.panopto.services.AccessManagementLocator;
-import com.panopto.services.AuthLocator;
-import com.panopto.services.AuthenticationInfo;
-import com.panopto.services.DateTimeOffset;
-import com.panopto.services.Folder;
-import com.panopto.services.FolderSortField;
-import com.panopto.services.IAccessManagement;
-import com.panopto.services.IAuth;
-import com.panopto.services.ISessionManagement;
-import com.panopto.services.IUserManagement;
-import com.panopto.services.ListFoldersRequest;
-import com.panopto.services.ListFoldersResponse;
-import com.panopto.services.ListSessionsRequest;
-import com.panopto.services.ListSessionsResponse;
-import com.panopto.services.Pagination;
-import com.panopto.services.Session;
-import com.panopto.services.SessionAvailabilitySettings;
-import com.panopto.services.SessionEndSettingType;
-import com.panopto.services.SessionManagementLocator;
-import com.panopto.services.SessionSortField;
-import com.panopto.services.SessionStartSettingType;
-import com.panopto.services.SessionState;
-import com.panopto.services.UserManagementLocator;
+import java.net.URL;
+import java.rmi.RemoteException;
+import java.util.*;
 
 // Wrap interaction with DB and Panopto SOAP services for a particular Blackboard course
 public class PanoptoData
@@ -248,21 +215,10 @@ public class PanoptoData
         }
     }
 
-    public boolean isServerSet()
-    {
-        return (serverName != null);
-    }
-
     // i.e. a Panopto course been selected for this Blackboard course
     public boolean isMapped()
     {
         return (sessionGroupPublicIDs != null);
-    }
-
-    // Get the Panopto user being used for SOAP calls
-    public String getApiUserKey()
-    {
-        return apiUserKey;
     }
 
     // Determine if this course is in the original context and the course has NOT been copied.
@@ -299,7 +255,7 @@ public class PanoptoData
             int responseCount = 0;
             int totalSessionsExpected = -1;
             ListSessionsResponse listResponse;
-            List<Session> allSessions = new ArrayList<Session>();
+            List<Session> allSessions = new ArrayList<>();
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
             do
             {
@@ -396,7 +352,7 @@ public class PanoptoData
     {
         public int compare(Folder f1, Folder f2)
         {
-            return f1.getName().toLowerCase().compareTo(f2.getName().toLowerCase());
+            return f1.getName().compareToIgnoreCase(f2.getName());
         }
     }
 
@@ -410,14 +366,13 @@ public class PanoptoData
 
             // Next get the user's access details
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-            HashSet<String> foldersWithCreatorAccess = new HashSet<String>();
 
             // Get all the folders
             int page = 0;
             int responseCount = 0;
             int totalFoldersExpected = -1;
             ListFoldersResponse listResponse;
-            List<Folder> allFolders = new ArrayList<Folder>();
+            List<Folder> allFolders = new ArrayList<>();
             do
             {
                 ListFoldersRequest foldersRequest = new ListFoldersRequest( new Pagination(this.perPage, page ), null, false, FolderSortField.Name, true );
@@ -432,12 +387,12 @@ public class PanoptoData
                 Folder[] returnedFolders = listResponse.getResults();
 
                 // Log which folders we got back. foldersWithCreatorAccess, folderIdList, and returnedFolders are all just in place for logging.
-                foldersWithCreatorAccess = new HashSet<String>();
+                Set<String> foldersWithCreatorAccess = new HashSet<>();
                 for (Folder folder : returnedFolders)
                 {
                     foldersWithCreatorAccess.add(folder.getId());
                 }
-                String[] folderIdList = foldersWithCreatorAccess.toArray(new String[0]);
+                String[] folderIdList = foldersWithCreatorAccess.toArray(new String[foldersWithCreatorAccess.size()]);
                 Utils.logVerbose(String.format("getFoldersWithCreatorAccess. User: %s, page: %d, returned from getCreatorFoldersList: %s", bbUserName, page, Utils.encodeArrayOfStrings(folderIdList)));
 
                 responseCount += returnedFolders.length;
@@ -451,7 +406,7 @@ public class PanoptoData
         catch (RemoteException e)
         {
             Utils.log(e, String.format("Error getting folders with creator access (server: %s, apiUserKey: %s).", serverName, apiUserKey));
-            return null;
+            return new Folder[0];
         }
     }
 
@@ -461,14 +416,13 @@ public class PanoptoData
         try
         {
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-            HashSet<String> publicFolders = new HashSet<String>();
             // Get all the folders
 
             int page = 0;
             int responseCount = 0;
             int totalFoldersExpected = -1;
             ListFoldersResponse listResponse;
-            List<Folder> allFolders = new ArrayList<Folder>();
+            List<Folder> allFolders = new ArrayList<>();
 
             do
             {
@@ -486,12 +440,12 @@ public class PanoptoData
                 Folder[] returnedFolders = listResponse.getResults();
 
                 // Log which folders we got back. foldersWithCreatorAccess, folderIdList, and returnedFolders are all just in place for logging.
-                publicFolders = new HashSet<String>();
+                Set<String> publicFolders = new HashSet<>();
                 for (Folder folder : returnedFolders)
                 {
                     publicFolders.add(folder.getId());
                 }
-                String[] folderIdList = publicFolders.toArray(new String[0]);
+                String[] folderIdList = publicFolders.toArray(new String[publicFolders.size()]);
                 Utils.logVerbose(String.format("getPublicFolders. User: %s, page: %d, returned from getPublicFolders: %s", bbUserName, page, Utils.encodeArrayOfStrings(folderIdList)));
 
                 responseCount += returnedFolders.length;
@@ -511,13 +465,13 @@ public class PanoptoData
     // Generates the list of selected folders for the course config page's listbox
     public String generateCourseConfigSelectedFoldersOptionsHTML()
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         if (sessionGroupDisplayNames != null)
         {
             for (int i = 0; i < sessionGroupDisplayNames.length; i++)
             {
                 result.append("<option");
-                result.append(" value='" + sessionGroupPublicIDs[i] + "'");
+                result.append(" value='").append(sessionGroupPublicIDs[i]).append("'");
                 result.append(">");
                 result.append(Utils.escapeHTML(sessionGroupDisplayNames[i]));
                 result.append("</option>\n");
@@ -530,18 +484,15 @@ public class PanoptoData
     // Generates the list of available folders for the course config page's listbox
     public String generateCourseConfigAvailableFoldersOptionsHTML()
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         // Get all the folder the user has access to
-        Folder[] folders = getFoldersWithCreatorAccess();
-
         // Sort them by name
-        ArrayList<Folder> sortedFolders = new ArrayList<Folder>();
-        sortedFolders.addAll(Arrays.asList(folders));
+        List<Folder> sortedFolders = new ArrayList<>(Arrays.asList(getFoldersWithCreatorAccess()));
         Collections.sort(sortedFolders, new FolderComparator());
 
         // Build a hash of the currently selected folders so we can quickly exclude them
-        HashSet<String> currentFolderIds = new HashSet<String>();
+        Set<String> currentFolderIds = new HashSet<>();
         currentFolderIds.addAll(Arrays.asList(sessionGroupPublicIDs));
 
         // Finally write out the options in sorted order
@@ -550,7 +501,7 @@ public class PanoptoData
             if (!currentFolderIds.contains(folder.getId()))
             {
                 result.append("<option");
-                result.append(" value='" + folder.getId() + "'");
+                result.append(" value='").append(folder.getId()).append("'");
                 result.append(">");
                 result.append(Utils.escapeHTML(folder.getName()));
                 result.append("</option>\n");
@@ -560,27 +511,10 @@ public class PanoptoData
         return result.toString();
     }
 
-    // Looks up the display string for a given folderID. The folderId must be already mapped with the course
-    public String getFolderDisplayString(String folderId)
-    {
-        if (folderId != null)
-        {
-            for (int i = 0; i < sessionGroupDisplayNames.length; i++)
-            {
-                if(sessionGroupPublicIDs[i].equals(folderId))
-                {
-                    return sessionGroupDisplayNames[i];
-                }
-            }
-        }
-
-        return null;
-    }
-
     // Generate <option>s for available folders. Used by Item_Create to select a folder
     public String generateFolderOptionsHTML(String folderId)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         Folder[] publicFolders = this.getPublicFolders();
         int numFolders = getNumberOfFolders();
@@ -612,7 +546,7 @@ public class PanoptoData
                             String strID = sessionGroupPublicIDs[i];
 
                             result.append("<option");
-                            result.append(" value='" + strID + "'");
+                            result.append(" value='").append(strID).append("'");
                             if(strID.equals(folderId))
                             {
                                 result.append(" SELECTED");
@@ -634,15 +568,13 @@ public class PanoptoData
                         {
                             result.append("<optgroup label='Public Folders'>\n");
                         }
-                        for (int i = 0; i < publicFolders.length; i++)
-                        {
-                            String strDisplayName = Utils.escapeHTML(publicFolders[i].getName());
-                            String strID = publicFolders[i].getId();
+                        for (Folder publicFolder : publicFolders) {
+                            String strDisplayName = Utils.escapeHTML(publicFolder.getName());
+                            String strID = publicFolder.getId();
 
                             result.append("<option");
-                            result.append(" value='" + strID + "'");
-                            if(strID.equals(folderId))
-                            {
+                            result.append(" value='").append(strID).append("'");
+                            if (strID.equals(folderId)) {
                                 result.append(" SELECTED");
                             }
                             result.append(">");
@@ -662,9 +594,9 @@ public class PanoptoData
     // Generate <option>s for available sessions. Used by Item_Create to select a session once a fodler is selected
     public String generateSessionOptionsHTML(String folderID)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
-        if (folderID == null || folderID == "")
+        if (folderID == null || folderID.isEmpty())
         {
             result.append("<option value=''>-- Please select a folder first --</option>\n");
         }
@@ -687,7 +619,7 @@ public class PanoptoData
                         String strDisplayName = Utils.escapeHTML(session.getName());
 
                         result.append("<option");
-                        result.append(" value='" + session.getViewerUrl() + "'");
+                        result.append(" value='").append(session.getViewerUrl()).append("'");
                         result.append(">");
                         result.append(strDisplayName);
                         result.append("</option>\n");
@@ -859,16 +791,17 @@ public class PanoptoData
 
         //If session start date is either "Immediately" or is a specific date in the past,
         //we are currently past the start time of the availability window.
+        final Calendar now = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         if(startType.equals(SessionStartSettingType.Immediately)
            || (startType.equals(SessionStartSettingType.SpecificDate)
-                && startDate.after(Calendar.getInstance(TimeZone.getTimeZone("UTC")))))
+                && startDate.after(now)))
         {
             //If the session availability end date is "Forever", or a date in the future,
             //we are currently before the availability window's end time, and are therefore
             //within the session's availability window.
             if(endType.equals(SessionEndSettingType.Forever)
                || (endType.equals(SessionEndSettingType.SpecificDate)
-                       && endDate.before(Calendar.getInstance(TimeZone.getTimeZone("UTC")))))
+                       && endDate.before(now)))
             {
                 isAvailable = true;
             }
@@ -902,8 +835,6 @@ public class PanoptoData
         persister.persist(content);
     }
 
-
-
     //Returns map of url's query parameters and their values. Used for getting session ID for session to make available.
     public Map<String, String> getQueryMap(String url)
     {
@@ -911,7 +842,7 @@ public class PanoptoData
         String[] splitURL = url.split("\\?");
         if(splitURL[1] != null && !splitURL[1].isEmpty()){
             String[] params = splitURL[1].split("&");
-            map = new HashMap<String, String>();
+            map = new HashMap<>();
             for (String param : params)
             {
                 String name = param.split("=")[0];
@@ -920,12 +851,6 @@ public class PanoptoData
             }
         }
         return map;
-    }
-
-    // Sync's a user with Panopto so that his course memberships are up to date.
-    public void syncUser()
-    {
-        PanoptoData.syncUser(serverName, bbUserName);
     }
 
     // Sync's a user with Panopto so that his course memberships are up to date.
@@ -945,9 +870,9 @@ public class PanoptoData
 
             CourseDbLoader courseLoader = (CourseDbLoader) bbPm.getLoader(CourseDbLoader.TYPE);
             CourseMembershipDbLoader courseMembershipLoader = (CourseMembershipDbLoader) bbPm.getLoader(CourseMembershipDbLoader.TYPE);
-            List<Course> instructorCourses = new ArrayList<Course>();
-            List<Course> studentCourses = new ArrayList<Course>();
-            List<Course> taCourses = new ArrayList<Course>();
+            List<Course> instructorCourses = new ArrayList<>();
+            List<Course> studentCourses = new ArrayList<>();
+            List<Course> taCourses = new ArrayList<>();
 
             List<CourseMembership> allCourseMemberships = courseMembershipLoader.loadByUserId(bbUserId);
 
@@ -982,7 +907,7 @@ public class PanoptoData
             	}
             }
 
-            ArrayList<String> externalGroupIds = new ArrayList<String>();
+            List<String> externalGroupIds = new ArrayList<>();
             StringBuilder courseList = new StringBuilder();
             for(Course course : studentCourses)
             {
@@ -993,7 +918,7 @@ public class PanoptoData
                 {
                     String groupName = Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_viewers";
                     externalGroupIds.add(groupName);
-                    courseList.append('(' + groupName + ')');
+                    courseList.append('(').append(groupName).append(')');
                 }
                 else if (courseServerName == null)
                 {
@@ -1001,7 +926,7 @@ public class PanoptoData
                 }
                 else
                 {
-                    courseList.append("(provisioned against " + courseServerName + ")");
+                    courseList.append("(provisioned against ").append(courseServerName).append(")");
                 }
 
                 courseList.append(';');
@@ -1018,7 +943,7 @@ public class PanoptoData
                 {
                     String groupName = Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_creators";
                     externalGroupIds.add(groupName);
-                    courseList.append('(' + groupName + ')');
+                    courseList.append('(').append(groupName).append(')');
                 }
                 else if (courseServerName == null)
                 {
@@ -1026,7 +951,7 @@ public class PanoptoData
                 }
                 else
                 {
-                    courseList.append("(provisioned against " + courseServerName + ")");
+                    courseList.append("(provisioned against ").append(courseServerName).append(")");
                 }
 
                 courseList.append(';');
@@ -1051,7 +976,7 @@ public class PanoptoData
                         groupName = Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_viewers";
                     }
                     externalGroupIds.add(groupName);
-                    courseList.append('(' + groupName + ')');
+                    courseList.append('(').append(groupName).append(')');
                 }
                 else if (courseServerName == null)
                 {
@@ -1059,7 +984,7 @@ public class PanoptoData
                 }
                 else
                 {
-                    courseList.append("(provisioned against " + courseServerName + ")");
+                    courseList.append("(provisioned against ").append(courseServerName).append(")");
                 }
 
                 courseList.append(';');
@@ -1072,7 +997,7 @@ public class PanoptoData
                     user.getFamilyName(),
                     user.getEmailAddress(),
                     Utils.pluginSettings.getMailLectureNotifications(),
-                    externalGroupIds.toArray(new String[0]));
+                    externalGroupIds.toArray(new String[externalGroupIds.size()]));
         }
         catch(Exception e)
         {
@@ -1169,13 +1094,11 @@ public class PanoptoData
             // This also reduces provisioning errors when a folder already exists.
             if (courseFolders.length < 0)
             {
-                ArrayList<String> foldersToDelete = new ArrayList<String>(courseFolders.length);
-                for (int idx = 0; idx < courseFolders.length; idx++)
-                {
-                    Session[] sessionsInFolder = this.getSessions(courseFolders[idx].getId());
-                    if ((sessionsInFolder == null) || (sessionsInFolder.length == 0))
-                    {
-                        foldersToDelete.add(courseFolders[idx].getId());
+                List<String> foldersToDelete = new ArrayList<>(courseFolders.length);
+                for (Folder courseFolder : courseFolders) {
+                    Session[] sessionsInFolder = this.getSessions(courseFolder.getId());
+                    if ((sessionsInFolder == null) || (sessionsInFolder.length == 0)) {
+                        foldersToDelete.add(courseFolder.getId());
                     }
                 }
 
@@ -1230,7 +1153,7 @@ public class PanoptoData
         setCourseRegistryEntry(hostnameRegistryKey, serverName);
 
         // First sort the folders.
-        ArrayList<Folder> sortedFolders = new ArrayList<Folder>();
+        List<Folder> sortedFolders = new ArrayList<>();
         sortedFolders.addAll(Arrays.asList(folders));
         Collections.sort(sortedFolders, new FolderComparator());
 
@@ -1296,36 +1219,15 @@ public class PanoptoData
         return courseMemberships;
     }
 
-    // Gets all the members of the course from Blackboard
-    private static List<CourseMembership> getCourseMembershipsByRole(Course bbCourse, CourseMembership.Role role)
-    {
-        BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
-
-        // Get the course membership (instructors, students, etc.)
-        List<CourseMembership> courseMemberships = null;
-        try
-        {
-            CourseMembershipDbLoader courseMembershipLoader = (CourseMembershipDbLoader) bbPm.getLoader(CourseMembershipDbLoader.TYPE);
-
-            courseMemberships = courseMembershipLoader.loadByCourseIdAndRole(bbCourse.getId(), role, null, true);
-        }
-        catch(Exception e)
-        {
-            Utils.log(e, String.format("Error getting course membership (course ID: %s).", bbCourse.getId()));
-        }
-
-        return courseMemberships;
-    }
-
     // Gets the user key of all the students of the course
     public List<String> getTAs()
     {
-        ArrayList<String> lstTAs = new ArrayList<String>();
+        ArrayList<String> lstTAs = new ArrayList<>();
 
         // Get the course membership (instructors, students, etc.)
         List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
 
-        List<CourseMembership> TACourseMemberships = new ArrayList<CourseMembership>();
+        List<CourseMembership> TACourseMemberships = new ArrayList<>();
         for(CourseMembership membership: courseMemberships)
         {
 
@@ -1355,12 +1257,12 @@ public class PanoptoData
     // Gets the user key of all the students of the course
     public List<String> getStudents()
     {
-        ArrayList<String> lstStudents = new ArrayList<String>();
+        List<String> lstStudents = new ArrayList<>();
 
         // Get the course membership (instructors, students, etc.)
         List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
 
-        List<CourseMembership> studentCourseMemberships = new ArrayList<CourseMembership>();
+        List<CourseMembership> studentCourseMemberships = new ArrayList<>();
         for(CourseMembership membership: courseMemberships)
         {
 
@@ -1391,12 +1293,12 @@ public class PanoptoData
     // Gets info about all the instructors of the course
     public List<String> getInstructors()
     {
-        ArrayList<String> lstInstructors = new ArrayList<String>();
+        List<String> lstInstructors = new ArrayList<>();
 
         // Get the course membership (instructors, students, etc.)
         List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
 
-        List<CourseMembership> instructorCourseMemberships = new ArrayList<CourseMembership>();
+        List<CourseMembership> instructorCourseMemberships = new ArrayList<>();
         for(CourseMembership membership: courseMemberships)
         {
             blackboard.data.course.CourseMembership.Role membershipRole = membership.getRole();
@@ -1539,26 +1441,6 @@ public class PanoptoData
         return isUserInstructor(bbCourseId, bbUserName, true);
     }
 
-    private static IAccessManagement getPanoptoAccessManagementSOAPService(String serverName)
-    {
-        IAccessManagement port = null;
-
-        try
-        {
-            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/AccessManagement.svc");
-
-            // Connect to the SessionManagement SOAP service on the specified Panopto server
-            AccessManagementLocator service = new AccessManagementLocator();
-            port = (IAccessManagement) service.getBasicHttpBinding_IAccessManagement(SOAP_URL);
-        }
-        catch(Exception e)
-        {
-            Utils.log(e, String.format("Error getting Access Management SOAP service (server: %s).", serverName));
-        }
-
-        return port;
-    }
-
     private static ISessionManagement getPanoptoSessionManagementSOAPService(String serverName)
     {
         ISessionManagement port = null;
@@ -1569,7 +1451,7 @@ public class PanoptoData
 
             // Connect to the SessionManagement SOAP service on the specified Panopto server
             SessionManagementLocator service = new SessionManagementLocator();
-            port = (ISessionManagement) service.getBasicHttpBinding_ISessionManagement(SOAP_URL);
+            port = service.getBasicHttpBinding_ISessionManagement(SOAP_URL);
         }
         catch(Exception e)
         {
@@ -1589,7 +1471,7 @@ public class PanoptoData
 
             // Connect to the UserManagement SOAP service on the specified Panopto server
             UserManagementLocator service = new UserManagementLocator();
-            port = (IUserManagement) service.getBasicHttpBinding_IUserManagement(SOAP_URL);
+            port = service.getBasicHttpBinding_IUserManagement(SOAP_URL);
         }
         catch(Exception e)
         {
@@ -1609,7 +1491,7 @@ public class PanoptoData
 
             // Connect to the UserManagement SOAP service on the specified Panopto server
             AuthLocator service = new AuthLocator();
-            port = (IAuth) service.getBasicHttpBinding_IAuth(SOAP_URL);
+            port = service.getBasicHttpBinding_IAuth(SOAP_URL);
         }
         catch(Exception e)
         {
@@ -1797,9 +1679,7 @@ public class PanoptoData
         try
         {
             crePersister.deleteByKeyAndCourseId(keyToDelete, courseId);
-        }
-        catch (KeyNotFoundException knfe) {}
-        catch (PersistenceException pe) {}
+        } catch (PersistenceException pe) {}
     }
 
 
@@ -1821,7 +1701,7 @@ public class PanoptoData
 
         //Iterate through each link and check if it's text matches the text of the item to be created
         boolean linkExists = false;
-        while(courseTocList.iterator().hasNext() && linkExists == false)
+        while(courseTocList.iterator().hasNext() && !linkExists)
         {
             CourseToc ct = courseTocList.iterator().next();
 
@@ -1848,7 +1728,7 @@ public class PanoptoData
     }
 
     //Enum types returned by addBlackboardContentItem, indicating whether a Panopto link has been successfully added to a course.
-    public static enum LinkAddedResult{
+    public enum LinkAddedResult{
         SUCCESS, //Link was added successfully.
         NOTCREATOR, //Link was not added because the session is not available and the user does not have creator access in order to make it available.
         NOTPUBLISHER, //Link was not added because session requires publisher approval.
