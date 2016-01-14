@@ -4,7 +4,8 @@
   <artifactId>Blackboard-9.1-Plugin-for-Panopto</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <build>
-    <sourceDirectory>src</sourceDirectory>
+    <sourceDirectory>src/main</sourceDirectory>
+  	<testSourceDirectory>src/test</testSourceDirectory>
     <outputDirectory>WebRoot/WEB-INF/classes</outputDirectory>
     <plugins>
     	<plugin>
@@ -72,6 +73,12 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/bb-taglibs.jar</systemPath>
 		</dependency>
+	  <dependency>
+		  <groupId>junit</groupId>
+		  <artifactId>junit</artifactId>
+		  <version>4.12</version>
+		  <scope>test</scope>
+	  </dependency>
   </dependencies>
   <packaging>war</packaging>
 </project>
