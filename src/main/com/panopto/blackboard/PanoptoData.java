@@ -106,10 +106,10 @@ public class PanoptoData
 
     // Panopto server to talk to
     private String serverName;
-
+    
     //Version number of the current Panopto server
     private PanoptoVersion serverVersion;
-
+    
     // User key to use when talking to Panopto SOAP services
     // (Instance-decorated username of currently-logged-in Blackboard user)
     private String apiUserKey;
@@ -123,7 +123,7 @@ public class PanoptoData
     // SOAP port for talking to Panopto
     private ISessionManagement sessionManagement;
 
-
+    
     // Construct the PanoptoData object using the current Blackboard context (e.g. from <bbData:context ...> tag)
     // Pulls in stored property values from BB course registry if available.
     // Ensure that serverName and sessionGroupPublicIDs are set before calling any instance methods that rely on these properties (most).
@@ -160,7 +160,7 @@ public class PanoptoData
         this.bbUserName = bbUserName;
         this.isInstructor = PanoptoData.isUserInstructor(this.bbCourse.getId(), this.bbUserName, false);
         this.canAddLinks = PanoptoData.canUserAddLinks(this.bbCourse.getId(), this.bbUserName);
-
+        
         List<String> serverList = Utils.pluginSettings.getServerList();
         // If there is only one server available, use it
         if(serverList.size() == 1)
@@ -173,7 +173,7 @@ public class PanoptoData
         }
         sessionGroupPublicIDs = getCourseRegistryEntries(sessionGroupIDRegistryKey);
         sessionGroupDisplayNames = getCourseRegistryEntries(sessionGroupDisplayNameRegistryKey);
-
+        
         // Check that the list of Ids and names are valid. They must both be the same length
         if ((sessionGroupPublicIDs == null && sessionGroupDisplayNames != null)
                 || (sessionGroupPublicIDs != null && sessionGroupDisplayNames == null)
@@ -236,8 +236,8 @@ public class PanoptoData
             apiUserKey = Utils.decorateBlackboardUserName(bbUserName);
             apiUserAuthCode = Utils.generateAuthCode(serverName, apiUserKey + "@" + serverName);
             sessionManagement = getPanoptoSessionManagementSOAPService(serverName);
-            serverVersion = getServerVersion();
-
+            serverVersion = getServerVersion(); 
+            
         }
         else
         {
@@ -762,7 +762,7 @@ public class PanoptoData
                         //Problem getting availability window information freom the API. Do not add the session to the course.
                         isInAvailabilityWindow = false;
                         Utils.log(e, "Error getting availability information for sessions from server.");
-
+                        
                     }
                 }
                 if(isInAvailabilityWindow){
@@ -1545,7 +1545,7 @@ public class PanoptoData
 
         try
         {
-            URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/AccessManagement.svc");
+            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/AccessManagement.svc");
 
             // Connect to the SessionManagement SOAP service on the specified Panopto server
             AccessManagementLocator service = new AccessManagementLocator();
@@ -1565,7 +1565,7 @@ public class PanoptoData
 
         try
         {
-            URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/SessionManagement.svc");
+            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/SessionManagement.svc");
 
             // Connect to the SessionManagement SOAP service on the specified Panopto server
             SessionManagementLocator service = new SessionManagementLocator();
@@ -1585,7 +1585,7 @@ public class PanoptoData
 
         try
         {
-            URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/UserManagement.svc");
+            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/UserManagement.svc");
 
             // Connect to the UserManagement SOAP service on the specified Panopto server
             UserManagementLocator service = new UserManagementLocator();
@@ -1598,14 +1598,14 @@ public class PanoptoData
 
         return port;
     }
-
+    
     private static IAuth getPanoptoAuthSOAPService(String serverName)
     {
         IAuth port = null;
 
         try
         {
-            URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/Auth.svc");
+            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/Auth.svc");
 
             // Connect to the UserManagement SOAP service on the specified Panopto server
             AuthLocator service = new AuthLocator();
@@ -1806,7 +1806,7 @@ public class PanoptoData
     private PanoptoVersion getServerVersion() {
         //Generate AuthenticationInfo for making call to Auth to get server info.
         AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-
+        
         IAuth iAuth = getPanoptoAuthSOAPService(serverName);
         return PanoptoVersion.fetchOrEmpty(iAuth);
     }
