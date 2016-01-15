@@ -56,6 +56,9 @@ public class Utils {
     public static final String pluginHandle = "PanoptoCourseTool";
     // By default read at least 1024 standard length lines  
     public static final long defaultLogLimit = 1024 * 128;
+    
+    //The default maximum size for the log file should be 4mb.
+    public static final long defaultLogFileSize = 4096 * 1024 ;
 
     // Global settings for the plugin, applicable across all courses.
     public static final Settings pluginSettings = new Settings();
@@ -91,9 +94,19 @@ public class Utils {
         {
             try
             {
+            	
+            	
                 File configDir = PlugInUtil.getConfigDirectory(vendorID, pluginHandle);
                 File logFile = new File(configDir, logFilename);
-
+                
+                long fileLength = logFile.length(); 
+                
+                //If the current log file is larger than the max size, truncate it to half the maximum size. 
+                if(fileLength > defaultLogFileSize)
+                {
+                	truncateLog(logFile, defaultLogFileSize/2);
+                }
+                
                 FileWriter fileStream = new FileWriter(logFile, true);
                 BufferedWriter bufferedStream = new BufferedWriter(fileStream);
                 PrintWriter output = new PrintWriter(bufferedStream);
@@ -120,6 +133,25 @@ public class Utils {
         }
     }
 
+    //Removes data from the beginning of a log file so that it matches the specified file size  .
+    public static void truncateLog(File file, long maxLogSize)
+    {
+    	//Use getLogData to get the specified amount of data from the end of the current log as a string,
+    	String truncatedLog = getLogData(maxLogSize);
+    	
+    	//Write the  string back to the log file, effectively truncating the log from the beginning.
+    	try
+        {          
+            PrintWriter output = new PrintWriter(file);
+            output.write(truncatedLog);
+            output.close();
+        }
+    	catch(Exception e)
+    	{    	
+    	}
+    	
+    }
+    
     // Reads data from a log file up to a max number of bytes.  The byte limit ensures we don't attempt to read in a 
     // huge log file, unless it's explicitly asked for
     public static String getLogData(long maxBytesToRead)
