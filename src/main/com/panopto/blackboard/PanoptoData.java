@@ -34,6 +34,8 @@ import java.util.TimeZone;
 import blackboard.base.FormattedText;
 import blackboard.data.ValidationException;
 import blackboard.data.content.Content;
+import blackboard.data.content.ExternalLink;
+import blackboard.data.content.Link;
 import blackboard.data.course.Course;
 import blackboard.data.course.CourseMembership;
 import blackboard.data.course.CourseMembership.Role;
@@ -1834,15 +1836,13 @@ public class PanoptoData
 
         //If link with desired text doesn't exists, create a new one
         if(!linkExists)
-        {
-            //Generate Schema independent URL for plugin location
-            String URIRoot = PlugInUtil.getUri("ppto", "PanoptoCourseTool", "Content.jsp");
-            CourseToc panLink = new CourseToc();
+        {     	   
+            CourseToc panLink = new CourseToc();           
             panLink.setCourseId(cid);
-            panLink.setTargetType(CourseToc.Target.URL);
+            panLink.setTargetType(CourseToc.Target.APPLICATION);
             panLink.setLabel(Utils.pluginSettings.getMenuLinkText());
             panLink.setLaunchInNewWindow(false);
-            panLink.setUrl(URIRoot + "?course_id=" + cid.toExternalString());
+            panLink.setInternalHandle("ppto-PanoptoCourseToolApp-nav-1");            
             CourseTocDbPersister.Default.getInstance().persist(panLink);
         }
     }
