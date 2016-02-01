@@ -1839,9 +1839,18 @@ public class PanoptoData
         {     	   
             CourseToc panLink = new CourseToc();           
             panLink.setCourseId(cid);
+            
+            //Create application type course link. This will direct to url set for the target plugin
+            //in bb-manifest.xml, with the coure's id appended as an argument. This courseToc target
+            //type will allow the link to open in within the current course without needing to be wrapped
+            //in an external content frame, and the plugin content will always point to the corresponding
+            //panopto content of the course that the link is being accessed from.
             panLink.setTargetType(CourseToc.Target.APPLICATION);
             panLink.setLabel(Utils.pluginSettings.getMenuLinkText());
             panLink.setLaunchInNewWindow(false);
+            
+            //Set the internal handle for the target application, in the case the handle for the 
+            //"Panopto course tool" application
             panLink.setInternalHandle("ppto-PanoptoCourseToolApp-nav-1");            
             CourseTocDbPersister.Default.getInstance().persist(panLink);
         }
