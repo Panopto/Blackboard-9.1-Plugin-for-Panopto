@@ -960,17 +960,19 @@ public class PanoptoData
             	{
 	                Role membershipRole = membership.getRole();
 	                currentCourse = courseLoader.loadById(membership.getCourseId());
-	                if(isInstructorRole(membershipRole))
-	                {
-	                    instructorCourses.add(currentCourse);
-	                }
-	                else if(isTARole(membershipRole))
-	                {
-	                    taCourses.add(currentCourse);
-	                }
-	                else
-	                {
-	                    studentCourses.add(currentCourse);
+	                if(currentCourse != null){
+		                if(isInstructorRole(membershipRole))
+		                {
+		                    instructorCourses.add(currentCourse);
+		                }
+		                else if(isTARole(membershipRole))
+		                {
+		                    taCourses.add(currentCourse);
+		                }
+		                else
+		                {
+		                    studentCourses.add(currentCourse);
+		                }
 	                }
             	}
             	catch (Exception ex)
