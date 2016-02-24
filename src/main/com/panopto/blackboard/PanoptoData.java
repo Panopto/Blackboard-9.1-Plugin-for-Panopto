@@ -959,8 +959,8 @@ public class PanoptoData
             	try
             	{
 	                Role membershipRole = membership.getRole();
-	                currentCourse = courseLoader.loadById(membership.getCourseId());
-	                if(currentCourse != null){
+	                if(courseLoader.doesCourseIdExist(membership.getCourseId().toString())){
+		                currentCourse = courseLoader.loadById(membership.getCourseId());
 		                if(isInstructorRole(membershipRole))
 		                {
 		                    instructorCourses.add(currentCourse);
