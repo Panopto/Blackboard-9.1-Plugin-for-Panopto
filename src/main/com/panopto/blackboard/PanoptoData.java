@@ -974,7 +974,7 @@ public class PanoptoData
             	}
             	catch(KeyNotFoundException e)
             	{
-            		//The course is unavailable or does not exist anymore. Simply skip trying to it to the user's memberships. 
+            		Utils.log(String.format("The course with id %1$s either does not exist or is unavailable.", membership.getCourseId()));
             	}
             	catch (Exception ex)
             	{
