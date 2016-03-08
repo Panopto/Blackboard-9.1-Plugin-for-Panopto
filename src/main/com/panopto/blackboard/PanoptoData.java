@@ -879,6 +879,7 @@ public class PanoptoData
         return isAvailable;
     }
 
+    //Adds a link to a Panopto session to the content area of the current Blackboard course.
     private void addSessionLinkToCourse(String content_id, String lectureUrl,
             String title, String description, BbPersistenceManager bbPm)
             throws PersistenceException, ValidationException {
@@ -973,9 +974,7 @@ public class PanoptoData
             	}
             	catch(KeyNotFoundException e)
             	{
-            		Utils.log(
-            				e, 
-            				String.format("The course with id %1$s either does not exist or is unavailable.", membership.getCourseId()));
+            		//The course is unavailable or does not exist anymore. Simply skip trying to it to the user's memberships. 
             	}
             	catch (Exception ex)
             	{
