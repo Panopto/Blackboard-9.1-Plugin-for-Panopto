@@ -936,7 +936,6 @@ public class PanoptoData
         String apiUserKey = Utils.decorateBlackboardUserName(bbUserName);
         String apiUserAuthCode = Utils.generateAuthCode(serverName, apiUserKey + "@" + serverName);
         AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-
         try
         {
             // Load the user's profile info
@@ -950,30 +949,32 @@ public class PanoptoData
             List<Course> instructorCourses = new ArrayList<Course>();
             List<Course> studentCourses = new ArrayList<Course>();
             List<Course> taCourses = new ArrayList<Course>();
-
+            	
             List<CourseMembership> allCourseMemberships = courseMembershipLoader.loadByUserId(bbUserId);
-
             Course currentCourse;
             for(CourseMembership membership: allCourseMemberships)
             {
             	try
             	{
 	                Role membershipRole = membership.getRole();
-	                if(courseLoader.doesCourseIdExist(membership.getCourseId().toString())){
-		                currentCourse = courseLoader.loadById(membership.getCourseId());
-		                if(isInstructorRole(membershipRole))
-		                {
-		                    instructorCourses.add(currentCourse);
-		                }
-		                else if(isTARole(membershipRole))
-		                {
-		                    taCourses.add(currentCourse);
-		                }
-		                else
-		                {
-		                    studentCourses.add(currentCourse);
-		                }
+	                currentCourse = courseLoader.loadById(membership.getCourseId());
+	                if(isInstructorRole(membershipRole))
+	                {
+	                    instructorCourses.add(currentCourse);
 	                }
+	                else if(isTARole(membershipRole))
+	                {
+	                    taCourses.add(currentCourse);
+	                }
+	                else
+	                {
+	                    studentCourses.add(currentCourse);
+	                }
+	               
+            	}
+            	catch(KeyNotFoundException e)
+            	{
+            		Utils.log(String.format("The course with id %1$s either does not exist or is unavailable.", membership.getCourseId()));
             	}
             	catch (Exception ex)
             	{
