@@ -36,6 +36,8 @@
 	String requestAuthCode = request.getParameter("authCode");
 
 	String action = request.getParameter("action");
+	String redirected = request.getParameter("redirected");
+
 	boolean relogin = (action != null) && action.equals("relogin") && Utils.pluginSettings.getRefreshLogins();
 
 	// Bounce unauthenticated/guest users and forced login requests through the login page.
@@ -55,6 +57,24 @@
 		
 		response.sendRedirect(loginURL);
 		return;
+	}
+	else if(Utils.pluginSettings.getUseDefaultLogin() && redirected == null)
+	{
+		// Put callbackURL last so it doesn't eat the rest of the params when Blackboard erroneously double-decodes it.
+		String selfURL = request.getRequestURI() + 
+							"?authCode=" + requestAuthCode +
+							"&serverName=" + serverName +
+							"&expiration=" + expiration +
+							"&redirected=true" +
+							"&callbackURL=" + URLEncoder.encode(callbackURL, "UTF-8");
+
+		String returnURL = URLEncoder.encode(selfURL, "UTF-8");
+
+		String loginURL = "/webapps/login?action=default_login&new_loc=" + returnURL; 
+		
+		response.sendRedirect(loginURL);
+		return;
+
 	}
 
 	// Reproduce canonically-ordered incoming auth payload.

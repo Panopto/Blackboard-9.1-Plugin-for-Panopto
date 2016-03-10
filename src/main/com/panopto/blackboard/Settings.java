@@ -85,6 +85,9 @@ public class Settings {
 
     // Text for link created on provision. Default is "Panopto Video"
     private String menuLinkText = "Panopto Video";
+    
+    //Optional parameter to override default login action during sso.
+    private Boolean useDefaultLogin = false;
 
     // Parse current settings from XML file in config directory.
     public Settings() {
@@ -294,6 +297,17 @@ public class Settings {
         save();
     }
 
+    public boolean getUseDefaultLogin()
+    {
+    	return useDefaultLogin;
+    }
+    
+    public void setUseDefaultLogin(boolean useDefaultLogin)
+    {
+    	this.useDefaultLogin = useDefaultLogin;
+    	save();
+    }
+    
     // Serialize current settings to XML settings file in config directory.
     private void save()
     {
@@ -370,6 +384,10 @@ public class Settings {
             Element menuLinkTextElem = settingsDocument.createElement("menuLinkText");
             menuLinkTextElem.setAttribute("menutext", menuLinkText);
             docElem.appendChild(menuLinkTextElem);
+            
+            Element useDefaultLoginElem = settingsDocument.createElement("useDefaultLogin");
+            useDefaultLoginElem.setAttribute("useDefaultLogin", useDefaultLogin.toString());
+            docElem.appendChild(useDefaultLoginElem);
 
             OutputFormat format = new OutputFormat(settingsDocument);
             format.setIndenting(true);
@@ -509,6 +527,14 @@ public class Settings {
             Element menuLinkTextElem = (Element)menuLinkTextNodes.item(0);
             this.menuLinkText = menuLinkTextElem.getAttribute("menutext");
         }
+        
+        NodeList useDefaultLoginNodes = docElem.getElementsByTagName("useDefaultLogin");
+        if(useDefaultLoginNodes.getLength() != 0)
+        {
+        	Element useDefaultLoginElem = (Element)useDefaultLoginNodes.item(0);
+        	this.useDefaultLogin = Boolean.valueOf(useDefaultLoginElem.getAttribute("useDefaultLogin"));
+        }
+        	
     }
 
 }
