@@ -1851,6 +1851,7 @@ public class PanoptoData
             panLink.setTargetType(CourseToc.Target.APPLICATION);
             panLink.setLabel(Utils.pluginSettings.getMenuLinkText());
             panLink.setLaunchInNewWindow(false);
+            panLink.setIsEntryPoint(false);
             
             //Set the internal handle for the target application, in the case the handle for the 
             //"Panopto course tool" application
