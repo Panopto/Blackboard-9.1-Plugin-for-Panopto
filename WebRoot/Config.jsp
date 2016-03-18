@@ -73,7 +73,6 @@ Boolean verbose = (request.getParameter("verbose") != null);
 Boolean adminProvisionOnly = (request.getParameter("adminProvisionOnly") != null);
 Boolean insertLinkOnProvision = (request.getParameter("insertLinkOnProvision") != null);
 String menuLinkText = request.getParameter("menuLinkText");
-Boolean useDefaultLogin = (request.getParameter("useDefaultLogin") != null);
 //Bounce page address to copy into Panopto
 String SSOAddress = "https://" + ctx.getHostName()  + PlugInUtil.getUri("ppto", "PanoptoCourseTool", "SSO.jsp");
 
@@ -95,7 +94,6 @@ if(instanceName != null)
     Utils.pluginSettings.setVerbose(verbose);
     Utils.pluginSettings.setAdminProvisionOnly(adminProvisionOnly);
     Utils.pluginSettings.setInsertLinkOnProvision(insertLinkOnProvision);
-    Utils.pluginSettings.setUseDefaultLogin(useDefaultLogin);
 }
  
 //If menu link text is not null, save it.
@@ -122,7 +120,6 @@ verbose = Utils.pluginSettings.getVerbose();
 adminProvisionOnly = Utils.pluginSettings.getAdminProvisionOnly();
 insertLinkOnProvision = Utils.pluginSettings.getInsertLinkOnProvision();
 menuLinkText = Utils.pluginSettings.getMenuLinkText();
-useDefaultLogin = Utils.pluginSettings.getUseDefaultLogin();
 
 // Server list form submitted, add/remove servers if valid operation
 String add_hostname = request.getParameter("add_hostname");
@@ -396,21 +393,6 @@ else
                                 <div class="field">
                                     <p tabIndex="0" class="stepHelp">
                                         This setting controls if the Panopto building block writes verbose logs.<br/>
-                                        <br/>
-                                        <br/>
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label">Use Default Login Portal</div>
-                                <div class="field">
-                                    <input name="useDefaultLogin" type="checkbox" <%= useDefaultLogin ? "checked" : "" %> style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        This setting determines if the default login page should be used instead of a custom portal.<br/>
                                         <br/>
                                         <br/>
                                     </p>
