@@ -86,6 +86,8 @@ public class Settings {
     // Text for link created on provision. Default is "Panopto Video"
     private String menuLinkText = "Panopto Video";
 
+    private String roleMappingString = "";
+
     // Parse current settings from XML file in config directory.
     public Settings() {
         try {
@@ -294,6 +296,17 @@ public class Settings {
         save();
     }
 
+    public String getRoleMappingString()
+    {
+    	return roleMappingString;
+    }
+
+    public void setRoleMappingString(String roleMappingString)
+    {
+    	this.roleMappingString = roleMappingString;
+    	save();
+    }
+
     // Serialize current settings to XML settings file in config directory.
     private void save()
     {
@@ -370,6 +383,10 @@ public class Settings {
             Element menuLinkTextElem = settingsDocument.createElement("menuLinkText");
             menuLinkTextElem.setAttribute("menutext", menuLinkText);
             docElem.appendChild(menuLinkTextElem);
+
+            Element roleMappingStringElem = settingsDocument.createElement("roleMappingString");
+            roleMappingStringElem.setAttribute("roleMappingString", roleMappingString);
+            docElem.appendChild(roleMappingStringElem);
 
             OutputFormat format = new OutputFormat(settingsDocument);
             format.setIndenting(true);
@@ -509,6 +526,14 @@ public class Settings {
             Element menuLinkTextElem = (Element)menuLinkTextNodes.item(0);
             this.menuLinkText = menuLinkTextElem.getAttribute("menutext");
         }
+
+        NodeList roleMappingStringNodes = docElem.getElementsByTagName("roleMappingString");
+        if(roleMappingStringNodes.getLength() != 0)
+        {
+        	Element roleMappingStringElem = (Element)roleMappingStringNodes.item(0);
+        	this.roleMappingString = roleMappingStringElem.getAttribute("roleMappingString");
+        }
+
     }
 
 }

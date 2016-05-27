@@ -107,6 +107,12 @@
 	padding-top: 20px;
 }
 
+.customRoleCell
+{
+	border: 1px solid black;
+	padding: 3px;
+}
+
 .settingTable TH
 {
 	font-weight: bold;
