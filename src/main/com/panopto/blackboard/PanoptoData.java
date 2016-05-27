@@ -766,7 +766,6 @@ public class PanoptoData
             CourseMembership usersCourseMembership = membershipLoader.loadByCourseAndUserId(bbCourse.getId(), bbUserId);
             Role userRole = usersCourseMembership.getRole();
 
-            Role[] courseRoles = CourseMembership.Role.getAllCourseRoles();
             //Determine if current user has creator access to session.
             boolean isCreator = (   isInstructorRole(userRole)
                                  || (   isTARole(userRole)
@@ -1457,17 +1456,17 @@ public class PanoptoData
             blackboard.data.course.CourseMembership.Role membershipRole)
     {
         //Role is instructor role if it is the 'Instructor' or 'Course Builder' built in blackboard role,
-        //or if it is any role marked with the 'Act As Instructor' flag.
+        //or if it is in the custom instructor roles list.
         return membershipRole.equals(CourseMembership.Role.INSTRUCTOR)
                 || membershipRole.equals(CourseMembership.Role.COURSE_BUILDER)
-                || getInstructorRoleIds().contains(membershipRole.getIdentifier().toLowerCase());
+                || getIdsForRole("instructor").contains(membershipRole.getIdentifier().toLowerCase());
     }
 
     /*Returns true if role should be treated as a Student. Students get viewer access in Panopto.*/
     private static boolean isStudentRole(
             blackboard.data.course.CourseMembership.Role membershipRole)
     {
-        //Role is student role if it is not a built in instructor role or a custom role.
+        //Role is student role if it is not a built in instructor or ta role, or a mapped custom role.
         return    !isInstructorRole(membershipRole)
                && !isTARole(membershipRole);
     }
@@ -1480,7 +1479,7 @@ public class PanoptoData
         //Role is a TA role if it is the 'Teaching Assistant' built in blackboard role
         //or if it is in the list of custom ta roles
         return membershipRole.equals(Role.TEACHING_ASSISTANT)
-                ||  (getTaRoleIds().contains(membershipRole.getIdentifier().toLowerCase()));
+                ||  (getIdsForRole("ta").contains(membershipRole.getIdentifier().toLowerCase()));
     }
 
     public boolean userMayProvision()
@@ -1882,7 +1881,9 @@ public class PanoptoData
         }
     }
 
-    private static List<String> getTaRoleIds()
+    //Retrieves list of role ids mapped to either the "ta" or "instructor" role in the block settings.
+    //If a string other than "ta" or "instructor" is passed, an empty list will be returned.
+    private static List<String> getIdsForRole(String rolename)
     {
     	List<String> taRoleIds = new ArrayList<String>();
     	String roleMappingsString = Utils.pluginSettings.getRoleMappingString();
@@ -1893,7 +1894,7 @@ public class PanoptoData
         	if(mappingArray.length == 2)
         	{
         		String RoleId = mappingArray[0];
-        		if(mappingArray[1].trim().toLowerCase() == "ta")
+        		if(mappingArray[1].trim().toLowerCase() == rolename.toLowerCase())
         		{
         			taRoleIds.add(RoleId.trim().toLowerCase());
         		}
@@ -1902,25 +1903,6 @@ public class PanoptoData
         return taRoleIds;
     }
 
-    private static List<String> getInstructorRoleIds()
-    {
-    	List<String> instructorRoleIds = new ArrayList<String>();
-    	String roleMappingsString = Utils.pluginSettings.getRoleMappingString();
-        String[] roleMappingsSplit = roleMappingsString.split(";");
-        for(String mappingString: roleMappingsSplit)
-        {
-        	String[] mappingArray = mappingString.split(":");
-        	if(mappingArray.length == 2)
-        	{
-        		String RoleId = mappingArray[0];
-        		if(mappingArray[1].trim().toLowerCase() == "instructor")
-        		{
-        			instructorRoleIds.add(RoleId.trim().toLowerCase());
-        		}
-        	}
-        }
-        return instructorRoleIds;
-    }
     //Enum types returned by addBlackboardContentItem, indicating whether a Panopto link has been successfully added to a course.
     public static enum LinkAddedResult{
         SUCCESS, //Link was added successfully.
