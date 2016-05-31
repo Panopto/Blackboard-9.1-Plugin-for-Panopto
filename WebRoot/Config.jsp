@@ -22,6 +22,9 @@
 <%@page import="com.panopto.blackboard.Utils"%>
 <%@page import="java.util.*"%>
 <%@page import="blackboard.platform.plugin.PlugInUtil" %>
+<%@page import="blackboard.data.course.CourseMembership" %>
+<%@page import="blackboard.data.course.CourseMembership.Role" %>
+
 
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -73,8 +76,23 @@ Boolean verbose = (request.getParameter("verbose") != null);
 Boolean adminProvisionOnly = (request.getParameter("adminProvisionOnly") != null);
 Boolean insertLinkOnProvision = (request.getParameter("insertLinkOnProvision") != null);
 String menuLinkText = request.getParameter("menuLinkText");
+String roleMappingString = request.getParameter("roleMappingString");
+
 //Bounce page address to copy into Panopto
 String SSOAddress = "https://" + ctx.getHostName()  + PlugInUtil.getUri("ppto", "PanoptoCourseTool", "SSO.jsp");
+
+//Array of all course membership roles to list.
+Role[] courseRoles = CourseMembership.Role.getAllCourseRoles();
+List<Role> customRoles = new ArrayList<Role>();
+
+for(Role courseRole: courseRoles)
+{
+	if(courseRole.getDbRole().isRemovable())
+	{
+		customRoles.add(courseRole);
+	}	
+}
+
 
 if(instanceName != null)
 {
@@ -94,6 +112,15 @@ if(instanceName != null)
     Utils.pluginSettings.setVerbose(verbose);
     Utils.pluginSettings.setAdminProvisionOnly(adminProvisionOnly);
     Utils.pluginSettings.setInsertLinkOnProvision(insertLinkOnProvision);
+    
+    if(roleMappingString != null)
+    {
+    	Utils.pluginSettings.setRoleMappingString(roleMappingString.trim());
+	}
+	else
+	{
+		Utils.pluginSettings.setRoleMappingString("");
+	}
 }
  
 //If menu link text is not null, save it.
@@ -120,6 +147,7 @@ verbose = Utils.pluginSettings.getVerbose();
 adminProvisionOnly = Utils.pluginSettings.getAdminProvisionOnly();
 insertLinkOnProvision = Utils.pluginSettings.getInsertLinkOnProvision();
 menuLinkText = Utils.pluginSettings.getMenuLinkText();
+roleMappingString = Utils.pluginSettings.getRoleMappingString();
 
 // Server list form submitted, add/remove servers if valid operation
 String add_hostname = request.getParameter("add_hostname");
@@ -393,6 +421,48 @@ else
                                 <div class="field">
                                     <p tabIndex="0" class="stepHelp">
                                         This setting controls if the Panopto building block writes verbose logs.<br/>
+                                        <br/>
+                                        <br/>
+                                    </p>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="label">Assign custom role mappings</div>
+                                <div class="field">
+                                    <input name="roleMappingString" type="text" size="30" value="<%= roleMappingString %>" style="float:left" />
+                                </div>
+                            </li>
+                            <li>
+                                <div class="field">
+                                    <p tabIndex="0" class="stepHelp">
+                                    Define mappings between custom blackboard roles and the blackboard roles they are recognized by the Panopto block.<br/>
+                                    The syntax for mappings is [custom role identifier]:[mapped role name], with each mapping separated by a ';'. <br/>
+                                    The available roles to map to are 'instructor' and 'ta', with any unmapped custom roles being recognized as students <br/>
+                                    by the Panopto block. <br/><br/>
+                                    
+                                    An example mapping string would be: 'custom1:instructor;custom2:ta' (Note: case does not matter)<br/><br/>
+                                    
+									The custom roles available to be mapped are the following:<br/>
+	                                    <div id = "rolesList">
+		                                    <table>
+			                                    <tr>
+				                                    <th class="customRoleCell">Role Name</th>
+				                                    <th class="customRoleCell">Role Identifier</th>
+			                                    </tr>
+		                                      	<% for(Role customRole:customRoles)
+			                                        { %>
+		                                        		<tr>
+		                                        			<td class="customRoleCell">
+		                                        			<%=customRole.toFieldName()%>
+		                                        			</td>
+		                                        			<td class = "customRoleCell">
+		                                        			<%=customRole.getIdentifier()%>
+		                                        			</td>
+		                                        		</tr>                	
+                                        		<% } %>
+	                                        </table>
+                                     	</div>   
+                                        <br/>
                                         <br/>
                                         <br/>
                                     </p>

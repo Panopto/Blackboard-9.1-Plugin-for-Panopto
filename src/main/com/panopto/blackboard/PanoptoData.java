@@ -97,15 +97,18 @@ public class PanoptoData
     // Blackboard username of currently logged in user
     private String bbUserName;
 
+    private List<String> instructorRoleIds = new ArrayList<String>();
+    private List<String> taRoleIds = new ArrayList<String>();
+
     private boolean isInstructor = false;
     private boolean canAddLinks = false;
 
     // Panopto server to talk to
     private String serverName;
-    
+
     //Version number of the current Panopto server
     private PanoptoVersion serverVersion;
-    
+
     // User key to use when talking to Panopto SOAP services
     // (Instance-decorated username of currently-logged-in Blackboard user)
     private String apiUserKey;
@@ -118,7 +121,7 @@ public class PanoptoData
 
     // SOAP port for talking to Panopto
     private ISessionManagement sessionManagement;
-    
+
     // Construct the PanoptoData object using the current Blackboard context (e.g. from <bbData:context ...> tag)
     // Pulls in stored property values from BB course registry if available.
     // Ensure that serverName and sessionGroupPublicIDs are set before calling any instance methods that rely on these properties (most).
@@ -155,7 +158,7 @@ public class PanoptoData
         this.bbUserName = bbUserName;
         this.isInstructor = PanoptoData.isUserInstructor(this.bbCourse.getId(), this.bbUserName, false);
         this.canAddLinks = PanoptoData.canUserAddLinks(this.bbCourse.getId(), this.bbUserName);
-        
+
         List<String> serverList = Utils.pluginSettings.getServerList();
         // If there is only one server available, use it
         if(serverList.size() == 1)
@@ -166,9 +169,29 @@ public class PanoptoData
         {
             updateServerName(getCourseRegistryEntry(hostnameRegistryKey));
         }
+
+        String roleMappingsString = Utils.pluginSettings.getRoleMappingString();
+        String[] roleMappingsSplit = roleMappingsString.split(";");
+        for(String mappingString: roleMappingsSplit)
+        {
+        	String[] mappingArray = mappingString.split(":");
+        	if(mappingArray.length == 2)
+        	{
+        		String RoleId = mappingArray[0];
+        		if(mappingArray[1].trim().toLowerCase() == "instructor")
+        		{
+        			instructorRoleIds.add(RoleId);
+        		}
+        		else if(mappingArray[1].trim().toLowerCase() == "ta")
+        		{
+        			taRoleIds.add(RoleId);
+        		}
+        	}
+        }
+
         sessionGroupPublicIDs = getCourseRegistryEntries(sessionGroupIDRegistryKey);
         sessionGroupDisplayNames = getCourseRegistryEntries(sessionGroupDisplayNameRegistryKey);
-        
+
         // Check that the list of Ids and names are valid. They must both be the same length
         if ((sessionGroupPublicIDs == null && sessionGroupDisplayNames != null)
                 || (sessionGroupPublicIDs != null && sessionGroupDisplayNames == null)
@@ -231,8 +254,8 @@ public class PanoptoData
             apiUserKey = Utils.decorateBlackboardUserName(bbUserName);
             apiUserAuthCode = Utils.generateAuthCode(serverName, apiUserKey + "@" + serverName);
             sessionManagement = getPanoptoSessionManagementSOAPService(serverName);
-            serverVersion = getServerVersion(); 
-            
+            serverVersion = getServerVersion();
+
         }
         else
         {
@@ -756,7 +779,7 @@ public class PanoptoData
                     {
                         // Problem getting availability window information freom the API. Do not add the session to the course.
                         availabilityState = PanoptoAvailabilityWindow.AvailabilityState.Unknown;
-                        Utils.log(e, "Error getting availability information for sessions from server.");   
+                        Utils.log(e, "Error getting availability information for sessions from server."); 
                     }
                 }
                 if (availabilityState == PanoptoAvailabilityWindow.AvailabilityState.Available){
@@ -917,7 +940,7 @@ public class PanoptoData
             List<Course> instructorCourses = new ArrayList<Course>();
             List<Course> studentCourses = new ArrayList<Course>();
             List<Course> taCourses = new ArrayList<Course>();
-            	
+
             List<CourseMembership> allCourseMemberships = courseMembershipLoader.loadByUserId(bbUserId);
             Course currentCourse;
             for(CourseMembership membership: allCourseMemberships)
@@ -938,7 +961,7 @@ public class PanoptoData
 	                {
 	                    studentCourses.add(currentCourse);
 	                }
-	               
+
             	}
             	catch(KeyNotFoundException e)
             	{
@@ -1401,17 +1424,17 @@ public class PanoptoData
             blackboard.data.course.CourseMembership.Role membershipRole)
     {
         //Role is instructor role if it is the 'Instructor' or 'Course Builder' built in blackboard role,
-        //or if it is any role marked with the 'Act As Instructor' flag.
+        //or if it is in the custom instructor roles list.
         return membershipRole.equals(CourseMembership.Role.INSTRUCTOR)
                 || membershipRole.equals(CourseMembership.Role.COURSE_BUILDER)
-                || membershipRole.getDbRole().isActAsInstructor();
+                || getIdsForRole("instructor").contains(membershipRole.getIdentifier().toLowerCase());
     }
 
     /*Returns true if role should be treated as a Student. Students get viewer access in Panopto.*/
     private static boolean isStudentRole(
             blackboard.data.course.CourseMembership.Role membershipRole)
     {
-        //Role is student role if it is not a built in instructor role or a custom role.
+        //Role is student role if it is not a built in instructor or ta role, or a mapped custom role.
         return    !isInstructorRole(membershipRole)
                && !isTARole(membershipRole);
     }
@@ -1422,11 +1445,9 @@ public class PanoptoData
             blackboard.data.course.CourseMembership.Role membershipRole)
     {
         //Role is a TA role if it is the 'Teaching Assistant' built in blackboard role
-        //or if it is a custom role without the 'Act as Instructor' flag.
-        CourseRole dbRole = membershipRole.getDbRole();
+        //or if it is in the list of custom ta roles
         return membershipRole.equals(Role.TEACHING_ASSISTANT)
-                ||  (      dbRole.isRemovable()
-                     &&   !dbRole.isActAsInstructor());
+                ||  (getIdsForRole("ta").contains(membershipRole.getIdentifier().toLowerCase()));
     }
 
     public boolean userMayProvision()
@@ -1571,7 +1592,7 @@ public class PanoptoData
 
         return port;
     }
-    
+
     private static IAuth getPanoptoAuthSOAPService(String serverName)
     {
         IAuth port = null;
@@ -1779,7 +1800,7 @@ public class PanoptoData
     private PanoptoVersion getServerVersion() {
         //Generate AuthenticationInfo for making call to Auth to get server info.
         AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-        
+
         IAuth iAuth = getPanoptoAuthSOAPService(serverName);
         return PanoptoVersion.fetchOrEmpty(iAuth);
     }
@@ -1807,10 +1828,10 @@ public class PanoptoData
 
         //If link with desired text doesn't exists, create a new one
         if(!linkExists)
-        {     	   
-            CourseToc panLink = new CourseToc();           
+        {
+            CourseToc panLink = new CourseToc();
             panLink.setCourseId(cid);
-            
+
             //Create application type course link. This will direct to url set for the target plugin
             //in bb-manifest.xml, with the coure's id appended as an argument. This courseToc target
             //type will allow the link to open in within the current course without needing to be wrapped
@@ -1820,12 +1841,34 @@ public class PanoptoData
             panLink.setLabel(Utils.pluginSettings.getMenuLinkText());
             panLink.setLaunchInNewWindow(false);
             panLink.setIsEntryPoint(false);
-            
-            //Set the internal handle for the target application, in the case the handle for the 
+
+            //Set the internal handle for the target application, in the case the handle for the
             //"Panopto course tool" application
-            panLink.setInternalHandle("ppto-PanoptoCourseToolApp-nav-1");            
+            panLink.setInternalHandle("ppto-PanoptoCourseToolApp-nav-1");
             CourseTocDbPersister.Default.getInstance().persist(panLink);
         }
+    }
+
+    //Retrieves list of role ids mapped to either the "ta" or "instructor" role in the block settings.
+    //If a string other than "ta" or "instructor" is passed, an empty list will be returned.
+    private static List<String> getIdsForRole(String rolename)
+    {
+    	List<String> taRoleIds = new ArrayList<String>();
+    	String roleMappingsString = Utils.pluginSettings.getRoleMappingString();
+        String[] roleMappingsSplit = roleMappingsString.split(";");
+        for(String mappingString: roleMappingsSplit)
+        {
+        	String[] mappingArray = mappingString.split(":");
+        	if(mappingArray.length == 2)
+        	{
+        		String RoleId = mappingArray[0];
+        		if(mappingArray[1].trim().toLowerCase() == rolename.toLowerCase())
+        		{
+        			taRoleIds.add(RoleId.trim().toLowerCase());
+        		}
+        	}
+        }
+        return taRoleIds;
     }
 
     //Enum types returned by addBlackboardContentItem, indicating whether a Panopto link has been successfully added to a course.
