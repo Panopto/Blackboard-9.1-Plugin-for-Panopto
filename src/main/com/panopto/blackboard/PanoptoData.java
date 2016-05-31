@@ -22,20 +22,16 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import blackboard.base.FormattedText;
 import blackboard.data.ValidationException;
 import blackboard.data.content.Content;
-import blackboard.data.content.ExternalLink;
-import blackboard.data.content.Link;
 import blackboard.data.course.Course;
 import blackboard.data.course.CourseMembership;
 import blackboard.data.course.CourseMembership.Role;
@@ -58,14 +54,13 @@ import blackboard.persist.registry.CourseRegistryEntryDbPersister;
 import blackboard.persist.user.UserDbLoader;
 import blackboard.platform.context.Context;
 import blackboard.platform.persistence.PersistenceServiceFactory;
-import blackboard.platform.plugin.PlugInUtil;
 import blackboard.platform.security.CourseRole;
 
 import com.panopto.services.AccessManagementLocator;
 import com.panopto.services.AuthLocator;
 import com.panopto.services.AuthenticationInfo;
-import com.panopto.services.DateTimeOffset;
 import com.panopto.services.Folder;
+import com.panopto.services.FolderAvailabilitySettings;
 import com.panopto.services.FolderSortField;
 import com.panopto.services.IAccessManagement;
 import com.panopto.services.IAuth;
@@ -78,7 +73,6 @@ import com.panopto.services.ListSessionsResponse;
 import com.panopto.services.Pagination;
 import com.panopto.services.Session;
 import com.panopto.services.SessionAvailabilitySettings;
-import com.panopto.services.SessionEndSettingType;
 import com.panopto.services.SessionManagementLocator;
 import com.panopto.services.SessionSortField;
 import com.panopto.services.SessionStartSettingType;
@@ -127,7 +121,6 @@ public class PanoptoData
 
     // SOAP port for talking to Panopto
     private ISessionManagement sessionManagement;
-
 
     // Construct the PanoptoData object using the current Blackboard context (e.g. from <bbData:context ...> tag)
     // Pulls in stored property values from BB course registry if available.
@@ -774,43 +767,47 @@ public class PanoptoData
             if(isCreator)
             {
                 //isInAvailabilityWindow defaults to true, so sessions will be added if calls to the availability window API cannot be made.
-                boolean isInAvailabilityWindow = true;
-
+                PanoptoAvailabilityWindow.AvailabilityState availabilityState = PanoptoAvailabilityWindow.AvailabilityState.Unknown;
                 if(PanoptoVersions.canCallAvailabilityWindowApiMethods(serverVersion)){
                     try{
                         //If user is a creator on Panopto, check if the session is in its availability window.
-                        isInAvailabilityWindow = this.isSessionInAvailabilityWindow(
-                                sessionIds, auth);
+                        availabilityState = this.checkSessionAvailabilityState(
+                            sessionID,
+                            auth);
                     }
                     catch(Exception e)
                     {
-                        //Problem getting availability window information freom the API. Do not add the session to the course.
-                        isInAvailabilityWindow = false;
-                        Utils.log(e, "Error getting availability information for sessions from server.");
-
+                        // Problem getting availability window information freom the API. Do not add the session to the course.
+                        availabilityState = PanoptoAvailabilityWindow.AvailabilityState.Unknown;
+                        Utils.log(e, "Error getting availability information for sessions from server."); 
                     }
                 }
-                if(isInAvailabilityWindow){
+                if (availabilityState == PanoptoAvailabilityWindow.AvailabilityState.Available){
                    // If the session is in its availability window. add it to the course and return success.
                     addSessionLinkToCourse(content_id, lectureUrl, title, description,
                             bbPm);
                     linkAddedResult =  LinkAddedResult.SUCCESS;
                 }
-                else
+                else if (availabilityState != PanoptoAvailabilityWindow.AvailabilityState.Unknown)
                 {
-                    //If the session is not in its availability window, try to call the API to make the session available immediately. If the call
-                    // is successful, add the session to the course and return success, otherwise it means that the session requires publisher
-                    //approval and the calling user is not a publisher.
+                    // We successfully determined the availability but it's either unavailable or unpublished.  Try to 
+                    // make the session available immediately. 
                     try
                     {
                         sessionManagement.updateSessionsAvailabilityStartSettings(auth, sessionIds, SessionStartSettingType.Immediately, null);
+                        
+                        // The session is now available, add the session and return success
                         addSessionLinkToCourse(content_id, lectureUrl, title, description, bbPm);
                         linkAddedResult = LinkAddedResult.SUCCESS;
                     }
                     catch(Exception e)
                     {
-                        //Needs publisher access
-                        linkAddedResult = LinkAddedResult.NOTPUBLISHER;
+                        if (availabilityState == PanoptoAvailabilityWindow.AvailabilityState.Unpublished)
+                        {
+                            // The session needs publishing, but our attempt to publish failed.  We must not have 
+                            // publish rights
+                            linkAddedResult = LinkAddedResult.NOTPUBLISHER;
+                        }
                     }
                 }
             }
@@ -841,65 +838,36 @@ public class PanoptoData
         }
         return linkAddedResult;
     }
+    
+    // Determine the availability state of a session
+    private PanoptoAvailabilityWindow.AvailabilityState checkSessionAvailabilityState(
+        String sessionId,
+        AuthenticationInfo auth) throws RemoteException 
+    {
+        String[] sessionIds = { sessionId };
 
-
-    //Determines if a given Panopto session is currently within its availability window.
-    private boolean isSessionInAvailabilityWindow(String[] sessionIds,
-            AuthenticationInfo auth) throws RemoteException {
-
-        boolean isAvailable = false;
-
-        //Get availability window settings for session.
-        SessionAvailabilitySettings sessionAvailabilitySettings = sessionManagement.getSessionsAvailabilitySettings(auth, sessionIds).getResults()[0];
-
-        //Get datetime component of StartSettingDate and add the offset to get UTC time.
-        Calendar startDate;
-        Calendar endDate;
-        DateTimeOffset startOffset = sessionAvailabilitySettings.getStartSettingDate();
-
-        //If the start date time offset is not null, then extract the date from it. Otherwise, set the date to null.
-        if (startOffset != null){
-            startDate = startOffset.getDateTime();
-            startDate.add(Calendar.MINUTE, startOffset.getOffsetMinutes());
-        }
-        else
+        //Get availability window settings for the session.
+        SessionAvailabilitySettings sessionSettings = sessionManagement.getSessionsAvailabilitySettings(
+            auth,
+            sessionIds).getResults()[0];
+        FolderAvailabilitySettings folderSettings = null;
+        
+        if (PanoptoAvailabilityWindow.isFolderRequiredForSessionAvailability(sessionSettings))
         {
-            startDate = null;
+            // Folder availability settings are also needed to determine whether the session is available.  Load the
+            // session data to get the folder, then get the folder availability
+            Session session = sessionManagement.getSessionsById(
+                auth,
+                sessionIds)[0];
+                
+            folderSettings = sessionManagement.getFoldersAvailabilitySettings(
+                    auth,
+                    new String[] { session.getFolderId() }
+                ).getResults()[0];
         }
-
-        DateTimeOffset endOffset = sessionAvailabilitySettings.getEndSettingDate();
-
-        //If the end date time offset is not null, then extract the date from it. Otherwise, set the date to null.
-        if (endOffset != null){
-            endDate = endOffset.getDateTime();
-            endDate.add(Calendar.MINUTE, endOffset.getOffsetMinutes());
-        }
-        else
-        {
-            endDate = null;
-        }
-
-        SessionStartSettingType startType = sessionAvailabilitySettings.getStartSettingType();
-        SessionEndSettingType endType = sessionAvailabilitySettings.getEndSettingType();
-
-        //If session start date is either "Immediately" or is a specific date in the past,
-        //we are currently past the start time of the availability window.
-        if(startType.equals(SessionStartSettingType.Immediately)
-           || (startType.equals(SessionStartSettingType.SpecificDate)
-                && startDate.after(Calendar.getInstance(TimeZone.getTimeZone("UTC")))))
-        {
-            //If the session availability end date is "Forever", or a date in the future,
-            //we are currently before the availability window's end time, and are therefore
-            //within the session's availability window.
-            if(endType.equals(SessionEndSettingType.Forever)
-               || (endType.equals(SessionEndSettingType.SpecificDate)
-                       && endDate.before(Calendar.getInstance(TimeZone.getTimeZone("UTC")))))
-            {
-                isAvailable = true;
-            }
-
-        }
-        return isAvailable;
+        return PanoptoAvailabilityWindow.getSessionAvailability(
+            sessionSettings,
+            folderSettings);
     }
 
     //Adds a link to a Panopto session to the content area of the current Blackboard course.
