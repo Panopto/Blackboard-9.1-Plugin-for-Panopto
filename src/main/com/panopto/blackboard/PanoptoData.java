@@ -178,11 +178,11 @@ public class PanoptoData
         	if(mappingArray.length == 2)
         	{
         		String RoleId = mappingArray[0];
-        		if(mappingArray[1].trim().toLowerCase() == "instructor")
+        		if(mappingArray[1].trim().equalsIgnoreCase("instructor"))
         		{
         			instructorRoleIds.add(RoleId);
         		}
-        		else if(mappingArray[1].trim().toLowerCase() == "ta")
+        		else if(mappingArray[1].trim().equalsIgnoreCase("ta"))
         		{
         			taRoleIds.add(RoleId);
         		}
@@ -779,7 +779,7 @@ public class PanoptoData
                     {
                         // Problem getting availability window information freom the API. Do not add the session to the course.
                         availabilityState = PanoptoAvailabilityWindow.AvailabilityState.Unknown;
-                        Utils.log(e, "Error getting availability information for sessions from server."); 
+                        Utils.log(e, "Error getting availability information for sessions from server.");
                     }
                 }
                 if (availabilityState == PanoptoAvailabilityWindow.AvailabilityState.Available){
@@ -790,12 +790,12 @@ public class PanoptoData
                 }
                 else if (availabilityState != PanoptoAvailabilityWindow.AvailabilityState.Unknown)
                 {
-                    // We successfully determined the availability but it's either unavailable or unpublished.  Try to 
-                    // make the session available immediately. 
+                    // We successfully determined the availability but it's either unavailable or unpublished.  Try to
+                    // make the session available immediately.
                     try
                     {
                         sessionManagement.updateSessionsAvailabilityStartSettings(auth, sessionIds, SessionStartSettingType.Immediately, null);
-                        
+
                         // The session is now available, add the session and return success
                         addSessionLinkToCourse(content_id, lectureUrl, title, description, bbPm);
                         linkAddedResult = LinkAddedResult.SUCCESS;
@@ -804,7 +804,7 @@ public class PanoptoData
                     {
                         if (availabilityState == PanoptoAvailabilityWindow.AvailabilityState.Unpublished)
                         {
-                            // The session needs publishing, but our attempt to publish failed.  We must not have 
+                            // The session needs publishing, but our attempt to publish failed.  We must not have
                             // publish rights
                             linkAddedResult = LinkAddedResult.NOTPUBLISHER;
                         }
@@ -838,11 +838,11 @@ public class PanoptoData
         }
         return linkAddedResult;
     }
-    
+
     // Determine the availability state of a session
     private PanoptoAvailabilityWindow.AvailabilityState checkSessionAvailabilityState(
         String sessionId,
-        AuthenticationInfo auth) throws RemoteException 
+        AuthenticationInfo auth) throws RemoteException
     {
         String[] sessionIds = { sessionId };
 
@@ -851,7 +851,7 @@ public class PanoptoData
             auth,
             sessionIds).getResults()[0];
         FolderAvailabilitySettings folderSettings = null;
-        
+
         if (PanoptoAvailabilityWindow.isFolderRequiredForSessionAvailability(sessionSettings))
         {
             // Folder availability settings are also needed to determine whether the session is available.  Load the
@@ -859,7 +859,7 @@ public class PanoptoData
             Session session = sessionManagement.getSessionsById(
                 auth,
                 sessionIds)[0];
-                
+
             folderSettings = sessionManagement.getFoldersAvailabilitySettings(
                     auth,
                     new String[] { session.getFolderId() }
@@ -1853,7 +1853,7 @@ public class PanoptoData
     //If a string other than "ta" or "instructor" is passed, an empty list will be returned.
     private static List<String> getIdsForRole(String rolename)
     {
-    	List<String> taRoleIds = new ArrayList<String>();
+    	List<String> roleIds = new ArrayList<String>();
     	String roleMappingsString = Utils.pluginSettings.getRoleMappingString();
         String[] roleMappingsSplit = roleMappingsString.split(";");
         for(String mappingString: roleMappingsSplit)
@@ -1862,13 +1862,13 @@ public class PanoptoData
         	if(mappingArray.length == 2)
         	{
         		String RoleId = mappingArray[0];
-        		if(mappingArray[1].trim().toLowerCase() == rolename.toLowerCase())
+        		if(mappingArray[1].trim().equalsIgnoreCase(rolename))
         		{
-        			taRoleIds.add(RoleId.trim().toLowerCase());
+        			roleIds.add(RoleId.trim().toLowerCase());
         		}
         	}
         }
-        return taRoleIds;
+        return roleIds;
     }
 
     //Enum types returned by addBlackboardContentItem, indicating whether a Panopto link has been successfully added to a course.

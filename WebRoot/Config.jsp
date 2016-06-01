@@ -453,7 +453,7 @@ else
 			                                        { %>
 		                                        		<tr>
 		                                        			<td class="customRoleCell">
-		                                        			<%=customRole.toFieldName()%>
+		                                        			<%=customRole.getDbRole().getCourseName()%>
 		                                        			</td>
 		                                        			<td class = "customRoleCell">
 		                                        			<%=customRole.getIdentifier()%>
