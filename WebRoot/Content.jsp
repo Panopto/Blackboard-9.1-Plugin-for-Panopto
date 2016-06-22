@@ -37,10 +37,10 @@ final String page_title = "Panopto Content";
 // Passed from Blackboard.
 String course_id = request.getParameter("course_id");
 
-String courseConfigURL = PlugInUtil.getUri("ppto", "PanoptoCourseTool", "Course_Config.jsp")
+String courseConfigURL = PlugInUtil.getUri("ppto", "PanoptoCourseTool", Utils.courseConfigScriptURL)
                             + "?course_id=" + course_id;
                             
-String courseResetURL = PlugInUtil.getUri("ppto", "PanoptoCourseTool", "Course_Reset.jsp")
+String courseResetURL = PlugInUtil.getUri("ppto", "PanoptoCourseTool", Utils.courseResetURL)
                             + "?course_id=" + course_id;
 
 PanoptoData ccCourse = new PanoptoData(ctx);
