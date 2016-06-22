@@ -21,6 +21,7 @@
 <%@page import="com.panopto.blackboard.Utils"%>
 <%@page import="com.panopto.blackboard.PanoptoData"%>
 <%@page import="com.panopto.services.*"%>
+<%@page import="blackboard.platform.plugin.PlugInUtil" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -36,10 +37,10 @@ final String page_title = "Panopto Content";
 // Passed from Blackboard.
 String course_id = request.getParameter("course_id");
 
-String courseConfigURL = Utils.courseConfigScriptURL
+String courseConfigURL = PlugInUtil.getUri("ppto", "PanoptoCourseTool", Utils.courseConfigScriptURL)
                             + "?course_id=" + course_id;
                             
-String courseResetURL = Utils.courseResetURL
+String courseResetURL = PlugInUtil.getUri("ppto", "PanoptoCourseTool", Utils.courseResetURL)
                             + "?course_id=" + course_id;
 
 PanoptoData ccCourse = new PanoptoData(ctx);
