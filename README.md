@@ -14,7 +14,7 @@ Fork the block, fix a bug or add a new feature, and send us a pull-request. Or, 
 
 ## Copyright
 
- Copyright Panopto 2009 - 2011
+ Copyright Panopto 2009 - 2016
  
 ## License
 

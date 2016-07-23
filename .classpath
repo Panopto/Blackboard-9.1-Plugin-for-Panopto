@@ -21,14 +21,14 @@
 	</classpathentry>
 	<classpathentry kind="con" path="com.genuitec.runtime.library/com.genuitec.generic_1.4"/>
 	<classpathentry kind="con" path="com.genuitec.runtime.library/com.genuitec.generic_6.0"/>
-	<classpathentry kind="lib" path="D:/github/Blackboard-9.1-Plugin-for-Panopto/lib/jstl-1.2.jar"/>
-	<classpathentry kind="lib" path="D:/github/Blackboard-9.1-Plugin-for-Panopto/lib/axis.jar"/>
-	<classpathentry kind="lib" path="D:/github/Blackboard-9.1-Plugin-for-Panopto/lib/bb-cms-admin.jar"/>
-	<classpathentry kind="lib" path="D:/github/Blackboard-9.1-Plugin-for-Panopto/lib/bb-platform.jar"/>
-	<classpathentry kind="lib" path="D:/github/Blackboard-9.1-Plugin-for-Panopto/lib/bb-taglibs.jar"/>
-	<classpathentry kind="lib" path="D:/github/Blackboard-9.1-Plugin-for-Panopto/lib/commons-discovery-0.4.jar"/>
-	<classpathentry kind="lib" path="D:/github/Blackboard-9.1-Plugin-for-Panopto/lib/CourseSearch.jar" sourcepath="C:/Users/plancaster/Desktop/bb jars/CourseSearch.zip"/>
-	<classpathentry kind="lib" path="D:/github/Blackboard-9.1-Plugin-for-Panopto/lib/commons-io-2.4.jar" sourcepath="C:/Users/plancaster/Desktop/commons-io-2.4-sources.jar">
+	<classpathentry kind="lib" path="lib/jstl-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/axis.jar"/>
+	<classpathentry kind="lib" path="lib/bb-cms-admin.jar"/>
+	<classpathentry kind="lib" path="lib/bb-platform.jar"/>
+	<classpathentry kind="lib" path="lib/bb-taglibs.jar"/>
+	<classpathentry kind="lib" path="lib/commons-discovery-0.4.jar"/>
+	<classpathentry kind="lib" path="lib/CourseSearch.jar" sourcepath="C:/Users/plancaster/Desktop/bb jars/CourseSearch.zip"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.4.jar" sourcepath="C:/Users/plancaster/Desktop/commons-io-2.4-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/C:/Users/plancaster/Desktop/commons-io-2.4-javadoc.jar!/"/>
 		</attributes>
