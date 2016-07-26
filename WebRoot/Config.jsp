@@ -551,7 +551,7 @@ else
             </form>
 
             <!-- Post to breakout provisioning page. -->
-            <form name="batchProvisionForm" action="Course_Provision.jsp">
+            <form name="batchProvisionForm" action="Course_Provision.jsp" method="post">
                  <div class="form">
                     <div class="steptitle submittitle" id="steptitle3">
                         <span id="stepnumber3">3</span>
