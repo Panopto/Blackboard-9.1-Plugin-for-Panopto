@@ -37,7 +37,7 @@
 
 <%
 String iconUrl = "/images/ci/icons/bookopen_u.gif";
-String page_title = "Configure Panopto Focus Connector";
+String page_title = "Configure Panopto Connector";
 
 // First check if the caller is allowed to be here
 if (!Utils.userCanConfigureSystem()) 
@@ -87,10 +87,10 @@ List<Role> customRoles = new ArrayList<Role>();
 
 for(Role courseRole: courseRoles)
 {
-	if(courseRole.getDbRole().isRemovable())
-	{
-		customRoles.add(courseRole);
-	}	
+if(courseRole.getDbRole().isRemovable())
+{
+customRoles.add(courseRole);
+}
 }
 
 
@@ -115,12 +115,12 @@ if(instanceName != null)
     
     if(roleMappingString != null)
     {
-    	Utils.pluginSettings.setRoleMappingString(roleMappingString.trim());
-	}
-	else
-	{
-		Utils.pluginSettings.setRoleMappingString("");
-	}
+        Utils.pluginSettings.setRoleMappingString(roleMappingString.trim());
+    }
+    else
+    {
+        Utils.pluginSettings.setRoleMappingString("");
+    }
 }
  
 //If menu link text is not null, save it.
@@ -189,555 +189,555 @@ else
         provisionServerName = serverList.get(0);
     }
 %>
-            <bbUI:titleBar iconUrl="<%=iconUrl%>">
-                <%=page_title%>
-            </bbUI:titleBar>
+    <bbUI:titleBar iconUrl="<%=iconUrl%>">
+        <%=page_title%>
+    </bbUI:titleBar>
 
-            <form name="instanceForm">
-                 <div class="form">
-                    <div class="steptitle submittitle" id="steptitle1">
-                        <span id="stepnumber1">1</span>
-                        Settings
-                    </div>
-                    <div class="stepcontent" id="step1">
-                        <ol>
-                            <li>
-                                <div class="field"></div>
-                            </li>
-                            <li>
-                                <div class="label">Instance Name</div>
-                                <div class="field"><input name="instanceName" type="text" size="30" value="<%= instanceName %>" style="float:left" /></div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        The instance name identifies this Blackboard system to Panopto.<br />
-                                        If this is the only Blackboard system that will connect to the Panopto servers below, it is not necessary to change the default ("blackboard"). 
-                                    </p>
-                                </div>
-                            </li>
-                              <li>
-                                <div class="label">Bounce Page URL</div>
-                                <div class="field"><b><%= SSOAddress %></b></div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        Use this address for the bounce page URL in for your Blackboard instance in the service provider section of your Panopto server.
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field"></div>
-                            </li>
-                            <li>
-                                <div class="label">User Opt In</div>
-                                <div class="field"><input name="instructorsCanProvision" type="checkbox" <%= instructorsCanProvision ? "checked" : "" %> style="float:left" /></div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        This setting determines whether instructors are entitled to add courses to Panopto.<br/>
-                                        If checked, instructors will be able to create content for their course with the Panopto Recorder.<br/>
-                                        If unchecked, only administrators (users entitled to configure tools at the system level) will be able to add courses to Panopto.
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field"></div>
-                            </li>
-                            <li>
-                                <div class="label">Email Instructors</div>
-                                <div class="field">
-                                    <input name="mailLectureNotifications" type="checkbox" <%= mailLectureNotifications ? "checked" : "" %> style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        This setting determines whether an email is automatically sent to instructors when lectures are processed and ready to view.<br/>
-                                        This default may be overridden for individual users via the account settings page in Panopto, after adding a course to Panopto or syncing users.
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field"></div>
-                            </li>
-                            <li>
-                                <div class="label">Refresh Logins</div>
-                                <div class="field">
-                                    <input name="refreshLogins" type="checkbox" <%= refreshLogins ? "checked" : "" %> style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        This setting determines whether to refresh credentials for users logging in from the Panopto Recorder.<br/>
-                                        Normally, this should be left checked, so that when one Blackboard user logs out and another logs in,
-                                        the Recorder will switch to the new user.<br/>
-                                        <br/>
-                                        However, if your Blackboard server does not permit unauthenticated users to make requests to the SSO page,
-                                        this setting may cause unauthenticated users to be prompted to login twice when logging into the Panopto Recorder.<br/>
-                                        In this case, disable this setting, and instruct your users to exit the Panopto Recorder to complete the logout process.
-                                        <br/>
-                                        <br/>
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field"></div>
-                            </li>
-                            <li>
-                                <div class="label">Grant TA Creator Access</div>
-                                <div class="field">
-                                    <input id="grantTACreator" name="grantTACreator" type="checkbox" <%= grantTACreator ? "checked" : "" %> style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        This setting determines whether teaching assistants are granted creator access in Panopto.<br/>
-                                        If checked TAs will be able to create, edit, and delete recordings. 
-                                        In addition to this global setting this can be overridden on a course by course basis.
-                                        <br/>
-                                        <br/>
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label">Allow TAs to Create Panopto Course Tool Links</div>
-                                <div class="field">
-                                    <input name="TAsCanCreateLinks" type="checkbox" <%= TAsCanCreateLinks ? "checked" : "" %> style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        This setting determines whether teaching assistants have the ability to create Panopto Course Tool Links on a course's Course Menu.<br/>
-                                         If checked, TAs will be able to create links regardless of whether they have creator access or course provisioning access.              
-                                        <br/>
-                                        <br/>
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label">Grant TA Provisioning Access</div>
-                                <div class="field">
-                                    <input id="grantTAProvision" name="grantTAProvision" type="checkbox" <%= grantTAProvision ? "checked" : "" %> style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        This setting determines whether teaching assistants are granted provisioning access in the Panopto block.<br/>
-                                        If checked TAs will be able to provision courses and create links. 
-                                        <br/>
-                                        <br/>
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label">Provisioning by administrators only</div>
-                                <div class="field">
-                                    <input id = "adminProvisionOnly" name="adminProvisionOnly" type="checkbox" <%= adminProvisionOnly ? "checked" : "" %> style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                       When checked, provisioning of a course to Panopto may only be done by a user with administrative status.<br/>
-                                        <br/>
-                                        <br/>
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label">Panopto link on course menu when provisioned</div>
-                                <div class="field">
-                                    <input name="insertLinkOnProvision" type="checkbox" <%= insertLinkOnProvision ? "checked" : "" %> style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                       When checked, a link to a course's Panopto content will be automatically inserted into the course's navigation menu when it is provisioned.<br/>
-                                        <br/>
-                                        <br/>
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label">Panopto Link Text</div>
-                                <div class="field">
-                                    <input name="menuLinkText" type="text" size="30" value="<%= menuLinkText %>" style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                      Text of link to Panopto content generated on provision, if setting is selected. Default text is "Panopto Video"<br/>
-                                        <br/>
-                                        <br/>
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label">Instructors may create folders</div>
-                                <div class="field">
-                                    <input name="instructorsCanCreateFolder" type="checkbox" <%= instructorsCanCreateFolder ? "checked" : "" %> style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        This setting determines whether instructors are allowed to create new folders in Panopto.<br/>
-                                        <br/>
-                                        <br/>
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label">Allow all courses to be reset</div>
-                                <div class="field">
-                                    <input name="courseResetEnabled" type="checkbox" <%= courseResetEnabled ? "checked" : "" %> style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        This setting is best used temporarily if you need to reset non-copied folders. Will allow creators to de-provision a course.<br/>
-                                        <br/>
-                                        <br/>
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label">Verbose logging</div>
-                                <div class="field">
-                                    <input name="verbose" type="checkbox" <%= verbose ? "checked" : "" %> style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        This setting controls if the Panopto building block writes verbose logs.<br/>
-                                        <br/>
-                                        <br/>
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label">Assign custom role mappings</div>
-                                <div class="field">
-                                    <input name="roleMappingString" type="text" size="30" value="<%= roleMappingString %>" style="float:left" />
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                    Define mappings between custom blackboard roles and the blackboard roles they are recognized by the Panopto block.<br/>
-                                    The syntax for mappings is [custom role identifier]:[mapped role name], with each mapping separated by a ';'. <br/>
-                                    The available roles to map to are 'instructor' and 'ta', with any unmapped custom roles being recognized as students <br/>
-                                    by the Panopto block. <br/><br/>
-                                    
-                                    An example mapping string would be: 'custom1:instructor;custom2:ta' (Note: case does not matter)<br/><br/>
-                                    
-									The custom roles available to be mapped are the following:<br/>
-	                                    <div id = "rolesList">
-		                                    <table>
-			                                    <tr>
-				                                    <th class="customRoleCell">Role Name</th>
-				                                    <th class="customRoleCell">Role Identifier</th>
-			                                    </tr>
-		                                      	<% for(Role customRole:customRoles)
-			                                        { %>
-		                                        		<tr>
-		                                        			<td class="customRoleCell">
-		                                        			<%=customRole.getDbRole().getCourseName()%>
-		                                        			</td>
-		                                        			<td class = "customRoleCell">
-		                                        			<%=customRole.getIdentifier()%>
-		                                        			</td>
-		                                        		</tr>                	
-                                        		<% } %>
-	                                        </table>
-                                     	</div>   
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <input name="ok" class="submit" type="submit" border="0" hspace="5" value="Ok"/>
-                                </div>
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-            </form>
+    <form name="instanceForm">
+         <div class="form">
+            <div class="steptitle submittitle" id="steptitle1">
+                <span id="stepnumber1">1</span>
+                Settings
+            </div>
+            <div class="stepcontent" id="step1">
+                <ol>
+                    <li>
+                        <div class="field"></div>
+                    </li>
+                    <li>
+                        <div class="label">Instance Name</div>
+                        <div class="field"><input name="instanceName" type="text" size="30" value="<%= instanceName %>" style="float:left" /></div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                The instance name identifies this Blackboard system to Panopto.<br />
+                                If this is the only Blackboard system that will connect to the Panopto servers below, it is not necessary to change the default ("blackboard"). 
+                            </p>
+                        </div>
+                    </li>
+                      <li>
+                        <div class="label">Bounce Page URL</div>
+                        <div class="field"><b><%= SSOAddress %></b></div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                Use this address for the bounce page URL in for your Blackboard instance in the service provider section of your Panopto server.
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field"></div>
+                    </li>
+                    <li>
+                        <div class="label">User Opt In</div>
+                        <div class="field"><input name="instructorsCanProvision" type="checkbox" <%= instructorsCanProvision ? "checked" : "" %> style="float:left" /></div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether instructors are entitled to add courses to Panopto.<br/>
+                                If checked, instructors will be able to create content for their course with the Panopto Recorder.<br/>
+                                If unchecked, only administrators (users entitled to configure tools at the system level) will be able to add courses to Panopto.
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field"></div>
+                    </li>
+                    <li>
+                        <div class="label">Email Instructors</div>
+                        <div class="field">
+                            <input name="mailLectureNotifications" type="checkbox" <%= mailLectureNotifications ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether an email is automatically sent to instructors when lectures are processed and ready to view.<br/>
+                                This default may be overridden for individual users via the account settings page in Panopto, after adding a course to Panopto or syncing users.
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field"></div>
+                    </li>
+                    <li>
+                        <div class="label">Refresh Logins</div>
+                        <div class="field">
+                            <input name="refreshLogins" type="checkbox" <%= refreshLogins ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether to refresh credentials for users logging in from the Panopto Recorder.<br/>
+                                Normally, this should be left checked, so that when one Blackboard user logs out and another logs in,
+                                the Recorder will switch to the new user.<br/>
+                                <br/>
+                                However, if your Blackboard server does not permit unauthenticated users to make requests to the SSO page,
+                                this setting may cause unauthenticated users to be prompted to login twice when logging into the Panopto Recorder.<br/>
+                                In this case, disable this setting, and instruct your users to exit the Panopto Recorder to complete the logout process.
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field"></div>
+                    </li>
+                    <li>
+                        <div class="label">Grant TA Creator Access</div>
+                        <div class="field">
+                            <input id="grantTACreator" name="grantTACreator" type="checkbox" <%= grantTACreator ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether teaching assistants are granted creator access in Panopto.<br/>
+                                If checked TAs will be able to create, edit, and delete recordings. 
+                                In addition to this global setting this can be overridden on a course by course basis.
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Allow TAs to Create Panopto Course Tool Links</div>
+                        <div class="field">
+                            <input name="TAsCanCreateLinks" type="checkbox" <%= TAsCanCreateLinks ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether teaching assistants have the ability to create Panopto Course Tool Links on a course's Course Menu.<br/>
+                                 If checked, TAs will be able to create links regardless of whether they have creator access or course provisioning access.              
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Grant TA Provisioning Access</div>
+                        <div class="field">
+                            <input id="grantTAProvision" name="grantTAProvision" type="checkbox" <%= grantTAProvision ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether teaching assistants are granted provisioning access in the Panopto block.<br/>
+                                If checked TAs will be able to provision courses and create links. 
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Provisioning by administrators only</div>
+                        <div class="field">
+                            <input id = "adminProvisionOnly" name="adminProvisionOnly" type="checkbox" <%= adminProvisionOnly ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                               When checked, provisioning of a course to Panopto may only be done by a user with administrative status.<br/>
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Panopto link on course menu when provisioned</div>
+                        <div class="field">
+                            <input name="insertLinkOnProvision" type="checkbox" <%= insertLinkOnProvision ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                               When checked, a link to a course's Panopto content will be automatically inserted into the course's navigation menu when it is provisioned.<br/>
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Panopto Link Text</div>
+                        <div class="field">
+                            <input name="menuLinkText" type="text" size="30" value="<%= menuLinkText %>" style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                              Text of link to Panopto content generated on provision, if setting is selected. Default text is "Panopto Video"<br/>
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Instructors may create folders</div>
+                        <div class="field">
+                            <input name="instructorsCanCreateFolder" type="checkbox" <%= instructorsCanCreateFolder ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether instructors are allowed to create new folders in Panopto.<br/>
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Allow all courses to be reset</div>
+                        <div class="field">
+                            <input name="courseResetEnabled" type="checkbox" <%= courseResetEnabled ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting is best used temporarily if you need to reset non-copied folders. Will allow creators to de-provision a course.<br/>
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Verbose logging</div>
+                        <div class="field">
+                            <input name="verbose" type="checkbox" <%= verbose ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting controls if the Panopto building block writes verbose logs.<br/>
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Assign custom role mappings</div>
+                        <div class="field">
+                            <input name="roleMappingString" type="text" size="30" value="<%= roleMappingString %>" style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                            Define mappings between custom blackboard roles and the blackboard roles they are recognized by the Panopto block.<br/>
+                            The syntax for mappings is [custom role identifier]:[mapped role name], with each mapping separated by a ';'. <br/>
+                            The available roles to map to are 'instructor', 'ta', and 'none' with any unmapped custom roles being recognized<br/>
+                            as students by the Panopto block. Role specified as 'none' gets no access to the Panopto folder associated with the course.<br/><br/>
+                            
+                            An example mapping string would be: 'custom1:instructor;custom2:ta;custom3:none' (Note: case does not matter)<br/><br/>
+                            
+                            The custom roles available to be mapped are the following:<br/>
+                                <div id = "rolesList">
+                                    <table>
+                                        <tr>
+                                            <th class="customRoleCell">Role Name</th>
+                                            <th class="customRoleCell">Role Identifier</th>
+                                        </tr>
+                                          <% for(Role customRole:customRoles)
+                                            { %>
+                                                <tr>
+                                                    <td class="customRoleCell">
+                                                    <%=customRole.getDbRole().getCourseName()%>
+                                                    </td>
+                                                    <td class = "customRoleCell">
+                                                    <%=customRole.getIdentifier()%>
+                                                    </td>
+                                                </tr>
+                                        <% } %>
+                                    </table>
+                                 </div>   
+                                <br/>
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <input name="ok" class="submit" type="submit" border="0" hspace="5" value="Ok"/>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </form>
 
-            <form name="settingsForm">
-                 <div class="form">
-                    <div class="steptitle submittitle" id="steptitle2">
-                        <span id="stepnumber2">2</span>
-                        Manage Panopto Server List
-                    </div>
-                    <div class="stepcontent" id="step2">
-                        <ol>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        Users will be able to select from this list of Panopto servers when associating Panopto courses with their Blackboard courses.
-                                    </p>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="field">
-                                    <input type="hidden" name="remove_hostname" />
-                                      <script type="text/javascript">
-                                          var settingsForm = document.forms["settingsForm"];
-                                          
-                                          function remove(serverName)
-                                          {
-                                              settingsForm.remove_hostname.value = serverName;
-                                              settingsForm.submit();
-                                          }
-                                      </script>
-                                      <bbUI:list collection="<%=serverList%>" className="String" objectId="serverName">
-                                        <bbUI:listElement label="Server Name">
-                                            <%=serverName%>
-                                        </bbUI:listElement>
-                                        <bbUI:listElement label="Application Key">
-                                            <%=Utils.pluginSettings.getApplicationKey(serverName)%>
-                                        </bbUI:listElement>
-                                        <bbUI:listElement label="Action">
-                                            <a href="javascript:remove('<%=serverName%>')" class="inlineAction">remove</a>
-                                        </bbUI:listElement>
-                                    </bbUI:list>
-                                    <% if(serverList.size() == 0) { %>
-                                        <div id="noServersMessage">
-                                            No servers.  Please enter a server below.
-                                        </div>
-                                    <% } %>
-                                    <div id="addServerDiv">
-                                        <table class="settingTable">
-                                            <tr>
-                                                <th>Hostname</th>
-                                                <th>Application Key</th>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <input name="add_hostname" size="30" value="" />
-                                                    <div class="settingNote">e.g. panopto.myinstitution.edu</div>
-                                                </td>
-                                                <td>
-                                                    <input name="add_hostname_key" size="40" value="" />
-                                                    <div class="settingNote">e.g. 12345678-1234-1234-1234-123456789012</div>
-                                                </td>
-                                                <td>
-                                                    <bbUI:button type="FORM_ACTION" name="add" alt="Add" action="SUBMIT_FORM" />
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-
-                                </div>
-                            </li>
-                        </ol>
-                    </div>
-                  </div>
-            </form>
-
-            <!-- Post to breakout provisioning page. -->
-            <form name="batchProvisionForm" action="Course_Provision.jsp" method="post">
-                 <div class="form">
-                    <div class="steptitle submittitle" id="steptitle3">
-                        <span id="stepnumber3">3</span>
-                        Provision Panopto courses
-                    </div>
-                    <div class="stepcontent" id="step3">
-                        <ol>
-                            <li>
-                                <div class="field">
-                                    <p tabIndex="0" class="stepHelp">
-                                        Selected courses will be created on the specified Panopto server.<br />
-                                        Instructor and student lists will be populated in Panopto.
-                                    </p>
-                                </div>
-                            </li>
-                            <%
-                            if(serverList.size() == 0)
-                            { %>
-                            <li>
+    <form name="settingsForm">
+         <div class="form">
+            <div class="steptitle submittitle" id="steptitle2">
+                <span id="stepnumber2">2</span>
+                Manage Panopto Server List
+            </div>
+            <div class="stepcontent" id="step2">
+                <ol>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                Users will be able to select from this list of Panopto servers when associating Panopto courses with their Blackboard courses.
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <input type="hidden" name="remove_hostname" />
+                              <script type="text/javascript">
+                                  var settingsForm = document.forms["settingsForm"];
+                                  
+                                  function remove(serverName)
+                                  {
+                                      settingsForm.remove_hostname.value = serverName;
+                                      settingsForm.submit();
+                                  }
+                              </script>
+                              <bbUI:list collection="<%=serverList%>" className="String" objectId="serverName">
+                                <bbUI:listElement label="Server Name">
+                                    <%=serverName%>
+                                </bbUI:listElement>
+                                <bbUI:listElement label="Application Key">
+                                    <%=Utils.pluginSettings.getApplicationKey(serverName)%>
+                                </bbUI:listElement>
+                                <bbUI:listElement label="Action">
+                                    <a href="javascript:remove('<%=serverName%>')" class="inlineAction">remove</a>
+                                </bbUI:listElement>
+                            </bbUI:list>
+                            <% if(serverList.size() == 0) { %>
                                 <div id="noServersMessage">
-                                    No servers.  Please enter a server above.
+                                    No servers.  Please enter a server below.
                                 </div>
-                            </li>
-                            <%
-                            }
-                            else
-                            { %>
-                            <li>
-                                <!-- URL of current page so provision breakout page knows where to return to. -->
-                                <input type="hidden" name="returnUrl" value="<%= request.getRequestURL() %>" />
-    
-                                <!-- Function to launch built-in Blackboard course selection widget in a popup window. -->
-                                  <script type="text/javascript">
-                                    function launchCoursePicker()
-                                    {
-                                        // 1280x800 popup window (clipped to available screen size).
-                                        var width = Math.min(1280, screen.width);
-                                        var height = Math.min(800, screen.height);
-                                        
-                                        // Position against the right edge of the screen, with top margin of 20px.
-                                        var top = 20;                        
-                                        var left = Math.max(screen.width - 1280, 0);
-                                
-                                        // Open the popup window
-                                        var courseSelectWindow = window.open('course/frameset.jsp','course_browse','width='+width+',height='+height+',resizable=yes,scrollbars=yes,status=yes,top='+top+',left='+left);
-                                
-                                        if (courseSelectWindow != null)
-                                        {
-                                            // Ensure popup window is on top.
-                                            courseSelectWindow.focus();
-                                            
-                                            // Give the popup a reference to this page.
-                                            if (courseSelectWindow.opener == null) courseSelectWindow.opener = self;
-                                            // Identify the form control to populate with the selected courseIds
-                                            courseSelectWindow.opener.inputToSet = document.forms.batchProvisionForm.bbCourses;
-                                            
-                                            window.top.name = 'bbWin';
-                                        }
-                                     } 
-                                  </script>
-                            </li>
-                            <li class="required">
-                                <div class="label">
-                                    <img alt="Required" src="/images/ci/icons/required.gif"/>
-                                    Server 
-                                </div>
-                                <div class="field">
-                                    <select name="provisionServerName" <%=((serverList.size() == 1) ? "DISABLED='disabled'" : "")%>>
-                                        <%= Utils.generateServerOptionsHTML(provisionServerName) %>
-                                    </select>
-                                </div>
-                            </li>
-                            <li class="required">
-                                <div class="label">
-                                    <img alt="Required" src="/images/ci/icons/required.gif"/>
-                                    Course IDs 
-                                </div>
-                                <div class="field">
-                                    <!-- Comma-delimited list of Blackboard courseIds to provision, populated by Blackboard course picker widget. -->
-                                    <input type="text" name="bbCourses"> <input type="button" value="Course Picker" onclick="launchCoursePicker()" name="browse">
-                                    <br />
-                                    <span tabIndex="0" class="stepHelp">Course IDs may be entered as a comma seperated list.</span>
-                                    <br />
-                                    <br />
-                                    Add courses from a CSV:  <input type="file" name="bbCourseCSV"  id="csvFile" accept=".csv"/>
-                                    <br/>
-                                    <span tabIndex="0" class="stepHelp">Course IDs may also be entered via a CSV file.</span>
-                                    <br />
-                                    
-                                    <!-- String representation of processed CSV -->
-                                    <input type="hidden" name="CSVString" id ="CSVString" value="" />
-                                    
-                                    <!-- Function for processing input CSV into string for submission -->
-                                    <script type="text/javascript">
-                                        var fileString = "";
-                                        document.getElementById('csvFile').onchange = function(event){
-                                            if(window.File && window.FileReader && window.FileList && window.Blob)
-                                            {
-                                                var file = document.getElementById('csvFile').files[0];
-                                                if(file){
-                                                    var reader = new FileReader();
-                                                    reader.onload = function(e) 
-                                                    { 
-                                                        var contents = e.target.result;
-                                                        fileString = contents.replace(/(\r\n|\n|\r)/gm,", ");
-                                                        document.getElementById('CSVString').value = fileString;
-                                                     }
-                                                     reader.readAsText(file); 
-                                                   
-                                                 }
-                                                 else
-                                                 {
-                                                 alert("File not found");
-                                                 }
-                                            } 
-                                            else 
-                                            {
-                                                alert("The File APIs are not fully supported by your browser.");
-                                            }
-                                            
-                                        };
-                                    </script>
+                            <% } %>
+                            <div id="addServerDiv">
+                                <table class="settingTable">
+                                    <tr>
+                                        <th>Hostname</th>
+                                        <th>Application Key</th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input name="add_hostname" size="30" value="" />
+                                            <div class="settingNote">e.g. panopto.myinstitution.edu</div>
+                                        </td>
+                                        <td>
+                                            <input name="add_hostname_key" size="40" value="" />
+                                            <div class="settingNote">e.g. 12345678-1234-1234-1234-123456789012</div>
+                                        </td>
+                                        <td>
+                                            <bbUI:button type="FORM_ACTION" name="add" alt="Add" action="SUBMIT_FORM" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
 
-                                    <input name="add" class="secondary" type="submit" border="0" hspace="5" value="Add"/>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label">
-                                </div>
-                                <div class="field">
-                                    <br />
-                                    -- OR --
-                                </div>
-                            </li>
-                            <li>
-                                <div class="label">
-                                </div>
-                                <div class="field">
-                                    <br />
-                                    <input name="reprovisionAll" class="secondary" type="submit" border="0" hspace="5" value="Reprovision All Courses"/>
-                                    <p tabIndex="0" class="stepHelp">Ensures that all previously provisioned courses are correct on the Panopto server. Should be run after upgrading the building block</p>
-                                </div>
-                            </li>
-                            <%
-                            }
-                            %>
-                        </ol>
-                    </div>
-                    
-                    <div class="steptitle submittitle" id="steptitle4">
-                        <span id="stepnumber4">4</span>
-                        Done
-                    </div>
-                    <div class="stepcontent" id="step4">
-                        <ol>
-                            <li>
-                                <div class="jsSubmitButtonDiv">
-                                    <bbUI:button type="FORM_ACTION" name="ok" alt="Ok" action="LINK" targetUrl="<%=Utils.buildingBlockManagerURL%>" />
-                                </div>
-                            </li>
-                        </ol>
-                    </div>
-                  </div>
-            </form>
-            
-          <!--  JS function for disabling the checkboxes for Grant Ta Creator Access and Grant TA Provision access when 
-            provisioning by admins only is enabled. This is to prevent confusion caused by the latter setting overriding
-            the former ones. -->
-            <script type = "text/javascript">
-                
-                var adminProvisionOnlyBox = document.getElementById("adminProvisionOnly");
+                        </div>
+                    </li>
+                </ol>
+            </div>
+          </div>
+    </form>
+
+    <!-- Post to breakout provisioning page. -->
+    <form name="batchProvisionForm" action="Course_Provision.jsp" method="post">
+         <div class="form">
+            <div class="steptitle submittitle" id="steptitle3">
+                <span id="stepnumber3">3</span>
+                Provision Panopto courses
+            </div>
+            <div class="stepcontent" id="step3">
+                <ol>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                Selected courses will be created on the specified Panopto server.<br />
+                                Instructor and student lists will be populated in Panopto.
+                            </p>
+                        </div>
+                    </li>
+                    <%
+                    if(serverList.size() == 0)
+                    { %>
+                    <li>
+                        <div id="noServersMessage">
+                            No servers.  Please enter a server above.
+                        </div>
+                    </li>
+                    <%
+                    }
+                    else
+                    { %>
+                    <li>
+                        <!-- URL of current page so provision breakout page knows where to return to. -->
+                        <input type="hidden" name="returnUrl" value="<%= request.getRequestURL() %>" />
+
+                        <!-- Function to launch built-in Blackboard course selection widget in a popup window. -->
+                          <script type="text/javascript">
+                            function launchCoursePicker()
+                            {
+                                // 1280x800 popup window (clipped to available screen size).
+                                var width = Math.min(1280, screen.width);
+                                var height = Math.min(800, screen.height);
+                                
+                                // Position against the right edge of the screen, with top margin of 20px.
+                                var top = 20;                        
+                                var left = Math.max(screen.width - 1280, 0);
                         
-                var disableTAProvisionSettings = function()
-                {                                  
-                    document.getElementById("grantTAProvision").disabled = adminProvisionOnlyBox.checked;
-                }
-                adminProvisionOnlyBox.onclick = disableTAProvisionSettings;
-                               
-                //Execute function once when script is loaded
-                disableTAProvisionSettings();       
-            </script>
+                                // Open the popup window
+                                var courseSelectWindow = window.open('course/frameset.jsp','course_browse','width='+width+',height='+height+',resizable=yes,scrollbars=yes,status=yes,top='+top+',left='+left);
+                        
+                                if (courseSelectWindow != null)
+                                {
+                                    // Ensure popup window is on top.
+                                    courseSelectWindow.focus();
+                                    
+                                    // Give the popup a reference to this page.
+                                    if (courseSelectWindow.opener == null) courseSelectWindow.opener = self;
+                                    // Identify the form control to populate with the selected courseIds
+                                    courseSelectWindow.opener.inputToSet = document.forms.batchProvisionForm.bbCourses;
+                                    
+                                    window.top.name = 'bbWin';
+                                }
+                             } 
+                          </script>
+                    </li>
+                    <li class="required">
+                        <div class="label">
+                            <img alt="Required" src="/images/ci/icons/required.gif"/>
+                            Server 
+                        </div>
+                        <div class="field">
+                            <select name="provisionServerName" <%=((serverList.size() == 1) ? "DISABLED='disabled'" : "")%>>
+                                <%= Utils.generateServerOptionsHTML(provisionServerName) %>
+                            </select>
+                        </div>
+                    </li>
+                    <li class="required">
+                        <div class="label">
+                            <img alt="Required" src="/images/ci/icons/required.gif"/>
+                            Course IDs 
+                        </div>
+                        <div class="field">
+                            <!-- Comma-delimited list of Blackboard courseIds to provision, populated by Blackboard course picker widget. -->
+                            <input type="text" name="bbCourses"> <input type="button" value="Course Picker" onclick="launchCoursePicker()" name="browse">
+                            <br />
+                            <span tabIndex="0" class="stepHelp">Course IDs may be entered as a comma seperated list.</span>
+                            <br />
+                            <br />
+                            Add courses from a CSV:  <input type="file" name="bbCourseCSV"  id="csvFile" accept=".csv"/>
+                            <br/>
+                            <span tabIndex="0" class="stepHelp">Course IDs may also be entered via a CSV file.</span>
+                            <br />
+                            
+                            <!-- String representation of processed CSV -->
+                            <input type="hidden" name="CSVString" id ="CSVString" value="" />
+                            
+                            <!-- Function for processing input CSV into string for submission -->
+                            <script type="text/javascript">
+                                var fileString = "";
+                                document.getElementById('csvFile').onchange = function(event){
+                                    if(window.File && window.FileReader && window.FileList && window.Blob)
+                                    {
+                                        var file = document.getElementById('csvFile').files[0];
+                                        if(file){
+                                            var reader = new FileReader();
+                                            reader.onload = function(e) 
+                                            { 
+                                                var contents = e.target.result;
+                                                fileString = contents.replace(/(\r\n|\n|\r)/gm,", ");
+                                                document.getElementById('CSVString').value = fileString;
+                                             }
+                                             reader.readAsText(file); 
+                                           
+                                         }
+                                         else
+                                         {
+                                         alert("File not found");
+                                         }
+                                    } 
+                                    else 
+                                    {
+                                        alert("The File APIs are not fully supported by your browser.");
+                                    }
+                                    
+                                };
+                            </script>
+
+                            <input name="add" class="secondary" type="submit" border="0" hspace="5" value="Add"/>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">
+                        </div>
+                        <div class="field">
+                            <br />
+                            -- OR --
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">
+                        </div>
+                        <div class="field">
+                            <br />
+                            <input name="reprovisionAll" class="secondary" type="submit" border="0" hspace="5" value="Reprovision All Courses"/>
+                            <p tabIndex="0" class="stepHelp">Ensures that all previously provisioned courses are correct on the Panopto server. Should be run after upgrading the building block</p>
+                        </div>
+                    </li>
+                    <%
+                    }
+                    %>
+                </ol>
+            </div>
             
+            <div class="steptitle submittitle" id="steptitle4">
+                <span id="stepnumber4">4</span>
+                Done
+            </div>
+            <div class="stepcontent" id="step4">
+                <ol>
+                    <li>
+                        <div class="jsSubmitButtonDiv">
+                            <bbUI:button type="FORM_ACTION" name="ok" alt="Ok" action="LINK" targetUrl="<%=Utils.buildingBlockManagerURL%>" />
+                        </div>
+                    </li>
+                </ol>
+            </div>
+          </div>
+    </form>
+    
+    <!--  JS function for disabling the checkboxes for Grant Ta Creator Access and Grant TA Provision access when 
+    provisioning by admins only is enabled. This is to prevent confusion caused by the latter setting overriding
+    the former ones. -->
+    <script type = "text/javascript">
+        
+        var adminProvisionOnlyBox = document.getElementById("adminProvisionOnly");
+                
+        var disableTAProvisionSettings = function()
+        {                                  
+            document.getElementById("grantTAProvision").disabled = adminProvisionOnlyBox.checked;
+        }
+        adminProvisionOnlyBox.onclick = disableTAProvisionSettings;
+                       
+        //Execute function once when script is loaded
+        disableTAProvisionSettings();       
+    </script>
+    
 <%
 }
 %>
-        </bbUI:docTemplate>
+    </bbUI:docTemplate>
 
 </bbData:context>
 </bbUI:coursePage>

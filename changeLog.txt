@@ -1,3 +1,6 @@
+Change logs of version 4.9.2 and after are found at https://github.com/Panopto/Blackboard-9.1-Plugin-for-Panopto/releases  
+
+--
 Blackboard change-log from 4.8.0 +:
 
 4.8.0: 

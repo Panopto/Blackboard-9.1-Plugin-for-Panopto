@@ -946,36 +946,40 @@ public class PanoptoData
             for(CourseMembership membership: allCourseMemberships)
             {
             	try
-            	{
-	                Role membershipRole = membership.getRole();
-	                currentCourse = courseLoader.loadById(membership.getCourseId());
-	                if(isInstructorRole(membershipRole))
-	                {
-	                    instructorCourses.add(currentCourse);
-	                }
-	                else if(isTARole(membershipRole))
-	                {
-	                    taCourses.add(currentCourse);
-	                }
-	                else
-	                {
-	                    studentCourses.add(currentCourse);
-	                }
-
-            	}
-            	catch(KeyNotFoundException e)
-            	{
-            		Utils.log(String.format("The course with id %1$s either does not exist or is unavailable.", membership.getCourseId()));
-            	}
-            	catch (Exception ex)
-            	{
-            		Utils.log(
-        				ex,
-        				String.format(
-    						"Failed to load course %1$s for membership %2$s",
-    						membership.getCourseId(),
-    						membership.getId()));
-            	}
+                {
+                    Role membershipRole = membership.getRole();
+                    currentCourse = courseLoader.loadById(membership.getCourseId());
+                    if(isInstructorRole(membershipRole))
+                    {
+                        instructorCourses.add(currentCourse);
+                    }
+                    else if(isTARole(membershipRole))
+                    {
+                        taCourses.add(currentCourse);
+                    }
+                    else if (isStudentRole(membershipRole))
+                    {
+                        studentCourses.add(currentCourse);
+                    }
+                    else
+                    {
+                        // This is for a user with no role for this course.
+                        // This is not added to any course list.
+                    }
+                }
+                catch(KeyNotFoundException e)
+                {
+                    Utils.log(String.format("The course with id %1$s either does not exist or is unavailable.", membership.getCourseId()));
+                }
+                catch (Exception ex)
+                {
+                    Utils.log(
+                        ex,
+                        String.format(
+                            "Failed to load course %1$s for membership %2$s",
+                            membership.getCourseId(),
+                            membership.getId()));
+                }
             }
 
             ArrayList<String> externalGroupIds = new ArrayList<String>();
@@ -1419,6 +1423,38 @@ public class PanoptoData
         return lstInstructors;
     }
 
+    /** Gets info about all users with no role for the course.
+     */
+    public List<String> getNoRoleUsers()
+    {
+        ArrayList<String> lstNoRoleUsers = new ArrayList<String>();
+
+        // Get the course membership (instructors, students, etc.)
+        List<CourseMembership> courseMemberships = getCourseMemberships(bbCourse);
+
+        List<CourseMembership> noRoleCourseMemberships = new ArrayList<CourseMembership>();
+        for (CourseMembership membership : courseMemberships) {
+            blackboard.data.course.CourseMembership.Role membershipRole = membership.getRole();
+            if (isNoRole(membershipRole))
+            {
+                noRoleCourseMemberships.add(membership);
+            }
+
+        }
+
+        if (!noRoleCourseMemberships.isEmpty()) {
+            for (Object membershipObject : noRoleCourseMemberships) {
+                CourseMembership courseMembership = (CourseMembership) membershipObject;
+                User courseUser = courseMembership.getUser();
+                if (courseUser != null) {
+                    String courseUserKey = Utils.decorateBlackboardUserName(courseUser.getUserName());
+                    lstNoRoleUsers.add(courseUserKey);
+                }
+            }
+        }
+        return lstNoRoleUsers;
+    }
+
     /*Returns true if role should be treated as an Instructor. Instructors get creator access in Panopto.*/
     private static boolean isInstructorRole(
             blackboard.data.course.CourseMembership.Role membershipRole)
@@ -1436,7 +1472,8 @@ public class PanoptoData
     {
         //Role is student role if it is not a built in instructor or ta role, or a mapped custom role.
         return    !isInstructorRole(membershipRole)
-               && !isTARole(membershipRole);
+               && !isTARole(membershipRole)
+               && !isNoRole(membershipRole);
     }
 
     /*Returns true if role should be treated as a TA. TA's get viewer access in Panopto, unless otherwise specified in the
@@ -1448,6 +1485,14 @@ public class PanoptoData
         //or if it is in the list of custom ta roles
         return membershipRole.equals(Role.TEACHING_ASSISTANT)
                 ||  (getIdsForRole("ta").contains(membershipRole.getIdentifier().toLowerCase()));
+    }
+
+    /**
+     * Returns true if role should be treated as no privilege on Panopto.
+     * Users with this role do not get access in Panopto, except publicly or organization wide viewable.
+     */
+    private static boolean isNoRole(blackboard.data.course.CourseMembership.Role membershipRole) {
+        return (getIdsForRole("none").contains(membershipRole.getIdentifier().toLowerCase()));
     }
 
     public boolean userMayProvision()

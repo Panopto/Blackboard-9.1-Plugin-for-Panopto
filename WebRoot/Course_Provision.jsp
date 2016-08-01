@@ -199,6 +199,29 @@ if((   provisionServerName != null)
                     %>
                             </div>
                         
+                            <div class='attribute'>Users without access to Panopto folder</div>
+                            <div class='value'>
+                    <%
+                    List<String> noRoleUsers = ccCourse.getNoRoleUsers();
+                    if (noRoleUsers == null)
+                    {
+                    %>
+                                <div class='errorMessage'>Error getting no role users.</div>
+                    <%
+                    }
+                    else if(noRoleUsers.size() > 0)
+                    {
+                                %><%=Utils.join(noRoleUsers, "<br />")%><%
+                    }
+                    else
+                    {
+                    %>
+                                <div class='value'>(no one)</div>
+                    <%
+                    }
+                    %>
+                            </div>
+
                     <%
                     if (ccCourse.getFolderDisplayNames() != null && ccCourse.getFolderDisplayNames().length > 0)
                     {
