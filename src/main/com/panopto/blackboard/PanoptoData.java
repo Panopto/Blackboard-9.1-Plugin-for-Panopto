@@ -1124,6 +1124,17 @@ public class PanoptoData
             {
                 addCourseMenuLink();
             }
+            
+            // create a session management object here and call against the folders list, 
+            ISessionManagement client = getPanoptoSessionManagementSOAPService(serverName);
+            for(int i = 0; i < folderIds.length; i++)
+            {
+
+                String folderId = folderIds[i];
+                client.updateFolderEnablePodcast(auth, folderId, false);
+                client.updateFolderAllowPublicNotes(auth, folderId, false);
+                client.updateFolderAllowSessionDownload(auth, folderId, false); 
+            }
         }
         catch(Exception e)
         {
@@ -1203,10 +1214,26 @@ public class PanoptoData
         {
             String externalCourseId = Utils.decorateBlackboardCourseID(bbCourse.getId().toExternalString());
             String fullName = bbCourse.getCourseId() + ": " + bbCourse.getTitle();
-
+            String externalId = bbCourse.getCourseId();
+            
             // Provision the course
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-            Folder[] folders = new Folder[] { getPanoptoSessionManagementSOAPService(serverName).provisionExternalCourse(auth, fullName, externalCourseId) };
+            ISessionManagement sessionManagementStub = getPanoptoSessionManagementSOAPService(serverName);
+            Folder[] folders = new Folder[] { sessionManagementStub.provisionExternalCourse(auth,fullName,externalCourseId) };
+            
+            for(int i = 0; i < folders.length; i++)
+            {
+                Folder folder = folders[i];
+                String folderId = folder.getId();
+                // set the external id....
+                sessionManagementStub.updateFolderExternalId(auth,folderId,externalId);
+                // set defaults for folders public notes
+                sessionManagementStub.updateFolderAllowPublicNotes(auth,folderId,false);
+                // set defaults for folder podcast
+                sessionManagementStub.updateFolderEnablePodcast(auth,folderId,false);
+                // set defaults for folder sessions download
+                sessionManagementStub.updateFolderAllowSessionDownload(auth,folderId,false);
+            }
             updateCourseFolders(folders);
 
             //Add menu item if setting is enabled
