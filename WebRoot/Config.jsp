@@ -558,9 +558,11 @@ else
                 Provision Panopto courses
             </div>
             <div class="stepcontent" id="step3">
+                <form name="batchProvisionForm" action="Course_Provision.jsp">
                 <ol>
                     <li>
                         <div class="field">
+                            <h1>Courses</h1>
                             <p tabIndex="0" class="stepHelp">
                                 Selected courses will be created on the specified Panopto server.<br />
                                 Instructor and student lists will be populated in Panopto.
@@ -588,12 +590,12 @@ else
                             function launchCoursePicker()
                             {
                                 // 1280x800 popup window (clipped to available screen size).
-                                var width = Math.min(1280, screen.width);
+                                var width = Math.min(1300, screen.width);
                                 var height = Math.min(800, screen.height);
                                 
                                 // Position against the right edge of the screen, with top margin of 20px.
                                 var top = 20;                        
-                                var left = Math.max(screen.width - 1280, 0);
+                                var left = 20; //Math.max(screen.width - 1280, 0);
                         
                                 // Open the popup window
                                 var courseSelectWindow = window.open('course/frameset.jsp','course_browse','width='+width+',height='+height+',resizable=yes,scrollbars=yes,status=yes,top='+top+',left='+left);
@@ -699,8 +701,101 @@ else
                     }
                     %>
                 </ol>
+                </form>
             </div>
             
+            <div class="steptitle submittitle" id="steptitle3">
+                 <span id="stepnumber3">3</span>
+                 Provision Panopto Communities
+             </div>
+             <div class="stepcontent" id="step3">
+                 <form name="batchProvisionFormCom" action="Course_Provision.jsp">
+                 <ol>
+                     <li>
+                         <div class="field">
+                             <h1>Communities</h1>
+                             <p tabIndex="0" class="stepHelp">
+                                 Selected communities will be created on the specified Panopto server.<br />
+                                 Instructor and student lists will be populated in Panopto.
+                             </p>
+                         </div>
+                     </li>
+                     <%
+                     if(serverList.size() == 0)
+                     { %>
+                     <li>
+                         <div id="noServersMessage">
+                             No servers.  Please enter a server above.
+                         </div>
+                     </li>
+                     <%
+                     }
+                     else
+                     { %>
+                     <li>
+                         <!-- URL of current page so provision breakout page knows where to return to. -->
+                         <input type="hidden" name="returnUrl" value="<%= request.getRequestURL() %>" />
+
+                         <!-- Function to launch built-in Blackboard course selection widget in a popup window. -->
+                           <script type="text/javascript">
+                             function launchCommunitiesPicker()
+                             {
+                                 // 1280x800 popup window (clipped to available screen size).
+                                 var width = Math.min(1300, screen.width);
+                                 var height = Math.min(800, screen.height);
+
+                                 // Position against the right edge of the screen, with top margin of 20px.
+                                 var top = 20;                        
+                                 var left = 20; //Math.max(screen.width - 1280, 0);
+
+                                 // Open the popup window
+                                 var communitiesSelectWindow = window.open('course/frameset.jsp','course_browse','width='+width+',height='+height+',resizable=yes,scrollbars=yes,status=yes,top='+top+',left='+left);
+
+                                 if (communitiesSelectWindow != null)
+                                 {
+                                     // Ensure popup window is on top.
+                                     communitiesSelectWindow.focus();
+
+                                     // Give the popup a reference to this page.
+                                     if (communitiesSelectWindow.opener == null) communitiesSelectWindow.opener = self;
+                                     // Identify the form control to populate with the selected courseIds
+                                     communitiesSelectWindow.opener.inputToSet = document.forms.batchProvisionFormCom.bbCourses;
+
+                                     window.top.name = 'bbWin';
+                                 }
+                              } 
+                           </script>
+                     </li>
+                     <li class="required">
+                         <div class="label">
+                             <img alt="Required" src="/images/ci/icons/required.gif"/>
+                             Server 
+                         </div>
+                         <div class="field">
+                             <select name="provisionServerName" <%=((serverList.size() == 1) ? "DISABLED='disabled'" : "")%>>
+                                 <%= Utils.generateServerOptionsHTML(provisionServerName) %>
+                             </select>
+                         </div>
+                     </li>
+                     <li class="required">
+                         <div class="label">
+                             <img alt="Required" src="/images/ci/icons/required.gif"/>
+                             Community IDs 
+                         </div>
+                         <div class="field">
+                             <!-- Comma-delimited list of Blackboard courseIds to provision, populated by Blackboard course picker widget. -->
+                             <input type="text" name="bbCourses"> <input type="button" value="Communities Picker" onclick="launchCommunitiesPicker()" name="browse">
+                             <br /><br /><br />
+                             <input name="add" class="secondary" type="submit" border="0" hspace="5" value="Add"/>
+                         </div>
+                     </li>
+                     <%
+                     }
+                     %>
+                 </ol>
+                 </form>
+             </div>
+                
             <div class="steptitle submittitle" id="steptitle4">
                 <span id="stepnumber4">4</span>
                 Done
@@ -715,7 +810,7 @@ else
                 </ol>
             </div>
           </div>
-    </form>
+    <!--</form>-->
     
     <!--  JS function for disabling the checkboxes for Grant Ta Creator Access and Grant TA Provision access when 
     provisioning by admins only is enabled. This is to prevent confusion caused by the latter setting overriding

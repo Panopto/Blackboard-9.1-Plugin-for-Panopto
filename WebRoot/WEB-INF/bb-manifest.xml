@@ -21,7 +21,7 @@
         <!-- Custom content types defined by this extension -->
         <content-handlers>
             <content-handler>
-                <name value="Panopto Video Link" />
+                <name value="ReCap Video Link" />
                 <handle value="hyperlink/coursecast" />
                 <http-actions>
                     <create value="Item_Create.jsp" />
