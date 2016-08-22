@@ -174,8 +174,8 @@ Boolean useOldLayout = false;
                             String ua = request.getHeader("User-Agent");
                             boolean isIe9or10 = (
                                    ua != null 
-                                && (   /*ua.indexOf("MSIE 10") != -1
-                                    ||*/ ua.indexOf("MSIE 9") != -1));
+                                && (   ua.indexOf("MSIE 10") != -1
+                                    || ua.indexOf("MSIE 9") != -1));
                             if (isIe9or10 || folders.length > 1)
                             {
                                 useOldLayout = true;
