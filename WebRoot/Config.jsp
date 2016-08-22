@@ -305,7 +305,7 @@ else
                         </div>
                     </li>
                     <li>
-                        <div class="label">Allow TAs to Create Panopto Course Tool Links</div>
+                        <div class="label">Allow TAs to Create ReCap Course Tool Links</div>
                         <div class="field">
                             <input name="TAsCanCreateLinks" type="checkbox" <%= TAsCanCreateLinks ? "checked" : "" %> style="float:left" />
                         </div>
@@ -313,7 +313,7 @@ else
                     <li>
                         <div class="field">
                             <p tabIndex="0" class="stepHelp">
-                                This setting determines whether teaching assistants have the ability to create Panopto Course Tool Links on a course's Course Menu.<br/>
+                                This setting determines whether teaching assistants have the ability to create ReCap Course Tool Links on a course's Course Menu.<br/>
                                  If checked, TAs will be able to create links regardless of whether they have creator access or course provisioning access.              
                                 <br/>
                                 <br/>

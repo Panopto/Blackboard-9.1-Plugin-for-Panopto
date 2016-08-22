@@ -35,8 +35,8 @@
         </content-handlers>
         <!-- Applications defined by this extension -->
         <application-defs>
-            <application handle="PanoptoCourseToolApp" type="course" name="Panopto Course Tool Application">
-                <description>Panopto Course Tool</description>
+            <application handle="PanoptoCourseToolApp" type="course" name="ReCap Course Tool Application">
+                <description>ReCap Course Tool</description>
                 <links>
                     <link>
                         <type value="tool" />
