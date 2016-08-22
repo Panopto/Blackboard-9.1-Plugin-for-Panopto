@@ -678,7 +678,7 @@ else
                             <input name="add" class="secondary" type="submit" border="0" hspace="5" value="Add"/>
                         </div>
                     </li>
-                    <li>
+                    <!--<li>
                         <div class="label">
                         </div>
                         <div class="field">
@@ -694,7 +694,7 @@ else
                             <input name="reprovisionAll" class="secondary" type="submit" border="0" hspace="5" value="Reprovision All Courses"/>
                             <p tabIndex="0" class="stepHelp">Ensures that all previously provisioned courses are correct on the Panopto server. Should be run after upgrading the building block</p>
                         </div>
-                    </li>
+                    </li>-->
                     <%
                     }
                     %>
