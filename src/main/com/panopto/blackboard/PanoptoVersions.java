@@ -24,6 +24,7 @@ package com.panopto.blackboard;
 class PanoptoVersions {
 
     static final PanoptoVersion V4_9 = PanoptoVersion.from("4.9");
+    static final PanoptoVersion V5_3 = PanoptoVersion.from("5.3");
 
     //Determines whether or not the block is able to call session or folder availability window API methods
     //based on the version of the current Panopto server.
@@ -31,6 +32,16 @@ class PanoptoVersions {
     //If the current server version is less than 4.9.0.00000, Availability Window API should not be called.
     static boolean canCallAvailabilityWindowApiMethods(PanoptoVersion panoptoVersion) {
         return panoptoVersion.compareTo(V4_9) >= 0;
+    }
+    
+    
+    /**
+     * Determine if the panopto server version supports Copy methods (5.3 and above)
+     * @param panoptoVersion Version of Panopto we are pointed at
+     * @return boolean true if we have at least the minimum version number
+     */
+    static boolean canCallCopyApiMethods(PanoptoVersion panoptoVersion) {
+        return panoptoVersion.compareTo(V5_3) >= 0;
     }
 
     /**

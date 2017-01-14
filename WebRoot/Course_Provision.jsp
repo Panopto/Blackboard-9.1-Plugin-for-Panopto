@@ -1,4 +1,4 @@
-<!-- Copyright Panopto 2009 - 2013
+<!-- Copyright Panopto 2009 - 2016
  * 
  * This file is part of the Panopto plugin for Blackboard.
  * 
@@ -113,16 +113,27 @@ if((   provisionServerName != null)
         courseID = courseID.trim();
 
         if(!courseID.equals(""))
-        {
-            PanoptoData ccCourse = new PanoptoData(courseID, ctx.getUser().getUserName());
+        {	
+        	String userName = ctx.getUser().getUserName();
+            PanoptoData ccCourse = new PanoptoData(courseID, userName);
             
             if(ccCourse.getBBCourse() != null)
             {
+            	boolean inProvisionableState = true;
+            	
+            	if (!ccCourse.isOriginalContext()) {
+	            	if (ccCourse.resetCourse()) {
+	            		ccCourse = new PanoptoData(courseID, userName);
+	            	} else {
+	            		inProvisionableState = false;
+	            	}
+            	}
+            	
                 if (!ccCourse.userMayProvision())
                 {
                     %><div class='error'>Error. You do not have access to provision <%=ccCourse.getBBCourse().getTitle()%></div><%
                 }
-                else
+                else if (inProvisionableState)
                 {
                 %>
                         <div class='courseProvisionResult'>
@@ -223,7 +234,7 @@ if((   provisionServerName != null)
                             </div>
 
                     <%
-                    if (ccCourse.getFolderDisplayNames() != null && ccCourse.getFolderDisplayNames().length > 0)
+                    if (ccCourse.getFolderDisplayNames().length > 0)
                     {
                     %>
                         <div class='attribute'>Folders</div>

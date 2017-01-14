@@ -4,7 +4,8 @@
         <name value="Panopto Connector" />
         <description value="Provision Panopto courses from Blackboard.  View live listing of available Panopto content from within the associated Blackboard course.  Import Panopto lecture links as Blackboard content items." />
         <handle value="PanoptoCourseTool" />
-        <version value="4.9.7" />
+        <webapp-type value="javaext" />
+        <version value="4.9.8" />
         <requires>
             <bbversion value="9.1" />
         </requires>
@@ -63,6 +64,20 @@
                 </links>
             </application>
         </application-defs>
+        <extension-defs>
+        	<definition namespace="blackboard.platform">
+				<extension id="CloneHandler"
+						   point = "blackboard.cmsadmin.postCloneCourseEventListener"
+                           class = "com.panopto.blackboard.PanoptoCourseEventListener"
+                           singleton="true"/>
+			</definition>
+			<definition namespace="blackboard.platform">
+                <extension id="CreateHandler"
+                           point="blackboard.cmsadmin.postCreateCourseEventListener"
+                           class="com.panopto.blackboard.PanoptoCourseEventListener"
+                           singleton="true"/>
+            </definition>
+        </extension-defs>
         <permissions>
             <!-- Change value of "name" attribute below to restrict socket access to your Panopto server -->
             <!-- e.g. name="panopto.myinstitution.edu" -->

@@ -1,5 +1,5 @@
 
-<!-- Copyright Panopto 2009 - 2013
+<!-- Copyright Panopto 2009 - 2016
  * 
  * This file is part of the Panopto plugin for Blackboard.
  * 
@@ -77,6 +77,7 @@ Boolean adminProvisionOnly = (request.getParameter("adminProvisionOnly") != null
 Boolean insertLinkOnProvision = (request.getParameter("insertLinkOnProvision") != null);
 String menuLinkText = request.getParameter("menuLinkText");
 String roleMappingString = request.getParameter("roleMappingString");
+Boolean courseCopyEnabled = (request.getParameter("courseCopyEnabled") != null);
 
 //Bounce page address to copy into Panopto
 String SSOAddress = "https://" + ctx.getHostName()  + PlugInUtil.getUri("ppto", "PanoptoCourseTool", "SSO.jsp");
@@ -112,6 +113,7 @@ if(instanceName != null)
     Utils.pluginSettings.setVerbose(verbose);
     Utils.pluginSettings.setAdminProvisionOnly(adminProvisionOnly);
     Utils.pluginSettings.setInsertLinkOnProvision(insertLinkOnProvision);
+    Utils.pluginSettings.setCourseCopyEnabled(courseCopyEnabled);
     
     if(roleMappingString != null)
     {
@@ -148,6 +150,7 @@ adminProvisionOnly = Utils.pluginSettings.getAdminProvisionOnly();
 insertLinkOnProvision = Utils.pluginSettings.getInsertLinkOnProvision();
 menuLinkText = Utils.pluginSettings.getMenuLinkText();
 roleMappingString = Utils.pluginSettings.getRoleMappingString();
+courseCopyEnabled = Utils.pluginSettings.getCourseCopyEnabled();
 
 // Server list form submitted, add/remove servers if valid operation
 String add_hostname = request.getParameter("add_hostname");
@@ -463,6 +466,21 @@ else
                                     </table>
                                  </div>   
                                 <br/>
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>                    
+                    <li>
+                        <div class="label">Blackboard course copy also copies Panopto permissions</div>
+                        <div class="field">
+                            <input name="courseCopyEnabled" type="checkbox" <%= courseCopyEnabled ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether Panopto permissions are copied along with the course when Blackboard courses are copied.<br/>
                                 <br/>
                                 <br/>
                             </p>

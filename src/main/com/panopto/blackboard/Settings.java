@@ -1,4 +1,4 @@
-/* Copyright Panopto 2009 - 2011
+/* Copyright Panopto 2009 - 2016
  *
  * This file is part of the Panopto plugin for Blackboard.
  *
@@ -37,6 +37,9 @@ import blackboard.platform.plugin.PlugInUtil;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
+// API (XMLSerializer & OutputFormat) are deprecated but still work, suppress warnings for clean build.
+// TODO Bug 43355 (Remove the classes and use the non deprecated one)
+@SuppressWarnings("restriction")
 public class Settings {
 
     // Enable users to connect to multiple Panopto servers from one Blackboard site.
@@ -88,69 +91,62 @@ public class Settings {
 
     private String roleMappingString = "";
 
+    /**
+     * Boolean setting that turns on copying Panopto permissions during Blackboard course copy
+     */
+    private Boolean courseCopyEnabled = true;
+
     // Parse current settings from XML file in config directory.
     public Settings() {
         try {
             // Get path to plugin config directory.
-            File configDir = PlugInUtil.getConfigDirectory(Utils.vendorID,
-                    Utils.pluginHandle);
+            File configDir = PlugInUtil.getConfigDirectory(Utils.vendorID, Utils.pluginHandle);
             File settingsFile = new File(configDir, "settings.xml");
 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
 
-            if(settingsFile.exists())
-            {
+            if (settingsFile.exists()) {
                 // Parse XML
                 Document settingsDocument = db.parse(settingsFile);
 
                 // Walk document tree and set corresponding setting values.
                 readSettings(settingsDocument);
             }
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             // Utils has static reference to instance of Settings, so can't use Utils.log() here
             e.printStackTrace();
         }
     }
 
-    public String getInstanceName()
-    {
+    public String getInstanceName() {
         return instanceName;
     }
 
-    public void setInstanceName(String instanceName)
-    {
+    public void setInstanceName(String instanceName) {
         this.instanceName = instanceName;
         save();
     }
 
-    public void addServer(String serverName, String applicationKey)
-    {
-        if(serverTable != null)
-        {
+    public void addServer(String serverName, String applicationKey) {
+        if (serverTable != null) {
             serverTable.put(serverName, applicationKey);
             save();
         }
     }
 
-    public void removeServer(String serverName)
-    {
-        if(serverTable != null)
-        {
+    public void removeServer(String serverName) {
+        if (serverTable != null) {
             serverTable.remove(serverName);
             save();
         }
     }
 
     // Return a list of available servers, or null if we failed to parse the server list.
-    public List<String> getServerList()
-    {
+    public List<String> getServerList() {
         List<String> serverList = null;
 
-        if(serverTable != null)
-        {
+        if (serverTable != null) {
             // Return a copy of the server list so that it cannot be modified by client code.
             serverList = new ArrayList<String>(serverTable.keySet());
         }
@@ -158,113 +154,93 @@ public class Settings {
         return serverList;
     }
 
-    public String getApplicationKey(String serverName)
-    {
+    public String getApplicationKey(String serverName) {
         String applicationKey = null;
 
-        if(serverTable != null)
-        {
+        if (serverTable != null) {
             applicationKey = serverTable.get(serverName);
         }
 
         return applicationKey;
     }
 
-    public boolean getInstructorsCanProvision()
-    {
+    public boolean getInstructorsCanProvision() {
         return instructorsCanProvision;
     }
 
-    public void setInstructorsCanProvision(boolean canProvision)
-    {
+    public void setInstructorsCanProvision(boolean canProvision) {
         instructorsCanProvision = canProvision;
         save();
     }
 
-    public boolean getInstructorsCanCreateFolder()
-    {
+    public boolean getInstructorsCanCreateFolder() {
         return instructorsCanCreateFolder;
     }
 
-    public void setInstructorsCanCreateFolder(boolean canCreateFolder)
-    {
+    public void setInstructorsCanCreateFolder(boolean canCreateFolder) {
         instructorsCanCreateFolder = canCreateFolder;
         save();
     }
 
-    public boolean getCourseResetEnabled()
-    {
+    public boolean getCourseResetEnabled() {
         return courseResetEnabled;
     }
 
-    public void setCourseResetEnabled(boolean canResetAll)
-    {
+    public void setCourseResetEnabled(boolean canResetAll) {
         courseResetEnabled = canResetAll;
         save();
     }
 
-    public boolean getVerbose()
-    {
+    public boolean getVerbose() {
         return verbose;
     }
 
-    public void setVerbose(boolean v)
-    {
+    public void setVerbose(boolean v) {
         verbose = v;
         save();
     }
 
-    public boolean getMailLectureNotifications()
-    {
+    public boolean getMailLectureNotifications() {
         return mailLectureNotifications;
     }
 
-    public void setMailLectureNotifications(boolean mailLectureNotifications)
-    {
+    public void setMailLectureNotifications(boolean mailLectureNotifications) {
         this.mailLectureNotifications = mailLectureNotifications;
         save();
     }
 
-    public boolean getRefreshLogins()
-    {
+    public boolean getRefreshLogins() {
         return refreshLogins;
     }
 
-    public void setRefreshLogins(boolean refresh)
-    {
+    public void setRefreshLogins(boolean refresh) {
         refreshLogins = refresh;
         save();
     }
 
-    public boolean getGrantTACreator()
-    {
+    public boolean getGrantTACreator() {
         return grantTACreator;
     }
 
-    public void setGrantTACreator(boolean val)
-    {
+    public void setGrantTACreator(boolean val) {
         grantTACreator = val;
         save();
     }
 
-    public boolean getTAsCanCreateLinks()
-    {
+    public boolean getTAsCanCreateLinks() {
         return TAsCanCreateLinks;
     }
 
-    public void setTAsCanCreateLinks(boolean val)
-    {
+    public void setTAsCanCreateLinks(boolean val) {
         TAsCanCreateLinks = val;
         save();
     }
 
-    public boolean getGrantTAProvision()
-    {
+    public boolean getGrantTAProvision() {
         return grantTAProvision;
     }
 
-    public void setGrantTAProvision(boolean val)
-    {
+    public void setGrantTAProvision(boolean val) {
         grantTAProvision = val;
         save();
     }
@@ -296,22 +272,38 @@ public class Settings {
         save();
     }
 
-    public String getRoleMappingString()
-    {
-    	return roleMappingString;
+    public String getRoleMappingString() {
+        return roleMappingString;
     }
 
-    public void setRoleMappingString(String roleMappingString)
-    {
-    	this.roleMappingString = roleMappingString;
-    	save();
+    public void setRoleMappingString(String roleMappingString) {
+        this.roleMappingString = roleMappingString;
+        save();
+    }
+
+    /**
+     * Get accessor for the Panopto copy permissions boolean
+     * 
+     * @return Boolean true if copying Panopto permissions is enabled
+     */
+    public Boolean getCourseCopyEnabled() {
+        return courseCopyEnabled;
+    }
+
+    /**
+     * Set accessor for the Panopto copy permissions boolean
+     * 
+     * @param courseCopyEnabled
+     *            New value for if copying Panopto permissions enabled
+     */
+    public void setCourseCopyEnabled(Boolean courseCopyEnabled) {
+        this.courseCopyEnabled = courseCopyEnabled;
+        save();
     }
 
     // Serialize current settings to XML settings file in config directory.
-    private void save()
-    {
-        try
-        {
+    private void save() {
+        try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document settingsDocument = db.newDocument();
@@ -326,8 +318,7 @@ public class Settings {
             Element serverListElem = settingsDocument.createElement("serverList");
             docElem.appendChild(serverListElem);
 
-            for(Map.Entry<String, String> serverEntry : serverTable.entrySet())
-            {
+            for (Map.Entry<String, String> serverEntry : serverTable.entrySet()) {
                 Element serverElem = settingsDocument.createElement("server");
                 serverElem.setAttribute("hostname", serverEntry.getKey());
                 serverElem.setAttribute("applicationKey", serverEntry.getValue());
@@ -361,7 +352,8 @@ public class Settings {
             docElem.appendChild(grantTAProvisionElem);
 
             Element instructorsCanCreateFolderElem = settingsDocument.createElement("instructorsCanCreateFolder");
-            instructorsCanCreateFolderElem.setAttribute("instructorsCanCreateFolder", instructorsCanCreateFolder.toString());
+            instructorsCanCreateFolderElem.setAttribute("instructorsCanCreateFolder",
+                    instructorsCanCreateFolder.toString());
             docElem.appendChild(instructorsCanCreateFolderElem);
 
             Element courseResetEnabledElem = settingsDocument.createElement("courseResetEnabled");
@@ -388,6 +380,10 @@ public class Settings {
             roleMappingStringElem.setAttribute("roleMappingString", roleMappingString);
             docElem.appendChild(roleMappingStringElem);
 
+            Element courseCopyEnabledElem = settingsDocument.createElement("courseCopyEnabled");
+            roleMappingStringElem.setAttribute("courseCopyEnabled", courseCopyEnabled.toString());
+            docElem.appendChild(courseCopyEnabledElem);
+
             OutputFormat format = new OutputFormat(settingsDocument);
             format.setIndenting(true);
             format.setLineSeparator("\r\n");
@@ -396,45 +392,40 @@ public class Settings {
             File settingsFile = new File(configDir, "settings.xml");
 
             FileOutputStream outStream = new FileOutputStream(settingsFile);
+
+            // API is deprecated but still works, suppress warnings for clean build.
             XMLSerializer serializer = new XMLSerializer(outStream, format);
 
             // Serialize to XML.
             serializer.serialize(settingsDocument);
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             Utils.log(e, "Error saving settings.");
         }
     }
 
     // Walk document tree and set corresponding setting values.
-    private void readSettings(Document settingsDocument)
-    {
+    private void readSettings(Document settingsDocument) {
         Map<String, String> servers = new HashMap<String, String>();
 
         Element docElem = settingsDocument.getDocumentElement();
 
         NodeList instanceNameNodes = docElem.getElementsByTagName("instanceName");
-        if(instanceNameNodes.getLength() != 0)
-        {
-            Element instanceNameElem = (Element)instanceNameNodes.item(0);
+        if (instanceNameNodes.getLength() != 0) {
+            Element instanceNameElem = (Element) instanceNameNodes.item(0);
             this.instanceName = instanceNameElem.getAttribute("name");
         }
 
         NodeList serverListNodes = docElem.getElementsByTagName("serverList");
-        if(serverListNodes.getLength() != 0)
-        {
-            Element serverListElem = (Element)serverListNodes.item(0);
+        if (serverListNodes.getLength() != 0) {
+            Element serverListElem = (Element) serverListNodes.item(0);
 
             NodeList nl = serverListElem.getElementsByTagName("server");
-            for(int i = 0; i < nl.getLength(); i++)
-            {
-                Element serverElement = (Element)nl.item(i);
+            for (int i = 0; i < nl.getLength(); i++) {
+                Element serverElement = (Element) nl.item(i);
 
                 String hostname = serverElement.getAttribute("hostname");
                 String applicationKey = serverElement.getAttribute("applicationKey");
-                if(!hostname.equals("") && !applicationKey.equals(""))
-                {
+                if (!hostname.equals("") && !applicationKey.equals("")) {
                     servers.put(hostname, applicationKey);
                 }
             }
@@ -443,97 +434,91 @@ public class Settings {
 
         // Parse <instructorsCanProvision canProvision="true/false" />
         NodeList instructorsCanProvisionNodes = docElem.getElementsByTagName("instructorsCanProvision");
-        if(instructorsCanProvisionNodes.getLength() != 0)
-        {
-            Element instructorsCanProvisionElem = (Element)instructorsCanProvisionNodes.item(0);
+        if (instructorsCanProvisionNodes.getLength() != 0) {
+            Element instructorsCanProvisionElem = (Element) instructorsCanProvisionNodes.item(0);
             this.instructorsCanProvision = Boolean.valueOf(instructorsCanProvisionElem.getAttribute("canProvision"));
         }
 
         // Parse <mailLectureNotifications default="true/false" />
         NodeList mailLectureNotificationsNodes = docElem.getElementsByTagName("mailLectureNotifications");
-        if(mailLectureNotificationsNodes.getLength() != 0)
-        {
-            Element mailLectureNotificationsElem = (Element)mailLectureNotificationsNodes.item(0);
+        if (mailLectureNotificationsNodes.getLength() != 0) {
+            Element mailLectureNotificationsElem = (Element) mailLectureNotificationsNodes.item(0);
             this.mailLectureNotifications = Boolean.valueOf(mailLectureNotificationsElem.getAttribute("default"));
         }
 
         NodeList refreshLoginsNodes = docElem.getElementsByTagName("refreshLogins");
-        if(refreshLoginsNodes.getLength() != 0)
-        {
-            Element refreshLoginsElem = (Element)refreshLoginsNodes.item(0);
+        if (refreshLoginsNodes.getLength() != 0) {
+            Element refreshLoginsElem = (Element) refreshLoginsNodes.item(0);
             this.refreshLogins = Boolean.valueOf(refreshLoginsElem.getAttribute("refresh"));
         }
 
         NodeList grantTACreatorNodes = docElem.getElementsByTagName("grantTACreator");
-        if(grantTACreatorNodes.getLength() != 0)
-        {
-            Element grantTACreatorElem = (Element)grantTACreatorNodes.item(0);
+        if (grantTACreatorNodes.getLength() != 0) {
+            Element grantTACreatorElem = (Element) grantTACreatorNodes.item(0);
             this.grantTACreator = Boolean.valueOf(grantTACreatorElem.getAttribute("grantTACreator"));
         }
 
         NodeList TAsCanCreateLinksNodes = docElem.getElementsByTagName("TAsCanCreateLinks");
-        if(TAsCanCreateLinksNodes.getLength() != 0)
-        {
+        if (TAsCanCreateLinksNodes.getLength() != 0) {
             Element TAsCanCreateLinksElem = (Element) TAsCanCreateLinksNodes.item(0);
             this.TAsCanCreateLinks = Boolean.valueOf(TAsCanCreateLinksElem.getAttribute("TAsCanCreateLinks"));
         }
 
         NodeList grantTAProvisionNodes = docElem.getElementsByTagName("grantTAProvision");
-        if(grantTAProvisionNodes.getLength() != 0)
-         {
-            Element grantTAProvisionElem = (Element)grantTAProvisionNodes.item(0);
+        if (grantTAProvisionNodes.getLength() != 0) {
+            Element grantTAProvisionElem = (Element) grantTAProvisionNodes.item(0);
             this.grantTAProvision = Boolean.valueOf(grantTAProvisionElem.getAttribute("grantTAProvision"));
         }
 
         NodeList instructorsCanCreateFolderNodes = docElem.getElementsByTagName("instructorsCanCreateFolder");
-        if(instructorsCanCreateFolderNodes.getLength() != 0)
-         {
-            Element instructorsCanCreateFolderElem = (Element)instructorsCanCreateFolderNodes.item(0);
-            this.instructorsCanCreateFolder = Boolean.valueOf(instructorsCanCreateFolderElem.getAttribute("instructorsCanCreateFolder"));
+        if (instructorsCanCreateFolderNodes.getLength() != 0) {
+            Element instructorsCanCreateFolderElem = (Element) instructorsCanCreateFolderNodes.item(0);
+            this.instructorsCanCreateFolder = Boolean
+                    .valueOf(instructorsCanCreateFolderElem.getAttribute("instructorsCanCreateFolder"));
         }
 
         NodeList canResetAllNodes = docElem.getElementsByTagName("courseResetEnabled");
-        if(canResetAllNodes.getLength() != 0)
-         {
-            Element canResetAllElem = (Element)canResetAllNodes.item(0);
+        if (canResetAllNodes.getLength() != 0) {
+            Element canResetAllElem = (Element) canResetAllNodes.item(0);
             this.courseResetEnabled = Boolean.valueOf(canResetAllElem.getAttribute("courseResetEnabled"));
         }
 
         NodeList verboseNodes = docElem.getElementsByTagName("verbose");
-        if(verboseNodes.getLength() != 0)
-        {
-            Element verboseElem = (Element)verboseNodes.item(0);
+        if (verboseNodes.getLength() != 0) {
+            Element verboseElem = (Element) verboseNodes.item(0);
             this.verbose = Boolean.valueOf(verboseElem.getAttribute("verbose"));
         }
 
         NodeList adminProvisionOnlyNodes = docElem.getElementsByTagName("adminProvisionOnly");
-        if(adminProvisionOnlyNodes.getLength() != 0)
-        {
-            Element adminProvisionOnlyElem = (Element)adminProvisionOnlyNodes.item(0);
+        if (adminProvisionOnlyNodes.getLength() != 0) {
+            Element adminProvisionOnlyElem = (Element) adminProvisionOnlyNodes.item(0);
             this.adminProvisionOnly = Boolean.valueOf(adminProvisionOnlyElem.getAttribute("adminProvisionOnly"));
         }
 
         NodeList insertLinkOnProvisionNodes = docElem.getElementsByTagName("insertLinkOnProvision");
-        if(insertLinkOnProvisionNodes.getLength() != 0)
-         {
-            Element insertLinkOnProvisionElem = (Element)insertLinkOnProvisionNodes.item(0);
-            this.insertLinkOnProvision = Boolean.valueOf(insertLinkOnProvisionElem.getAttribute("insertLinkOnProvision"));
+        if (insertLinkOnProvisionNodes.getLength() != 0) {
+            Element insertLinkOnProvisionElem = (Element) insertLinkOnProvisionNodes.item(0);
+            this.insertLinkOnProvision = Boolean
+                    .valueOf(insertLinkOnProvisionElem.getAttribute("insertLinkOnProvision"));
         }
 
         NodeList menuLinkTextNodes = docElem.getElementsByTagName("menuLinkText");
-        if(menuLinkTextNodes.getLength() != 0)
-         {
-            Element menuLinkTextElem = (Element)menuLinkTextNodes.item(0);
+        if (menuLinkTextNodes.getLength() != 0) {
+            Element menuLinkTextElem = (Element) menuLinkTextNodes.item(0);
             this.menuLinkText = menuLinkTextElem.getAttribute("menutext");
         }
 
         NodeList roleMappingStringNodes = docElem.getElementsByTagName("roleMappingString");
-        if(roleMappingStringNodes.getLength() != 0)
-        {
-        	Element roleMappingStringElem = (Element)roleMappingStringNodes.item(0);
-        	this.roleMappingString = roleMappingStringElem.getAttribute("roleMappingString");
+        if (roleMappingStringNodes.getLength() != 0) {
+            Element roleMappingStringElem = (Element) roleMappingStringNodes.item(0);
+            this.roleMappingString = roleMappingStringElem.getAttribute("roleMappingString");
         }
 
+        NodeList courseCopyEnabledNodes = docElem.getElementsByTagName("courseCopyEnabled");
+        if (courseCopyEnabledNodes.getLength() != 0) {
+            Element courseCopyEnabledElem = (Element) courseCopyEnabledNodes.item(0);
+            this.courseCopyEnabled = Boolean.valueOf(courseCopyEnabledElem.getAttribute("courseCopyEnabled"));
+        }
     }
 
 }

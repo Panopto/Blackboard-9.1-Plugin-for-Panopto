@@ -2493,6 +2493,40 @@ public class BasicHttpBinding_ISessionManagementStub extends org.apache.axis.cli
   throw axisFaultException;
 }
     }
+    
+    public com.panopto.services.Folder[] setCopiedExternalCourseAccess(com.panopto.services.AuthenticationInfo auth, java.lang.String name, java.lang.String externalId, java.lang.String[] folderIds) throws java.rmi.RemoteException {
+        if (super.cachedEndpoint == null) {
+            throw new org.apache.axis.NoEndPointException();
+        }
+        org.apache.axis.client.Call _call = createCall();
+        _call.setOperation(_operations[32]);
+        _call.setUseSOAPAction(true);
+        _call.setSOAPActionURI("http://tempuri.org/ISessionManagement/SetCopiedExternalCourseAccess");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
+        _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
+        _call.setOperationName(new javax.xml.namespace.QName("http://tempuri.org/", "SetCopiedExternalCourseAccess"));
+
+        setRequestHeaders(_call);
+        setAttachments(_call);
+ try {        java.lang.Object _resp = _call.invoke(new java.lang.Object[] {auth, name, externalId, folderIds});
+
+        if (_resp instanceof java.rmi.RemoteException) {
+            throw (java.rmi.RemoteException)_resp;
+        }
+        else {
+            extractAttachments(_call);
+            try {
+                return (com.panopto.services.Folder[]) _resp;
+            } catch (java.lang.Exception _exception) {
+                return (com.panopto.services.Folder[]) org.apache.axis.utils.JavaUtils.convert(_resp, com.panopto.services.Folder[].class);
+            }
+        }
+  } catch (org.apache.axis.AxisFault axisFaultException) {
+  throw axisFaultException;
+}
+    }
 
     public com.panopto.services.RecorderDownloadUrlResponse getRecorderDownloadUrls() throws java.rmi.RemoteException {
         if (super.cachedEndpoint == null) {
