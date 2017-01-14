@@ -99,6 +99,10 @@ public class Utils {
                 File configDir = PlugInUtil.getConfigDirectory(vendorID, pluginHandle);
                 File logFile = new File(configDir, logFilename);
                 
+                if (!logFile.exists()) {
+                	logFile.createNewFile();
+                }
+                
                 long fileLength = logFile.length(); 
                 
                 //If the current log file is larger than the max size, truncate it to half the maximum size. 
@@ -211,6 +215,8 @@ public class Utils {
             File logFile = new File(configDir, logFilename);
 
             logFile.delete();
+            
+            logFile.createNewFile();
         }
         catch(Exception e)
         {

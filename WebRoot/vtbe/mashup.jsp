@@ -22,8 +22,8 @@ function AlertAndClose(){
 	
 	if(ccCourse.equals(null)){
 	%>
-      <script> AlertAndClose();</script>   
-    <%
+<script> AlertAndClose();</script>
+<%
     }
 	String serverName = ccCourse.getServerName();
 	Folder[] PanoptoFolders = ccCourse.getFolders();
@@ -33,23 +33,23 @@ function AlertAndClose(){
 	//If multiple folders are associated, a picker will appear before displaying sessions
 	if(PanoptoFolders != null){
 		if( Array.getLength(PanoptoFolders)== 1 && PanoptoFolders[0].getExternalId() != null){
-		    folderId += ("?externalId=" + PanoptoFolders[0].getExternalId());
+		    folderId += ("&externalId=" + PanoptoFolders[0].getExternalId());
 		}
 		else if(Array.getLength(PanoptoFolders)== 0){
 		%>
-		      <script> AlertAndClose();</script>
-		<% 
+	        <script> AlertAndClose();</script>
+	    <% 
 		}
 	}
 	else{
 	%>
-      <script> AlertAndClose();</script>    
-    <%
+	<script> AlertAndClose();</script>
+	<%
     }
 	//Generate source URL for iframe from info. Blackboard embeds require https
-	String IFrameSrc = "https://" +serverName +"/Panopto/Pages/Sessions/EmbeddedUpload.aspx" + folderId;
+	String IFrameSrc = "https://" +serverName +"/Panopto/Pages/Sessions/EmbeddedUpload.aspx?instance=" + Utils.pluginSettings.getInstanceName() + folderId;
 %>
-	<bbNG:genericPage bodyClass = "popup" onLoad="doOnLoad()">
+	<bbNG:genericPage bodyClass="popup" onLoad="doOnLoad()">
 		<bbNG:jsBlock>
 			<script type="text/javascript">			 			          
 
@@ -79,7 +79,7 @@ function AlertAndClose(){
 					                    var returnString = "";
 					                    //Add iframe html for each video to form
 					                    message.ids.each(function (value) {
-					                        var iframeString = "<iframe src=\"https://<%=serverName%>/Panopto/Pages/Embed.aspx?id=" + value + "&v=1\" width=\"720\" height=\"480\" frameborder=\"0\"></iframe><br>";
+					                        var iframeString = "<iframe src=\"https://<%=serverName%>/Panopto/Pages/Embed.aspx?instance=<%=Utils.pluginSettings.getInstanceName()%>&id=" + value + "&v=1\" width=\"720\" height=\"480\" frameborder=\"0\"></iframe><br>";
 					                        returnString += iframeString;
 					                    });
 					                    document.getElementById("embedHtml").value = returnString;
@@ -100,11 +100,9 @@ function AlertAndClose(){
                         //post messages with both http and https, in case panopto site has sitewide ssl enabled
                         win.postMessage(JSON.stringify(message), "https://<%=serverName%>");
                         win.postMessage(JSON.stringify(message), "http://<%=serverName%>");
-                        
-                    }  
-                    
+				}
 			</script>
-		</bbNG:jsBlock>	
+		</bbNG:jsBlock>
 		<bbNG:form name="submitForm" action="mashup_proc.jsp" method="POST">
 		<input type="hidden" id="embedHtml" name="embedHtml" value="">
 		</bbNG:form>

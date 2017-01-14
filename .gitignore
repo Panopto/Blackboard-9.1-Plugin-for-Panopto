@@ -2,3 +2,5 @@
 .mymetadata
 WebRoot/WEB-INF/config
 WebRoot/WEB-INF/lib
+WebRoot/WEB-INF/classes
+target

@@ -197,10 +197,14 @@ Boolean useOldLayout = false;
                                     if (!useOldLayout)
                                     {
                                             // New layout for modern browsers
-                                            String folderUrl = folders[i].getEmbedUrl();
+                                            String folderUrl = folders[i].getEmbedUrl() +"&instance=" + Utils.pluginSettings.getInstanceName();
                                             String contentHostName = "courseContent";
-                                             
-                                            %><iframe src="<%=folderUrl%>" height="100%" width="100%" ></iframe><%
+                                            
+                                            if (folderUrl.split("\\:")[0].equals(request.getRequestURL().toString().split("\\:")[0])) {
+                                            	%><iframe src="<%=folderUrl%>" height="100%" width="100%" ></iframe><%
+                                            } else {
+                                            	%><div class="error">Couldn't embed the Panopto video because the Blackboard server and Panopto server use mismatched HTTP/HTTPS protocols. We recommend both servers use HTTPS.</div><%
+                                            }
                                     }
                                     else
                                     {

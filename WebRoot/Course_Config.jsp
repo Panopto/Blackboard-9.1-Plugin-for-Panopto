@@ -1,4 +1,4 @@
-<!-- Copyright Panopto 2009 - 2011
+<!-- Copyright Panopto 2009 - 2016
  * 
  * This file is part of the Panopto plugin for Blackboard.
  * 
@@ -102,12 +102,12 @@ if((serverList == null) || (serverList.size() == 0))
 String[] folderIds = request.getParameterValues("selectedFolders");
 if(folderIds != null)
 {
-	// Look through the folderIds list for anything that starts with an x. This indicates a folder which needs to be added
+	// Look through the folderIds list for anything that starts with an !~=. This indicates a folder which needs to be added
 	for (int i = 0; i < folderIds.length; i++)
 	{
-		if (folderIds[i].startsWith("x"))
+		if (folderIds[i].startsWith("!~="))
 		{
-			Folder newFolder = ccCourse.createFolder(folderIds[i].substring(1));
+			Folder newFolder = ccCourse.createFolder(folderIds[i].substring(3));
 			
 			if (newFolder != null)
 			{
@@ -270,7 +270,7 @@ if(folderIds != null)
 	          								</SELECT>
 	          								<br />
 										</td>
-									</tr> 
+									</tr>
 									<%
 									if (ccCourse.userMayCreateFolder())
 									{ 
@@ -293,8 +293,9 @@ if(folderIds != null)
 										if (name!=null && name!="")
 										{
 											var selectedFolders = document.getElementById("selectedFolders");
-											// Insert the new folder into the table. It will be created when the user submits.
-											addOptionToSortedSelect(selectedFolders, name, "x" + name);
+											// Insert the new folder into the table. It will be created when the user submits. 
+											// The !~= is referred above and is looked for in the code, it lets the code know this is a new folder that needs to be created
+											addOptionToSortedSelect(selectedFolders, name, "!~=" + name);
 										}
 									}
 									
@@ -373,9 +374,38 @@ if(folderIds != null)
 										}
 									}
 								</script>
-
+							</div>
+						</li>						
+						<%
+						if (ccCourse.courseHasCopiedPermissionsToBeDisplayed())
+						{ 
+						%>
+						<li>
+							<div class="field">
+								<p tabIndex="0" class="stepHelp">
+									This is a list of Panopto folders associated with this course through inheritance. 
+									<br />
+									Instructors and students will be able to view the content in any folder associated with the course this way.
+								</p> 
 							</div>
 						</li>
+						<li>
+							<div class="field">
+								<Table>
+									<tr>
+										<td>
+											<span class="sectionHeader"> Copied Folders: </span><br />
+											<SELECT NAME="copiedFolders" id="copiedFolders" class="selectFoldersListBox" size=10 disabled>
+												 <%= ccCourse.generateCourseConfigCopyFoldersOptionsHTML() %>
+	          								</SELECT>
+										</td>
+									</tr>
+								</Table>
+							</div>
+						</li>
+						<%
+						}
+						%>
 					</ol>
 				</div>
 				<div class="steptitle submittitle" id="steptitle2">
