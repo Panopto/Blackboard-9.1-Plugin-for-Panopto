@@ -22,7 +22,7 @@ public class SessionManagementLocator extends org.apache.axis.client.Service imp
     }
 
     // Use to get a proxy class for BasicHttpBinding_ISessionManagement
-    private java.lang.String BasicHttpBinding_ISessionManagement_address = "http://scratch.hosted.panopto.com/Panopto/PublicAPI/4.6/SessionManagement.svc";
+    private java.lang.String BasicHttpBinding_ISessionManagement_address = "https://scratch.hosted.panopto.com/Panopto/PublicAPI/4.6/SessionManagement.svc";
 
     public java.lang.String getBasicHttpBinding_ISessionManagementAddress() {
         return BasicHttpBinding_ISessionManagement_address;

@@ -22,7 +22,7 @@ public class AuthLocator extends org.apache.axis.client.Service implements com.p
     }
 
     // Use to get a proxy class for BasicHttpBinding_IAuth
-    private java.lang.String BasicHttpBinding_IAuth_address = "http://pantest01.panopto.local/Panopto/PublicAPI/4.6/Auth.svc";
+    private java.lang.String BasicHttpBinding_IAuth_address = "https://pantest01.panopto.local/Panopto/PublicAPI/4.6/Auth.svc";
 
     public java.lang.String getBasicHttpBinding_IAuthAddress() {
         return BasicHttpBinding_IAuth_address;
