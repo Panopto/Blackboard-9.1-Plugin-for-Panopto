@@ -22,7 +22,7 @@ public class AccessManagementLocator extends org.apache.axis.client.Service impl
     }
 
     // Use to get a proxy class for BasicHttpBinding_IAccessManagement
-    private java.lang.String BasicHttpBinding_IAccessManagement_address = "http://scratch.hosted.panopto.com/Panopto/PublicAPI/4.6/AccessManagement.svc";
+    private java.lang.String BasicHttpBinding_IAccessManagement_address = "https://scratch.hosted.panopto.com/Panopto/PublicAPI/4.6/AccessManagement.svc";
 
     public java.lang.String getBasicHttpBinding_IAccessManagementAddress() {
         return BasicHttpBinding_IAccessManagement_address;

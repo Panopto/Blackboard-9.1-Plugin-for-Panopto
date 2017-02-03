@@ -1579,7 +1579,7 @@ public class PanoptoData {
         IAccessManagement port = null;
 
         try {
-            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/AccessManagement.svc");
+            URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/AccessManagement.svc");
 
             // Connect to the SessionManagement SOAP service on the specified Panopto server
             AccessManagementLocator service = new AccessManagementLocator();
@@ -1595,7 +1595,7 @@ public class PanoptoData {
         ISessionManagement port = null;
 
         try {
-            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/SessionManagement.svc");
+            URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/SessionManagement.svc");
 
             // Connect to the SessionManagement SOAP service on the specified Panopto server
             SessionManagementLocator service = new SessionManagementLocator();
@@ -1611,7 +1611,7 @@ public class PanoptoData {
         IUserManagement port = null;
 
         try {
-            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/UserManagement.svc");
+            URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/UserManagement.svc");
 
             // Connect to the UserManagement SOAP service on the specified Panopto server
             UserManagementLocator service = new UserManagementLocator();
@@ -1627,7 +1627,7 @@ public class PanoptoData {
         IAuth port = null;
 
         try {
-            URL SOAP_URL = new URL("http://" + serverName + "/Panopto/PublicAPI/4.6/Auth.svc");
+            URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/Auth.svc");
 
             // Connect to the UserManagement SOAP service on the specified Panopto server
             AuthLocator service = new AuthLocator();
