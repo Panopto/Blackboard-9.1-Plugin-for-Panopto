@@ -5,7 +5,7 @@
         <description value="Provision Panopto courses from Blackboard.  View live listing of available Panopto content from within the associated Blackboard course.  Import Panopto lecture links as Blackboard content items." />
         <handle value="PanoptoCourseTool" />
         <webapp-type value="javaext" />
-        <version value="2017.2.1" />
+        <version value="2017.3.7" />
         <requires>
             <bbversion value="9.1" />
         </requires>
