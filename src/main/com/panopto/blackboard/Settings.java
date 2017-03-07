@@ -96,7 +96,7 @@ public class Settings {
      */
     private Boolean courseCopyEnabled = true;
 
-    // Parse current settings from XML file in config directory.
+    // Parse current settings from XML file in config directory. Creates a new settings object from this file.
     public Settings() {
         try {
             // Get path to plugin config directory.

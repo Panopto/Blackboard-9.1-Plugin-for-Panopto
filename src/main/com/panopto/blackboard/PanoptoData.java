@@ -159,7 +159,9 @@ public class PanoptoData {
         this.bbUserName = bbUserName;
         this.isInstructor = PanoptoData.isUserInstructor(this.bbCourse.getId(), this.bbUserName, false);
         this.canAddLinks = PanoptoData.canUserAddLinks(this.bbCourse.getId(), this.bbUserName);
-
+        
+        Utils.pluginSettings = new Settings();
+        
         List<String> serverList = Utils.pluginSettings.getServerList();
         // If there is only one server available, use it
         if (serverList.size() == 1) {
@@ -759,7 +761,8 @@ public class PanoptoData {
         Session[] sessionArray;
         LinkAddedResult linkAddedResult = LinkAddedResult.FAILURE;
         try {
-
+            Utils.pluginSettings = new Settings();
+        	
             // Get folder ID from URL param and add to an array to pass into updateFoldersAvailabilityStartSettings();
             Map<String, String> urlParams = this.getQueryMap(lectureUrl);
             String sessionID = urlParams.get("id");
@@ -781,7 +784,7 @@ public class PanoptoData {
                     .getLoader(CourseMembershipDbLoader.TYPE);
             CourseMembership usersCourseMembership = membershipLoader.loadByCourseAndUserId(bbCourse.getId(), bbUserId);
             Role userRole = usersCourseMembership.getRole();
-
+            
             // Determine if current user has creator access to session.
             boolean isCreator = (isInstructorRole(userRole)
                     || (isTARole(userRole) && Utils.pluginSettings.getGrantTACreator()));
@@ -941,6 +944,8 @@ public class PanoptoData {
             List<CourseMembership> allCourseMemberships = courseMembershipLoader.loadByUserId(bbUserId);
 
             Course currentCourse;
+            
+            Utils.pluginSettings = new Settings();
             for (CourseMembership membership : allCourseMemberships) {
                 try {
                     Role membershipRole = membership.getRole();
@@ -1092,6 +1097,8 @@ public class PanoptoData {
     // Updates the course so it is mapped to the given folders
     public boolean reprovisionCourse(String[] folderIds) {
         try {
+            Utils.pluginSettings = new Settings(); 
+        	
             String externalCourseId = Utils.decorateBlackboardCourseID(bbCourse.getId().toExternalString());
             String fullName = bbCourse.getCourseId() + ": " + bbCourse.getTitle();
 
@@ -1172,10 +1179,11 @@ public class PanoptoData {
     }
 
     public boolean provisionCourse(String serverName) {
+        Utils.pluginSettings = new Settings();
         updateServerName(serverName);
         setCourseRegistryEntry(hostnameRegistryKey, serverName);
         setCourseRegistryEntry(originalContextRegistryKey, bbCourse.getId().toExternalString());
-
+        
         try {
             String externalCourseId = Utils.decorateBlackboardCourseID(bbCourse.getId().toExternalString());
             String fullName = bbCourse.getCourseId() + ": " + bbCourse.getTitle();
@@ -1489,6 +1497,8 @@ public class PanoptoData {
     }
 
     public boolean userMayProvision() {
+        Utils.pluginSettings = new Settings();
+    	
         if (Utils.pluginSettings.getAdminProvisionOnly()) {
             return Utils.userCanConfigureSystem();
         } else {
@@ -1511,6 +1521,7 @@ public class PanoptoData {
     }
 
     public boolean userMayCreateFolder() {
+        Utils.pluginSettings = new Settings();
         // Admins may always create folders. Instructors may if the setting is enabled
         return Utils.userCanConfigureSystem()
                 || (this.IsInstructor() && Utils.pluginSettings.getInstructorsCanCreateFolder());
@@ -1545,7 +1556,9 @@ public class PanoptoData {
                     .getLoader(CourseMembershipDbLoader.TYPE);
             CourseMembership usersCourseMembership = membershipLoader.loadByCourseAndUserId(bbCourseId, bbUserId);
             Role userRole = usersCourseMembership.getRole();
-
+            
+            Utils.pluginSettings = new Settings();
+            
             if (isInstructorRole(userRole)) {
                 return true;
             }
@@ -1797,6 +1810,7 @@ public class PanoptoData {
     private void addCourseMenuLink() throws ValidationException, PersistenceException {
         Id cid;
         cid = bbCourse.getId();
+        Utils.pluginSettings = new Settings();
 
         // Get list of page's current menu links
         List<CourseToc> courseTocList = CourseTocDbLoader.Default.getInstance().loadByCourseId(cid);
@@ -1855,6 +1869,8 @@ public class PanoptoData {
     // Retrieves list of role ids mapped to either the "ta" or "instructor" role in the block settings. If a string
     // other than "ta" or "instructor" is passed, an empty list will be returned.
     private static List<String> getIdsForRole(String rolename) {
+        Utils.pluginSettings = new Settings();
+    	
         List<String> roleIds = new ArrayList<String>();
         String roleMappingsString = Utils.pluginSettings.getRoleMappingString();
         String[] roleMappingsSplit = roleMappingsString.split(";");

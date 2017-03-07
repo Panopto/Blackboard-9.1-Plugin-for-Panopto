@@ -61,7 +61,7 @@ public class Utils {
     public static final long defaultLogFileSize = 4096 * 1024 ;
 
     // Global settings for the plugin, applicable across all courses.
-    public static final Settings pluginSettings = new Settings();
+    public static Settings pluginSettings = new Settings();
 
     public static final String courseConfigScriptURL = "Course_Config.jsp";
     public static final String courseResetURL = "Course_Reset.jsp";
