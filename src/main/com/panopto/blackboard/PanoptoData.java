@@ -130,9 +130,12 @@ public class PanoptoData {
     // SOAP port for talking to Panopto
     private ISessionManagement sessionManagement;
 
-    // Construct the PanoptoData object using the current Blackboard context (e.g. from <bbData:context ...> tag)
-    // Pulls in stored property values from BB course registry if available. Ensure that serverName and
-    // sessionGroupPublicIDs are set before calling any instance methods that rely on these properties (most).
+    // Construct the PanoptoData object using the current Blackboard context
+    // (e.g. from <bbData:context ...> tag)
+    // Pulls in stored property values from BB course registry if available.
+    // Ensure that serverName and
+    // sessionGroupPublicIDs are set before calling any instance methods that
+    // rely on these properties (most).
     public PanoptoData(Context ctx) {
         InitPanoptoData(ctx.getCourse(), ctx.getUser().getUserName());
     }
@@ -159,9 +162,9 @@ public class PanoptoData {
         this.bbUserName = bbUserName;
         this.isInstructor = PanoptoData.isUserInstructor(this.bbCourse.getId(), this.bbUserName, false);
         this.canAddLinks = PanoptoData.canUserAddLinks(this.bbCourse.getId(), this.bbUserName);
-        
+
         Utils.pluginSettings = new Settings();
-        
+
         List<String> serverList = Utils.pluginSettings.getServerList();
         // If there is only one server available, use it
         if (serverList.size() == 1) {
@@ -228,7 +231,8 @@ public class PanoptoData {
     /**
      * Get the display names of all folders provisioned to this course.
      * 
-     * @return String Array of friendly names of folders provisioned to this course
+     * @return String Array of friendly names of folders provisioned to this
+     *         course
      */
     public String[] getFolderDisplayNames() {
         if (sessionGroupDisplayNames == null) {
@@ -238,7 +242,8 @@ public class PanoptoData {
     }
 
     /**
-     * Get the display names of all folders that this course has copied permissions to.
+     * Get the display names of all folders that this course has copied
+     * permissions to.
      * 
      * @return String Array of friendly names of folders copied to this course
      */
@@ -298,7 +303,8 @@ public class PanoptoData {
         return (sessionGroupPublicIDs != null);
     }
 
-    // Returns true if this course has inherited any permissions due to course copy
+    // Returns true if this course has inherited any permissions due to course
+    // copy
     public boolean isCopyMapped() {
         return (copySessionGroupPublicIDs != null);
     }
@@ -308,11 +314,13 @@ public class PanoptoData {
         return apiUserKey;
     }
 
-    // Determine if this course is in the original context and the course has NOT been copied.
+    // Determine if this course is in the original context and the course has
+    // NOT been copied.
     public boolean isOriginalContext() {
         boolean isOriginal = true;
 
-        // If the registry does not exist, assume this is original and set the value.
+        // If the registry does not exist, assume this is original and set the
+        // value.
         if (getCourseRegistryEntry(originalContextRegistryKey) == null) {
             setCourseRegistryEntry(originalContextRegistryKey, bbCourse.getId().toExternalString());
         } else if (!getCourseRegistryEntry(originalContextRegistryKey)
@@ -323,21 +331,24 @@ public class PanoptoData {
         return (isOriginal);
     }
 
-    // If this course has no original context set it to the context of the source course.
+    // If this course has no original context set it to the context of the
+    // source course.
     public void setOriginalCopyContext(String sourceId) {
 
-        // If the registry does not exist, assume this is original and set the value.
+        // If the registry does not exist, assume this is original and set the
+        // value.
         if (getCourseRegistryEntry(originalContextRegistryKey) == null) {
             setCourseRegistryEntry(originalContextRegistryKey, sourceId);
         }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////
-    ///// The following "get..." functions are just wrappers for the relevant SOAP calls, using
-    ///// stored course mapping and credentials.
+    // The following "get..." functions are just wrappers for the relevant SOAP calls,
+    // using stored course mapping and credentials.
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    // Gets all the sessions in a folder from the Panopto server. Returns null on error.
+    // Gets all the sessions in a folder from the Panopto server. Returns null
+    // on error.
     public Session[] getSessions(String folderId) {
         Session[] returnValue;
         try {
@@ -380,7 +391,8 @@ public class PanoptoData {
         return returnValue;
     }
 
-    // Gets all the folders associated with this course. Any folder we can't get will return as null.
+    // Gets all the folders associated with this course. Any folder we can't get
+    // will return as null.
     public Folder[] getFolders() {
         Folder[] retVal = null;
         if (sessionGroupPublicIDs != null && sessionGroupPublicIDs.length > 0) {
@@ -389,12 +401,14 @@ public class PanoptoData {
                 retVal = sessionManagement.getFoldersById(auth, sessionGroupPublicIDs);
             } catch (Exception e) {
                 Utils.logVerbose("first attempt at getFoldersById failed, calling syncUser");
-                // Got an error from the panopto server. sync the user's credentials and try again
+                // Got an error from the panopto server. sync the user's
+                // credentials and try again
                 syncUser(serverName, bbUserName);
                 try {
                     retVal = sessionManagement.getFoldersById(auth, sessionGroupPublicIDs);
                 } catch (Exception e2) {
-                    // Still failed. Could be because one of the folders has been deleted. Get them one at a time.
+                    // Still failed. Could be because one of the folders has
+                    // been deleted. Get them one at a time.
                     retVal = new Folder[sessionGroupPublicIDs.length];
                     for (int i = 0; i < sessionGroupPublicIDs.length; i++) {
                         try {
@@ -430,9 +444,11 @@ public class PanoptoData {
     }
 
     /**
-     * Get the all of the public IDs for the folders this course has access to through a copy
+     * Get the all of the public IDs for the folders this course has access to
+     * through a copy
      * 
-     * @return String Array of folder public IDs course has copied permission to (Guids)
+     * @return String Array of folder public IDs course has copied permission to
+     *         (Guids)
      */
     private String[] getCopiedFolderIDs() {
         if (copySessionGroupPublicIDs == null) {
@@ -487,7 +503,8 @@ public class PanoptoData {
                 }
                 Folder[] returnedFolders = listResponse.getResults();
 
-                // Log which folders we got back. foldersWithCreatorAccess, folderIdList, and returnedFolders are all
+                // Log which folders we got back. foldersWithCreatorAccess,
+                // folderIdList, and returnedFolders are all
                 // just in place for logging.
                 foldersWithCreatorAccess = new HashSet<String>();
                 for (Folder folder : returnedFolders) {
@@ -540,7 +557,8 @@ public class PanoptoData {
                 }
                 Folder[] returnedFolders = listResponse.getResults();
 
-                // Log which folders we got back. foldersWithCreatorAccess, folderIdList, and returnedFolders are all
+                // Log which folders we got back. foldersWithCreatorAccess,
+                // folderIdList, and returnedFolders are all
                 // just in place for logging.
                 publicFolders = new HashSet<String>();
                 for (Folder folder : returnedFolders) {
@@ -583,7 +601,8 @@ public class PanoptoData {
     }
 
     /**
-     * The HTML generation code for copied Panopto folders so that it can be properly displayed
+     * The HTML generation code for copied Panopto folders so that it can be
+     * properly displayed
      * 
      * @return HTML string of all copied folders as <options> tags
      */
@@ -615,7 +634,8 @@ public class PanoptoData {
         sortedFolders.addAll(Arrays.asList(folders));
         Collections.sort(sortedFolders, new FolderComparator());
 
-        // Build a hash of the currently selected folders so we can quickly exclude them
+        // Build a hash of the currently selected folders so we can quickly
+        // exclude them
         HashSet<String> currentFolderIds = new HashSet<String>();
         currentFolderIds.addAll(Arrays.asList(sessionGroupPublicIDs));
 
@@ -647,7 +667,8 @@ public class PanoptoData {
         return null;
     }
 
-    // Generate <option>s for available folders. Used by Item_Create to select a folder
+    // Generate <option>s for available folders. Used by Item_Create to select a
+    // folder
     public String generateFolderOptionsHTML(String folderId) {
         StringBuffer result = new StringBuffer();
 
@@ -713,7 +734,8 @@ public class PanoptoData {
         return result.toString();
     }
 
-    // Generate <option>s for available sessions. Used by Item_Create to select a session once a fodler is selected
+    // Generate <option>s for available sessions. Used by Item_Create to select
+    // a session once a fodler is selected
     public String generateSessionOptionsHTML(String folderID) {
         StringBuffer result = new StringBuffer();
 
@@ -755,15 +777,17 @@ public class PanoptoData {
         return canAddLinks;
     }
 
-    // Insert a content item in the current course with a link to the specified delivery.
+    // Insert a content item in the current course with a link to the specified
+    // delivery.
     public LinkAddedResult addBlackboardContentItem(String content_id, String lectureUrl, String title,
             String description) {
         Session[] sessionArray;
         LinkAddedResult linkAddedResult = LinkAddedResult.FAILURE;
         try {
             Utils.pluginSettings = new Settings();
-        	
-            // Get folder ID from URL param and add to an array to pass into updateFoldersAvailabilityStartSettings();
+
+            // Get folder ID from URL param and add to an array to pass into
+            // updateFoldersAvailabilityStartSettings();
             Map<String, String> urlParams = this.getQueryMap(lectureUrl);
             String sessionID = urlParams.get("id");
             String[] sessionIds = { sessionID };
@@ -771,7 +795,8 @@ public class PanoptoData {
             // retrieve the Db persistence manager from the persistence service
             BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
 
-            // Generate AuthenticationInfo for calling availability window update method.
+            // Generate AuthenticationInfo for calling availability window
+            // update method.
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
 
             // Get user's blackboard ID from their username
@@ -779,71 +804,84 @@ public class PanoptoData {
             User user = userLoader.loadByUserName(bbUserName);
             Id bbUserId = user.getId();
 
-            // Load the user's membership in the current course to get their role
+            // Load the user's membership in the current course to get their
+            // role
             CourseMembershipDbLoader membershipLoader = (CourseMembershipDbLoader) bbPm
                     .getLoader(CourseMembershipDbLoader.TYPE);
             CourseMembership usersCourseMembership = membershipLoader.loadByCourseAndUserId(bbCourse.getId(), bbUserId);
             Role userRole = usersCourseMembership.getRole();
-            
+
             // Determine if current user has creator access to session.
             boolean isCreator = (isInstructorRole(userRole)
                     || (isTARole(userRole) && Utils.pluginSettings.getGrantTACreator()));
 
             if (isCreator) {
-                // isInAvailabilityWindow defaults to true, so sessions will be added if calls to the availability
+                // isInAvailabilityWindow defaults to true, so sessions will be
+                // added if calls to the availability
                 // window API cannot be made.
                 PanoptoAvailabilityWindow.AvailabilityState availabilityState = PanoptoAvailabilityWindow.AvailabilityState.Unknown;
                 if (PanoptoVersions.canCallAvailabilityWindowApiMethods(serverVersion)) {
                     try {
-                        // If user is a creator on Panopto, check if the session is in its availability window.
+                        // If user is a creator on Panopto, check if the session
+                        // is in its availability window.
                         availabilityState = this.checkSessionAvailabilityState(sessionID, auth);
                     } catch (Exception e) {
-                        // Problem getting availability window information from the API. Do not add the session to the
+                        // Problem getting availability window information from
+                        // the API. Do not add the session to the
                         // course.
                         availabilityState = PanoptoAvailabilityWindow.AvailabilityState.Unknown;
                         Utils.log(e, "Error getting availability information for sessions from server.");
                     }
                 }
                 if (availabilityState == PanoptoAvailabilityWindow.AvailabilityState.Available) {
-                    // If the session is in its availability window. add it to the course and return success.
+                    // If the session is in its availability window. add it to
+                    // the course and return success.
                     addSessionLinkToCourse(content_id, lectureUrl, title, description, bbPm);
                     linkAddedResult = LinkAddedResult.SUCCESS;
                 } else if (availabilityState != PanoptoAvailabilityWindow.AvailabilityState.Unknown) {
-                    // We successfully determined the availability but it's either unavailable or unpublished. Try to
+                    // We successfully determined the availability but it's
+                    // either unavailable or unpublished. Try to
                     // make the session available immediately.
                     try {
                         sessionManagement.updateSessionsAvailabilityStartSettings(auth, sessionIds,
                                 SessionStartSettingType.Immediately, null);
 
-                        // The session is now available, add the session and return success
+                        // The session is now available, add the session and
+                        // return success
                         addSessionLinkToCourse(content_id, lectureUrl, title, description, bbPm);
                         linkAddedResult = LinkAddedResult.SUCCESS;
                     } catch (Exception e) {
                         if (availabilityState == PanoptoAvailabilityWindow.AvailabilityState.Unpublished) {
-                            // The session needs publishing, but our attempt to publish failed. We must not have publish
+                            // The session needs publishing, but our attempt to
+                            // publish failed. We must not have publish
                             // rights
                             linkAddedResult = LinkAddedResult.NOTPUBLISHER;
                         }
                     }
                 }
             } else {
-                // If the user does not have a creator role, first call API to determine whether session is already
+                // If the user does not have a creator role, first call API to
+                // determine whether session is already
                 // available.
                 sessionArray = sessionManagement.getSessionsById(auth, sessionIds);
                 if (sessionArray.length < 1) {
-                    // If no session is returned, it means the session is not in its availability window, and the
-                    // current user cannot make it, available. Return failure indicating the user must ask a creator to
+                    // If no session is returned, it means the session is not in
+                    // its availability window, and the
+                    // current user cannot make it, available. Return failure
+                    // indicating the user must ask a creator to
                     // make the session available.
                     linkAddedResult = LinkAddedResult.NOTCREATOR;
                 } else {
-                    // If the session is currently in its availability window, it can be added to the course without
+                    // If the session is currently in its availability window,
+                    // it can be added to the course without
                     // having to make any API call. Return success.
                     addSessionLinkToCourse(content_id, lectureUrl, title, description, bbPm);
                     linkAddedResult = LinkAddedResult.SUCCESS;
                 }
             }
         } catch (Exception e) {
-            // General error when trying to add a session to a course. Print details to log.
+            // General error when trying to add a session to a course. Print
+            // details to log.
             Utils.log(e,
                     String.format(
                             "Error adding content item (content ID: %s, lecture Url: %s, title: %s, description: %s).",
@@ -864,7 +902,8 @@ public class PanoptoData {
         FolderAvailabilitySettings folderSettings = null;
 
         if (PanoptoAvailabilityWindow.isFolderRequiredForSessionAvailability(sessionSettings)) {
-            // Folder availability settings are also needed to determine whether the session is available. Load the
+            // Folder availability settings are also needed to determine whether
+            // the session is available. Load the
             // session data to get the folder, then get the folder availability
             Session session = sessionManagement.getSessionsById(auth, sessionIds)[0];
 
@@ -874,7 +913,8 @@ public class PanoptoData {
         return PanoptoAvailabilityWindow.getSessionAvailability(sessionSettings, folderSettings);
     }
 
-    // Adds a link to a Panopto session to the content area of the current Blackboard course.
+    // Adds a link to a Panopto session to the content area of the current
+    // Blackboard course.
     private void addSessionLinkToCourse(String content_id, String lectureUrl, String title, String description,
             BbPersistenceManager bbPm) throws PersistenceException, ValidationException {
         // Create a course document and set all desired attributes
@@ -898,7 +938,8 @@ public class PanoptoData {
         persister.persist(content);
     }
 
-    // Returns map of url's query parameters and their values. Used for getting session ID for session to make
+    // Returns map of url's query parameters and their values. Used for getting
+    // session ID for session to make
     // available.
     public Map<String, String> getQueryMap(String url) {
         Map<String, String> map = null;
@@ -921,7 +962,8 @@ public class PanoptoData {
     }
 
     // Sync's a user with Panopto so that his course memberships are up to date.
-    // Note: This method calculates External IDs for Panopto, this is not standard practice as we are trying to keep all
+    // Note: This method calculates External IDs for Panopto, this is not
+    // standard practice as we are trying to keep all
     // string calculation code on the Panopto side.
     public static void syncUser(String serverName, String bbUserName) {
         String apiUserKey = Utils.decorateBlackboardUserName(bbUserName);
@@ -944,7 +986,7 @@ public class PanoptoData {
             List<CourseMembership> allCourseMemberships = courseMembershipLoader.loadByUserId(bbUserId);
 
             Course currentCourse;
-            
+
             Utils.pluginSettings = new Settings();
             for (CourseMembership membership : allCourseMemberships) {
                 try {
@@ -1036,11 +1078,13 @@ public class PanoptoData {
     }
 
     /**
-     * Returns true if the course with the given id is provisioned to the correct server
+     * Returns true if the course with the given id is provisioned to the
+     * correct server
      * 
-     * Checks both that the course server name in the registry entry is filled in and correct, and that the original
-     * context key is equal to the current course id. If it isn't that means this is one of the copies that we didn't
-     * initiate.
+     * Checks both that the course server name in the registry entry is filled
+     * in and correct, and that the original context key is equal to the current
+     * course id. If it isn't that means this is one of the copies that we
+     * didn't initiate.
      * 
      * Will also fill in any information to the courseList string builder.
      * 
@@ -1073,7 +1117,8 @@ public class PanoptoData {
         return result;
     }
 
-    // Creates a new Panopto folder. Should only be called by the instructor of a provisioned course (They have creator
+    // Creates a new Panopto folder. Should only be called by the instructor of
+    // a provisioned course (They have creator
     // rights in Panopto)
     public Folder createFolder(String folderName) {
         if (this.userMayCreateFolder()) {
@@ -1097,8 +1142,8 @@ public class PanoptoData {
     // Updates the course so it is mapped to the given folders
     public boolean reprovisionCourse(String[] folderIds) {
         try {
-            Utils.pluginSettings = new Settings(); 
-        	
+            Utils.pluginSettings = new Settings();
+
             String externalCourseId = Utils.decorateBlackboardCourseID(bbCourse.getId().toExternalString());
             String fullName = bbCourse.getCourseId() + ": " + bbCourse.getTitle();
 
@@ -1130,13 +1175,10 @@ public class PanoptoData {
     }
 
     // Updates the course so it has no Panopto data
-    public boolean resetCourse() throws RemoteException {
-        boolean success = true;
-
+    public void resetCourse() throws RemoteException {
         if (!isMapped()) {
             Utils.log(String.format("Cannot reset BB course, not mapped yet. ID: %s, Title: %s\n",
                     bbCourse.getId().toExternalString(), bbCourse.getTitle()));
-            success = false;
         } else {
             // Before blowing away the data, get the folder list.
             Folder[] courseFolders = getFolders();
@@ -1146,15 +1188,18 @@ public class PanoptoData {
                     bbCourse.getId().toExternalString(), bbCourse.getTitle(), serverName,
                     Utils.encodeArrayOfStrings(sessionGroupPublicIDs), courseFolders.length));
 
-            // In the set registry entry function, we delete existing entries and only create new ones if the value is
+            // In the set registry entry function, we delete existing entries
+            // and only create new ones if the value is
             // not null.
             setCourseRegistryEntry(hostnameRegistryKey, null);
             setCourseRegistryEntry(originalContextRegistryKey, null);
             setCourseRegistryEntries(sessionGroupIDRegistryKey, null);
             setCourseRegistryEntries(sessionGroupDisplayNameRegistryKey, null);
 
-            // If there are empty Panopto folders for this course, then delete it so we don't trail empty unused
-            // folders. This also reduces provisioning errors when a folder already exists.
+            // If there are empty Panopto folders for this course, then delete
+            // it so we don't trail empty unused
+            // folders. This also reduces provisioning errors when a folder
+            // already exists.
             if (courseFolders.length < 0) {
                 ArrayList<String> foldersToDelete = new ArrayList<String>(courseFolders.length);
                 for (int idx = 0; idx < courseFolders.length; idx++) {
@@ -1169,10 +1214,10 @@ public class PanoptoData {
                 sessionManagement.deleteFolders(auth, foldersToDelete.toArray(new String[foldersToDelete.size()]));
             }
         }
-        return success;
     }
 
-    // Re-provisions the course with the current settings. If it has never been provisioned before a new folder will be
+    // Re-provisions the course with the current settings. If it has never been
+    // provisioned before a new folder will be
     // created
     public boolean reprovisionCourse() {
         return reprovisionCourse(sessionGroupPublicIDs);
@@ -1183,7 +1228,7 @@ public class PanoptoData {
         updateServerName(serverName);
         setCourseRegistryEntry(hostnameRegistryKey, serverName);
         setCourseRegistryEntry(originalContextRegistryKey, bbCourse.getId().toExternalString());
-        
+
         try {
             String externalCourseId = Utils.decorateBlackboardCourseID(bbCourse.getId().toExternalString());
             String fullName = bbCourse.getCourseId() + ": " + bbCourse.getTitle();
@@ -1209,31 +1254,38 @@ public class PanoptoData {
     }
 
     /**
-     * Copy Panopto folder permissions from the source course into this course as viewer access.
+     * Copy Panopto folder permissions from the source course into this course
+     * as viewer access.
      * 
-     * Copies Panopto folder permissions via taking all provisioned folders and all copied permissions from the source
-     * and giving the current course's Panopto groups viewer access to those folders. Will also add these copied folder
-     * public IDs and display names to the course registry so it can be later referenced.
+     * Copies Panopto folder permissions via taking all provisioned folders and
+     * all copied permissions from the source and giving the current course's
+     * Panopto groups viewer access to those folders. Will also add these copied
+     * folder public IDs and display names to the course registry so it can be
+     * later referenced.
      * 
      * @param sourceCourse
      *            Blackboard Course that we are copying Panopto permission from
      */
     public void copyCoursePermissions(Course sourceCourse) {
         try {
-            // We only work against 5_3 and above so evaluate the current server version before attempting to copy
+            // We only work against 5_3 and above so evaluate the current server
+            // version before attempting to copy
             PanoptoData sourceCourseData = new PanoptoData(sourceCourse, this.bbUserName);
             updateServerName(sourceCourseData.serverName);
             if (this.serverVersion == null) {
                 this.serverVersion = getServerVersion();
             }
-             
-            // We only do something here if the source course's users have permissions to view some folders in Panopto
+
+            // We only do something here if the source course's users have
+            // permissions to view some folders in Panopto
             // this can be either regular permission or copied permissions.
             if (PanoptoVersions.canCallCopyApiMethods(serverVersion)
                     && (sourceCourseData.isMapped() || sourceCourseData.isCopyMapped())) {
 
-                // Source course has some Panopto folder permissions, generate a list of all folders it can see
-                // including both direct and copied. Generate list of both ids and names.
+                // Source course has some Panopto folder permissions, generate a
+                // list of all folders it can see
+                // including both direct and copied. Generate list of both ids
+                // and names.
                 Set<String> folderIDs = new HashSet<String>(
                         sourceCourseData.getNumberOfFolders() + sourceCourseData.getNumberOfCopiedFolders());
                 folderIDs.addAll(Arrays.asList(sourceCourseData.getFolderIDs()));
@@ -1244,7 +1296,8 @@ public class PanoptoData {
                 folderNames.addAll(Arrays.asList(sourceCourseData.getFolderDisplayNames()));
                 folderNames.addAll(Arrays.asList(sourceCourseData.getCopiedFolderDisplayNames()));
 
-                // Update registry to set this course as mapped to a server and context
+                // Update registry to set this course as mapped to a server and
+                // context
                 setCourseRegistryEntry(hostnameRegistryKey, serverName);
                 setCourseRegistryEntry(originalContextRegistryKey, bbCourse.getId().toExternalString());
 
@@ -1254,8 +1307,10 @@ public class PanoptoData {
                 getPanoptoSessionManagementSOAPService(serverName).setCopiedExternalCourseAccess(auth, fullName,
                         externalCourseId, folderIDs.toArray(emptyStringArray));
 
-                // Save the new list of folders back into the course registry, includes both public IDs and names,
-                // concatenated with any existing copied folders that might already be there.
+                // Save the new list of folders back into the course registry,
+                // includes both public IDs and names,
+                // concatenated with any existing copied folders that might
+                // already be there.
                 folderIDs.addAll(Arrays.asList(this.getCopiedFolderIDs()));
                 setCourseRegistryEntries(copySessionGroupIDsRegistryKey, folderIDs.toArray(emptyStringArray));
                 folderNames.addAll(Arrays.asList(this.getCopiedFolderDisplayNames()));
@@ -1274,7 +1329,8 @@ public class PanoptoData {
         }
     }
 
-    // Called after provision or reprovision to update the local store of folder metadata
+    // Called after provision or reprovision to update the local store of folder
+    // metadata
     private void updateCourseFolders(Folder[] folders) {
         setCourseRegistryEntry(hostnameRegistryKey, serverName);
 
@@ -1290,7 +1346,8 @@ public class PanoptoData {
             // These are GUIDs and will never be too long
             sessionGroupPublicIDs[i] = sortedFolders.get(i).getId();
 
-            // Display names might go past the 255 Blackboard limit so we elide the string to be no more than 255
+            // Display names might go past the 255 Blackboard limit so we elide
+            // the string to be no more than 255
             // characters
             sessionGroupDisplayNames[i] = Utils.elideMiddle(sortedFolders.get(i).getName(), 100, 255);
         }
@@ -1458,10 +1515,12 @@ public class PanoptoData {
     }
 
     /*
-     * Returns true if role should be treated as an Instructor. Instructors get creator access in Panopto.
+     * Returns true if role should be treated as an Instructor. Instructors get
+     * creator access in Panopto.
      */
     private static boolean isInstructorRole(blackboard.data.course.CourseMembership.Role membershipRole) {
-        // Role is instructor role if it is the 'Instructor' or 'Course Builder' built in blackboard role, or if it is
+        // Role is instructor role if it is the 'Instructor' or 'Course Builder'
+        // built in blackboard role, or if it is
         // in the custom instructor roles list.
         return membershipRole.equals(CourseMembership.Role.INSTRUCTOR)
                 || membershipRole.equals(CourseMembership.Role.COURSE_BUILDER)
@@ -1469,28 +1528,33 @@ public class PanoptoData {
     }
 
     /*
-     * Returns true if role should be treated as a Student. Students get viewer access in Panopto.
+     * Returns true if role should be treated as a Student. Students get viewer
+     * access in Panopto.
      */
     private static boolean isStudentRole(blackboard.data.course.CourseMembership.Role membershipRole) {
-        // Role is student role if it is not a built in instructor or ta role, or a mapped custom role.
+        // Role is student role if it is not a built in instructor or ta role,
+        // or a mapped custom role.
         return !isInstructorRole(membershipRole) && !isTARole(membershipRole) && !isNoRole(membershipRole);
     }
 
     /*
-     * Returns true if role should be treated as a TA. TA's get viewer access in Panopto, unless otherwise specified in
-     * the Blackboard block settings. Any custom blackboard roles are treated as TAs, unless they are marked with the
-     * 'Act As Instructor' flag.
+     * Returns true if role should be treated as a TA. TA's get viewer access in
+     * Panopto, unless otherwise specified in the Blackboard block settings. Any
+     * custom blackboard roles are treated as TAs, unless they are marked with
+     * the 'Act As Instructor' flag.
      */
     private static boolean isTARole(blackboard.data.course.CourseMembership.Role membershipRole) {
-        // Role is a TA role if it is the 'Teaching Assistant' built in blackboard role or if it is in the list of
+        // Role is a TA role if it is the 'Teaching Assistant' built in
+        // blackboard role or if it is in the list of
         // custom ta roles
         return membershipRole.equals(Role.TEACHING_ASSISTANT)
                 || (getIdsForRole("ta").contains(membershipRole.getIdentifier().toLowerCase()));
     }
 
     /**
-     * Returns true if role should be treated as no privilege on Panopto. Users with this role do not get access in
-     * Panopto, except publicly or organization wide viewable.
+     * Returns true if role should be treated as no privilege on Panopto. Users
+     * with this role do not get access in Panopto, except publicly or
+     * organization wide viewable.
      */
     private static boolean isNoRole(blackboard.data.course.CourseMembership.Role membershipRole) {
         return (getIdsForRole("none").contains(membershipRole.getIdentifier().toLowerCase()));
@@ -1498,31 +1562,36 @@ public class PanoptoData {
 
     public boolean userMayProvision() {
         Utils.pluginSettings = new Settings();
-    	
+
         if (Utils.pluginSettings.getAdminProvisionOnly()) {
             return Utils.userCanConfigureSystem();
         } else {
-            // Admins may provision any course. Instructors may provision their own course if the setting is enabled
+            // Admins may provision any course. Instructors may provision their
+            // own course if the setting is enabled
             return Utils.userCanConfigureSystem()
                     || (IsInstructor() && Utils.pluginSettings.getInstructorsCanProvision());
         }
     }
 
-    // Check for whether a user may add course menu links. This may be done by Admins and instructors at any time or by
+    // Check for whether a user may add course menu links. This may be done by
+    // Admins and instructors at any time or by
     // TAs if setting is checked
     public boolean userMayAddLinks() {
-        // Admins can add links to any course. Instructors can add links to their own courses
+        // Admins can add links to any course. Instructors can add links to
+        // their own courses
         return Utils.userCanConfigureSystem() || this.canAddLinks();
     }
 
     public boolean userMayConfig() {
-        // Admins may config any course. Instructors may configure their own courses
+        // Admins may config any course. Instructors may configure their own
+        // courses
         return Utils.userCanConfigureSystem() || this.IsInstructor();
     }
 
     public boolean userMayCreateFolder() {
         Utils.pluginSettings = new Settings();
-        // Admins may always create folders. Instructors may if the setting is enabled
+        // Admins may always create folders. Instructors may if the setting is
+        // enabled
         return Utils.userCanConfigureSystem()
                 || (this.IsInstructor() && Utils.pluginSettings.getInstructorsCanCreateFolder());
     }
@@ -1530,18 +1599,23 @@ public class PanoptoData {
     /**
      * Determine if there are any copied permissions the user can see
      * 
-     * Will be true for admins and instructors if there are any copied folders for the course, is not used on any pages
-     * that students should be able to see.
+     * Will be true for admins and instructors if there are any copied folders
+     * for the course, is not used on any pages that students should be able to
+     * see.
      * 
-     * @return Boolean true if the course has copied Panopto permissions and user can see them
+     * @return Boolean true if the course has copied Panopto permissions and
+     *         user can see them
      */
     public boolean courseHasCopiedPermissionsToBeDisplayed() {
         return this.userMayConfig() && (this.getNumberOfCopiedFolders() > 0);
     }
 
-    // Returns true if the specified user is an instructor of the specified course
-    // If checkTACanCreateLinks is true, a check will be performed if either getGrantTAProvision
-    // or getTAsCanCreateLinks returns true. This is used when checking if TAs may add course menu links
+    // Returns true if the specified user is an instructor of the specified
+    // course
+    // If checkTACanCreateLinks is true, a check will be performed if either
+    // getGrantTAProvision
+    // or getTAsCanCreateLinks returns true. This is used when checking if TAs
+    // may add course menu links
     public static boolean isUserInstructor(Id bbCourseId, String bbUserName, boolean checkTACanCreateLinks) {
         BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
 
@@ -1551,19 +1625,21 @@ public class PanoptoData {
             User user = userLoader.loadByUserName(bbUserName);
             Id bbUserId = user.getId();
 
-            // Load the user's membership in the current course to get their role
+            // Load the user's membership in the current course to get their
+            // role
             CourseMembershipDbLoader membershipLoader = (CourseMembershipDbLoader) bbPm
                     .getLoader(CourseMembershipDbLoader.TYPE);
             CourseMembership usersCourseMembership = membershipLoader.loadByCourseAndUserId(bbCourseId, bbUserId);
             Role userRole = usersCourseMembership.getRole();
-            
+
             Utils.pluginSettings = new Settings();
-            
+
             if (isInstructorRole(userRole)) {
                 return true;
             }
 
-            // If settings are configured to treat TAs as an instructor, and the user is either a Teaching Assistant or
+            // If settings are configured to treat TAs as an instructor, and the
+            // user is either a Teaching Assistant or
             // has a custom role, return true.
             else if (Utils.pluginSettings.getGrantTAProvision()
                     || (checkTACanCreateLinks && Utils.pluginSettings.getTAsCanCreateLinks())) {
@@ -1580,7 +1656,8 @@ public class PanoptoData {
         return false;
     }
 
-    // Returns true if the specified user can add a course menu link. Nearly identical to isUserInstructor but includes
+    // Returns true if the specified user can add a course menu link. Nearly
+    // identical to isUserInstructor but includes
     // a check for TAsCanCreateLinks
     public static boolean canUserAddLinks(Id bbCourseId, String bbUserName) {
         return isUserInstructor(bbCourseId, bbUserName, true);
@@ -1594,7 +1671,8 @@ public class PanoptoData {
         try {
             URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/AccessManagement.svc");
 
-            // Connect to the SessionManagement SOAP service on the specified Panopto server
+            // Connect to the SessionManagement SOAP service on the specified
+            // Panopto server
             AccessManagementLocator service = new AccessManagementLocator();
             port = (IAccessManagement) service.getBasicHttpBinding_IAccessManagement(SOAP_URL);
         } catch (Exception e) {
@@ -1610,7 +1688,8 @@ public class PanoptoData {
         try {
             URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/SessionManagement.svc");
 
-            // Connect to the SessionManagement SOAP service on the specified Panopto server
+            // Connect to the SessionManagement SOAP service on the specified
+            // Panopto server
             SessionManagementLocator service = new SessionManagementLocator();
             port = (ISessionManagement) service.getBasicHttpBinding_ISessionManagement(SOAP_URL);
         } catch (Exception e) {
@@ -1626,7 +1705,8 @@ public class PanoptoData {
         try {
             URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/UserManagement.svc");
 
-            // Connect to the UserManagement SOAP service on the specified Panopto server
+            // Connect to the UserManagement SOAP service on the specified
+            // Panopto server
             UserManagementLocator service = new UserManagementLocator();
             port = (IUserManagement) service.getBasicHttpBinding_IUserManagement(SOAP_URL);
         } catch (Exception e) {
@@ -1642,7 +1722,8 @@ public class PanoptoData {
         try {
             URL SOAP_URL = new URL("https://" + serverName + "/Panopto/PublicAPI/4.6/Auth.svc");
 
-            // Connect to the UserManagement SOAP service on the specified Panopto server
+            // Connect to the UserManagement SOAP service on the specified
+            // Panopto server
             AuthLocator service = new AuthLocator();
             port = (IAuth) service.getBasicHttpBinding_IAuth(SOAP_URL);
         } catch (Exception e) {
@@ -1677,9 +1758,12 @@ public class PanoptoData {
         return value;
     }
 
-    // Blackboard DB values have a limited length so we store each string entry as its own value with a
-    // number-post-fixed key. Here we have to handle legacy values that might be stored with just the key name.
-    // Assumption: only called for keys previously stored with setCourseRegistryEntries or the old method with
+    // Blackboard DB values have a limited length so we store each string entry
+    // as its own value with a
+    // number-post-fixed key. Here we have to handle legacy values that might be
+    // stored with just the key name.
+    // Assumption: only called for keys previously stored with
+    // setCourseRegistryEntries or the old method with
     // double-quoted, comma-separated values.
     private String[] getCourseRegistryEntries(String key) {
         String[] values = null;
@@ -1691,15 +1775,18 @@ public class PanoptoData {
 
             String value = registry.getValue(key);
 
-            // If there's a value for the plain key, we are dealing with a legacy value which should be in the "","",""
+            // If there's a value for the plain key, we are dealing with a
+            // legacy value which should be in the "","",""
             // format. We decode the string and return the individual values
             if (value != null) {
                 values = Utils.decodeArrayOfStrings(value);
             }
-            // If no value, then we are dealing with the new case where we split values up into individual keys so look
+            // If no value, then we are dealing with the new case where we split
+            // values up into individual keys so look
             // each of those up until we stop finding them
             else {
-                // Use an ArrayList because we don't know ahead of time how many we may have. This is Ok for small
+                // Use an ArrayList because we don't know ahead of time how many
+                // we may have. This is Ok for small
                 // numbers (e.g., less than 100).
                 ArrayList<String> list = new ArrayList<String>();
 
@@ -1710,7 +1797,8 @@ public class PanoptoData {
                     tempValue = registry.getValue(key + list.size());
                 }
 
-                // If there were no values at all then 'value' will remain null as expected
+                // If there were no values at all then 'value' will remain null
+                // as expected
                 if (list.size() > 0) {
                     values = new String[list.size()];
                     list.toArray(values);
@@ -1723,8 +1811,10 @@ public class PanoptoData {
         return values;
     }
 
-    // The Blackboard course registry stores key/values pairs per-course. Static setter enables us to store registry
-    // values for newly-provisioned courses without the cost of instantiating and populating an object for each one.
+    // The Blackboard course registry stores key/values pairs per-course. Static
+    // setter enables us to store registry
+    // values for newly-provisioned courses without the cost of instantiating
+    // and populating an object for each one.
     private static void setCourseRegistryEntry(Id courseId, String key, String value) {
         try {
             CourseRegistryEntryDbPersister crePersister = CourseRegistryEntryDbPersister.Default.getInstance();
@@ -1742,7 +1832,8 @@ public class PanoptoData {
         }
     }
 
-    // Blackboard DB values have a limited length so we store each string entry as its own value with a
+    // Blackboard DB values have a limited length so we store each string entry
+    // as its own value with a
     // number-post-fixed key.
     private void setCourseRegistryEntries(String key, String[] values) {
         try {
@@ -1760,7 +1851,8 @@ public class PanoptoData {
                 DeleteKeyForCourse(crePersister, key, bbCourse.getId());
             }
 
-            // Now delete any per-folder entries that may exist. We don't know how many so we just start at 0 and keep
+            // Now delete any per-folder entries that may exist. We don't know
+            // how many so we just start at 0 and keep
             // looking until we find a missing one.
             int j = 0;
             String keyToDelete = key + j;
@@ -1815,15 +1907,18 @@ public class PanoptoData {
         // Get list of page's current menu links
         List<CourseToc> courseTocList = CourseTocDbLoader.Default.getInstance().loadByCourseId(cid);
 
-        // Iterate through each link and check if it's text matches the text of the item to be created
+        // Iterate through each link and check if it's text matches the text of
+        // the item to be created
         boolean linkExists = false;
         while (courseTocList.iterator().hasNext() && linkExists == false) {
             CourseToc ct = courseTocList.iterator().next();
 
-            // If the text matches, set linkExists to true so we don't add a duplicate link
+            // If the text matches, set linkExists to true so we don't add a
+            // duplicate link
             linkExists = ct.getLabel().equals(Utils.pluginSettings.getMenuLinkText());
 
-            // BBList's iterator doesn't support remove(), so we have to remove manually by ID
+            // BBList's iterator doesn't support remove(), so we have to remove
+            // manually by ID
             courseTocList.remove(ct);
         }
 
@@ -1832,18 +1927,24 @@ public class PanoptoData {
             CourseToc panLink = new CourseToc();
             panLink.setCourseId(cid);
 
-            // Create application type course link. This will direct to url set for the target plugin in
-            // bb-manifest.xml, with the coure's id appended as an argument. This courseToc target type will allow the
-            // link to open in within the current course without needing to be wrapped in an external content frame, and
-            // the plugin content will always point to the corresponding panopto content of the course that the link is
+            // Create application type course link. This will direct to url set
+            // for the target plugin in
+            // bb-manifest.xml, with the coure's id appended as an argument.
+            // This courseToc target type will allow the
+            // link to open in within the current course without needing to be
+            // wrapped in an external content frame, and
+            // the plugin content will always point to the corresponding panopto
+            // content of the course that the link is
             // being accessed from.
             panLink.setTargetType(CourseToc.Target.APPLICATION);
             panLink.setLabel(Utils.pluginSettings.getMenuLinkText());
             panLink.setLaunchInNewWindow(false);
             panLink.setIsEntryPoint(false);
 
-            // Set the internal handle for the target application, in the case the handle for the "Panopto course tool"
-            // application Internal handle name is set by BlackBoard and we have no control. Somehow, it is set other
+            // Set the internal handle for the target application, in the case
+            // the handle for the "Panopto course tool"
+            // application Internal handle name is set by BlackBoard and we have
+            // no control. Somehow, it is set other
             // than suffix -1. Try -2 and -3 as fallback.
             try {
                 panLink.setInternalHandle("ppto-PanoptoCourseToolApp-nav-1");
@@ -1866,11 +1967,13 @@ public class PanoptoData {
         }
     }
 
-    // Retrieves list of role ids mapped to either the "ta" or "instructor" role in the block settings. If a string
-    // other than "ta" or "instructor" is passed, an empty list will be returned.
+    // Retrieves list of role ids mapped to either the "ta" or "instructor" role
+    // in the block settings. If a string
+    // other than "ta" or "instructor" is passed, an empty list will be
+    // returned.
     private static List<String> getIdsForRole(String rolename) {
         Utils.pluginSettings = new Settings();
-    	
+
         List<String> roleIds = new ArrayList<String>();
         String roleMappingsString = Utils.pluginSettings.getRoleMappingString();
         String[] roleMappingsSplit = roleMappingsString.split(";");
@@ -1886,13 +1989,16 @@ public class PanoptoData {
         return roleIds;
     }
 
-    // Enum types returned by addBlackboardContentItem, indicating whether a Panopto link has been successfully added to
+    // Enum types returned by addBlackboardContentItem, indicating whether a
+    // Panopto link has been successfully added to
     // a course.
     public static enum LinkAddedResult {
         SUCCESS, // Link was added successfully.
-        NOTCREATOR, // Link was not added because the session is not available and the user does not have creator access
+        NOTCREATOR, // Link was not added because the session is not available
+                    // and the user does not have creator access
                     // in order to make it available.
-        NOTPUBLISHER, // Link was not added because session requires publisher approval.
+        NOTPUBLISHER, // Link was not added because session requires publisher
+                      // approval.
         FAILURE; // Link was not added for an unspecified reason.
     }
 }

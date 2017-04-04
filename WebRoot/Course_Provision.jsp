@@ -119,30 +119,22 @@ if((   provisionServerName != null)
             
             if(ccCourse.getBBCourse() != null)
             {
-            	boolean inProvisionableState = true;
-            	
             	if (!ccCourse.isOriginalContext()) {
-	            	if (ccCourse.resetCourse()) {
-	            		ccCourse = new PanoptoData(courseID, userName);
-	            	} else {
-	            		inProvisionableState = false;
-	            	}
+            	    ccCourse.resetCourse();
+	            	ccCourse = new PanoptoData(courseID, userName);
             	}
             	
                 if (!ccCourse.userMayProvision())
                 {
                     %><div class='error'>Error. You do not have access to provision <%=ccCourse.getBBCourse().getTitle()%></div><%
                 }
-                else if (inProvisionableState)
-                {
-                %>
-                        <div class='courseProvisionResult'>
-
-                            <div class='attribute'>Course Name</div>
-                            <div class='value'><%=ccCourse.getBBCourse().getTitle()%></div>
-                                              
-                            <div class='attribute'>Instructors</div>
-                            <div class='value'>
+                else { %>
+                    <div class='courseProvisionResult'>
+                    <div class='attribute'>Course Name</div>
+                    <div class='value'><%=ccCourse.getBBCourse().getTitle()%></div>
+                    <div class='attribute'>Instructors</div>
+                    <div class='value'>
+                    
                     <%
                     List<String> instructors = ccCourse.getInstructors();
                     if (instructors == null)
@@ -277,14 +269,6 @@ if((   provisionServerName != null)
                         </div>
                 <%
                 }
-            }
-            else
-            {
-            %>
-                    <div class='courseProvisionResult'>
-                        <div class='errorMessage'>Error getting provisioning data for '<%= courseID %>'</div>
-                    </div>
-            <%
             }
         }
     }
