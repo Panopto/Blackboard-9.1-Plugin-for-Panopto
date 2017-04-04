@@ -104,28 +104,14 @@ Boolean useOldLayout = false;
                 if (!ccCourse.isOriginalContext())
                 {
                     // Reset the course to have no Panopto configuration.
-                    if (ccCourse.resetCourse())
-                    {
-                    %>
+                    ccCourse.resetCourse(); %>
                     <div class="resetReceipt">
                         <bbNG:receipt type="PASS" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseConfigURL%>">
                             This course has been reset.
                         </bbNG:receipt>
                     </div>
                     <%
-                        courseHasBeenReset = true;
-                    }
-                    // Otherwise, we failed in the reset call.
-                    else
-                    {
-                    %>
-                    <div class="resetReceipt">
-                        <bbNG:receipt type="FAIL" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseConfigURL%>">
-                            The course failed to reset. Please check the configuration.
-                        </bbNG:receipt>
-                    </div>
-                    <%
-                    }
+                    courseHasBeenReset = true;
                 } 
                 
                 if(!ccCourse.isMapped() || courseHasBeenReset)

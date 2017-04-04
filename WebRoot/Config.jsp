@@ -195,17 +195,246 @@ else
     <bbUI:titleBar iconUrl="<%=iconUrl%>">
         <%=page_title%>
     </bbUI:titleBar>
-
-    <form name="instanceForm">
+    <form name="settingsForm">
          <div class="form">
             <div class="steptitle submittitle" id="steptitle1">
                 <span id="stepnumber1">1</span>
-                Settings
+                Manage Panopto Server List
             </div>
             <div class="stepcontent" id="step1">
+            	
                 <ol>
                     <li>
-                        <div class="field"></div>
+                        <div class="field">
+                        	<h2>Manage Panopto Server List</h2>
+                            <p tabIndex="0" class="stepHelp">
+                                Users will be able to select from this list of Panopto servers when associating Panopto courses with their Blackboard courses.
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <input type="hidden" name="remove_hostname" />
+                              <script type="text/javascript">
+                                  var settingsForm = document.forms["settingsForm"];
+                                  
+                                  function remove(serverName)
+                                  {
+                                      settingsForm.remove_hostname.value = serverName;
+                                      settingsForm.submit();
+                                  }
+                              </script>
+                              <bbUI:list collection="<%=serverList%>" className="String" objectId="serverName">
+                                <bbUI:listElement label="Server Name">
+                                    <%=serverName%>
+                                </bbUI:listElement>
+                                <bbUI:listElement label="Application Key">
+                                    <%=Utils.pluginSettings.getApplicationKey(serverName)%>
+                                </bbUI:listElement>
+                                <bbUI:listElement label="Action">
+                                    <a href="javascript:remove('<%=serverName%>')" class="inlineAction">remove</a>
+                                </bbUI:listElement>
+                            </bbUI:list>
+                            <% if(serverList.size() == 0) { %>
+                                <div id="noServersMessage">
+                                    No servers.  Please enter a server below.
+                                </div>
+                            <% } %>
+                            <div id="addServerDiv">
+                                <table class="settingTable">
+                                    <tr>
+                                        <th>Hostname</th>
+                                        <th>Application Key</th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input name="add_hostname" size="30" value="" />
+                                            <div class="settingNote">e.g. panopto.myinstitution.edu</div>
+                                        </td>
+                                        <td>
+                                            <input name="add_hostname_key" size="40" value="" />
+                                            <div class="settingNote">e.g. 12345678-1234-1234-1234-123456789012</div>
+                                        </td>
+                                        <td>
+                                            <bbUI:button type="FORM_ACTION" name="add" alt="Add" action="SUBMIT_FORM" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                        </div>
+                    </li>
+                </ol>
+            </div>
+          </div>
+    </form>
+
+    <!-- Post to breakout provisioning page. -->
+    <form name="batchProvisionForm" action="Course_Provision.jsp" method="post">
+         <div class="form">
+            <div class="steptitle submittitle" id="steptitle2">
+                <span id="stepnumber2">2</span>
+                Provision Panopto courses
+            </div>
+            <div class="stepcontent" id="step2">
+                <ol>
+                    <li>
+                        <div class="field">
+            				<h2>Provision Panopto courses</h2>
+                            <p tabIndex="0" class="stepHelp">
+                                Selected courses will be created on the specified Panopto server.<br />
+                                Instructor and student lists will be populated in Panopto.
+                            </p>
+                        </div>
+                    </li>
+                    <%
+                    if(serverList.size() == 0)
+                    { %>
+                    <li>
+                        <div id="noServersMessage">
+                            No servers.  Please enter a server above.
+                        </div>
+                    </li>
+                    <%
+                    }
+                    else
+                    { %>
+                    <li>
+                        <!-- URL of current page so provision breakout page knows where to return to. -->
+                        <input type="hidden" name="returnUrl" value="<%= request.getRequestURL() %>" />
+
+                        <!-- Function to launch built-in Blackboard course selection widget in a popup window. -->
+                          <script type="text/javascript">
+                            function launchCoursePicker()
+                            {
+                                // 1280x800 popup window (clipped to available screen size).
+                                var width = Math.min(1280, screen.width);
+                                var height = Math.min(800, screen.height);
+                                
+                                // Position against the right edge of the screen, with top margin of 20px.
+                                var top = 20;                        
+                                var left = Math.max(screen.width - 1280, 0);
+                        
+                                // Open the popup window
+                                var courseSelectWindow = window.open('course/frameset.jsp','course_browse','width='+width+',height='+height+',resizable=yes,scrollbars=yes,status=yes,top='+top+',left='+left);
+                        
+                                if (courseSelectWindow != null)
+                                {
+                                    // Ensure popup window is on top.
+                                    courseSelectWindow.focus();
+                                    
+                                    // Give the popup a reference to this page.
+                                    if (courseSelectWindow.opener == null) courseSelectWindow.opener = self;
+                                    // Identify the form control to populate with the selected courseIds
+                                    courseSelectWindow.opener.inputToSet = document.forms.batchProvisionForm.bbCourses;
+                                    
+                                    window.top.name = 'bbWin';
+                                }
+                             } 
+                          </script>
+                    </li>
+                    <li class="required">
+                        <div class="label">
+                            <img alt="Required" src="/images/ci/icons/required.gif"/>
+                            Server 
+                        </div>
+                        <div class="field">
+                            <select name="provisionServerName" <%=((serverList.size() == 1) ? "DISABLED='disabled'" : "")%>>
+                                <%= Utils.generateServerOptionsHTML(provisionServerName) %>
+                            </select>
+                        </div>
+                    </li>
+                    <li class="required">
+                        <div class="label">
+                            <img alt="Required" src="/images/ci/icons/required.gif"/>
+                            Course IDs 
+                        </div>
+                        <div class="field">
+                            <!-- Comma-delimited list of Blackboard courseIds to provision, populated by Blackboard course picker widget. -->
+                            <input type="text" name="bbCourses"> <input type="button" value="Course Picker" onclick="launchCoursePicker()" name="browse">
+                            <br />
+                            <span tabIndex="0" class="stepHelp">Course IDs may be entered as a comma seperated list.</span>
+                            <br />
+                            <br />
+                            Add courses from a CSV:  <input type="file" name="bbCourseCSV"  id="csvFile" accept=".csv"/>
+                            <br/>
+                            <span tabIndex="0" class="stepHelp">Course IDs may also be entered via a CSV file.</span>
+                            <br />
+                            
+                            <!-- String representation of processed CSV -->
+                            <input type="hidden" name="CSVString" id ="CSVString" value="" />
+                            
+                            <!-- Function for processing input CSV into string for submission -->
+                            <script type="text/javascript">
+                                var fileString = "";
+                                document.getElementById('csvFile').onchange = function(event){
+                                    if(window.File && window.FileReader && window.FileList && window.Blob)
+                                    {
+                                        var file = document.getElementById('csvFile').files[0];
+                                        if(file){
+                                            var reader = new FileReader();
+                                            reader.onload = function(e) 
+                                            { 
+                                                var contents = e.target.result;
+                                                fileString = contents.replace(/(\r\n|\n|\r)/gm,", ");
+                                                document.getElementById('CSVString').value = fileString;
+                                             }
+                                             reader.readAsText(file); 
+                                           
+                                         }
+                                         else
+                                         {
+                                         alert("File not found");
+                                         }
+                                    } 
+                                    else 
+                                    {
+                                        alert("The File APIs are not fully supported by your browser.");
+                                    }
+                                    
+                                };
+                            </script>
+
+                            <input name="add" class="secondary" type="submit" border="0" hspace="5" value="Add"/>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">
+                        </div>
+                        <div class="field">
+                            <br />
+                            -- OR --
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">
+                        </div>
+                        <div class="field">
+                            <br />
+                            <input name="reprovisionAll" class="secondary" type="submit" border="0" hspace="5" value="Reprovision All Courses"/>
+                            <p tabIndex="0" class="stepHelp">Ensures that all previously provisioned courses are correct on the Panopto server. Should be run after upgrading the building block</p>
+                        </div>
+                    </li>
+                    <%
+                    }
+                    %>
+                </ol>
+            </div>
+          </div>
+    </form>
+    
+    <form name="instanceForm">
+         <div class="form">
+            <div class="steptitle submittitle" id="steptitle3">
+                <span id="stepnumber3">3</span>
+                Settings
+            </div>
+            <div class="stepcontent" id="step3">
+                <ol>
+                    <li>
+                        <div class="field">
+            				<h2>Panopto General Settings</h2>
+            			</div>
                     </li>
                     <li>
                         <div class="label">Instance Name</div>
@@ -487,252 +716,25 @@ else
                         </div>
                     </li>
                     <li>
-                        <div class="field">
-                            <input name="ok" class="submit" type="submit" border="0" hspace="5" value="Ok"/>
-                        </div>
+            
+			            <div class="steptitle submittitle" id="steptitle4">
+			                <span id="stepnumber4">4</span>
+			                Done
+			            </div>
+			            <div class="stepcontent" id="step4">
+			                <ol>
+			                    <li>
+			                        <div class="jsSubmitButtonDiv">
+			                        	<input name="save-and-return" class="submit button-1" type="submit" value="Save general settings" onclick="document.location='<%=Utils.buildingBlockManagerURL%>';"/>
+			                            <input class="button-1" type="button" name="bottom_Return" role="button" value="Return to Block Manager" onclick="window.location.href='<%=Utils.buildingBlockManagerURL%>';" />
+			                        </div>
+			                    </li>
+			                </ol>
+			            </div>
                     </li>
                 </ol>
             </div>
         </div>
-    </form>
-
-    <form name="settingsForm">
-         <div class="form">
-            <div class="steptitle submittitle" id="steptitle2">
-                <span id="stepnumber2">2</span>
-                Manage Panopto Server List
-            </div>
-            <div class="stepcontent" id="step2">
-                <ol>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                Users will be able to select from this list of Panopto servers when associating Panopto courses with their Blackboard courses.
-                            </p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <input type="hidden" name="remove_hostname" />
-                              <script type="text/javascript">
-                                  var settingsForm = document.forms["settingsForm"];
-                                  
-                                  function remove(serverName)
-                                  {
-                                      settingsForm.remove_hostname.value = serverName;
-                                      settingsForm.submit();
-                                  }
-                              </script>
-                              <bbUI:list collection="<%=serverList%>" className="String" objectId="serverName">
-                                <bbUI:listElement label="Server Name">
-                                    <%=serverName%>
-                                </bbUI:listElement>
-                                <bbUI:listElement label="Application Key">
-                                    <%=Utils.pluginSettings.getApplicationKey(serverName)%>
-                                </bbUI:listElement>
-                                <bbUI:listElement label="Action">
-                                    <a href="javascript:remove('<%=serverName%>')" class="inlineAction">remove</a>
-                                </bbUI:listElement>
-                            </bbUI:list>
-                            <% if(serverList.size() == 0) { %>
-                                <div id="noServersMessage">
-                                    No servers.  Please enter a server below.
-                                </div>
-                            <% } %>
-                            <div id="addServerDiv">
-                                <table class="settingTable">
-                                    <tr>
-                                        <th>Hostname</th>
-                                        <th>Application Key</th>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <input name="add_hostname" size="30" value="" />
-                                            <div class="settingNote">e.g. panopto.myinstitution.edu</div>
-                                        </td>
-                                        <td>
-                                            <input name="add_hostname_key" size="40" value="" />
-                                            <div class="settingNote">e.g. 12345678-1234-1234-1234-123456789012</div>
-                                        </td>
-                                        <td>
-                                            <bbUI:button type="FORM_ACTION" name="add" alt="Add" action="SUBMIT_FORM" />
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                        </div>
-                    </li>
-                </ol>
-            </div>
-          </div>
-    </form>
-
-    <!-- Post to breakout provisioning page. -->
-    <form name="batchProvisionForm" action="Course_Provision.jsp" method="post">
-         <div class="form">
-            <div class="steptitle submittitle" id="steptitle3">
-                <span id="stepnumber3">3</span>
-                Provision Panopto courses
-            </div>
-            <div class="stepcontent" id="step3">
-                <ol>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                Selected courses will be created on the specified Panopto server.<br />
-                                Instructor and student lists will be populated in Panopto.
-                            </p>
-                        </div>
-                    </li>
-                    <%
-                    if(serverList.size() == 0)
-                    { %>
-                    <li>
-                        <div id="noServersMessage">
-                            No servers.  Please enter a server above.
-                        </div>
-                    </li>
-                    <%
-                    }
-                    else
-                    { %>
-                    <li>
-                        <!-- URL of current page so provision breakout page knows where to return to. -->
-                        <input type="hidden" name="returnUrl" value="<%= request.getRequestURL() %>" />
-
-                        <!-- Function to launch built-in Blackboard course selection widget in a popup window. -->
-                          <script type="text/javascript">
-                            function launchCoursePicker()
-                            {
-                                // 1280x800 popup window (clipped to available screen size).
-                                var width = Math.min(1280, screen.width);
-                                var height = Math.min(800, screen.height);
-                                
-                                // Position against the right edge of the screen, with top margin of 20px.
-                                var top = 20;                        
-                                var left = Math.max(screen.width - 1280, 0);
-                        
-                                // Open the popup window
-                                var courseSelectWindow = window.open('course/frameset.jsp','course_browse','width='+width+',height='+height+',resizable=yes,scrollbars=yes,status=yes,top='+top+',left='+left);
-                        
-                                if (courseSelectWindow != null)
-                                {
-                                    // Ensure popup window is on top.
-                                    courseSelectWindow.focus();
-                                    
-                                    // Give the popup a reference to this page.
-                                    if (courseSelectWindow.opener == null) courseSelectWindow.opener = self;
-                                    // Identify the form control to populate with the selected courseIds
-                                    courseSelectWindow.opener.inputToSet = document.forms.batchProvisionForm.bbCourses;
-                                    
-                                    window.top.name = 'bbWin';
-                                }
-                             } 
-                          </script>
-                    </li>
-                    <li class="required">
-                        <div class="label">
-                            <img alt="Required" src="/images/ci/icons/required.gif"/>
-                            Server 
-                        </div>
-                        <div class="field">
-                            <select name="provisionServerName" <%=((serverList.size() == 1) ? "DISABLED='disabled'" : "")%>>
-                                <%= Utils.generateServerOptionsHTML(provisionServerName) %>
-                            </select>
-                        </div>
-                    </li>
-                    <li class="required">
-                        <div class="label">
-                            <img alt="Required" src="/images/ci/icons/required.gif"/>
-                            Course IDs 
-                        </div>
-                        <div class="field">
-                            <!-- Comma-delimited list of Blackboard courseIds to provision, populated by Blackboard course picker widget. -->
-                            <input type="text" name="bbCourses"> <input type="button" value="Course Picker" onclick="launchCoursePicker()" name="browse">
-                            <br />
-                            <span tabIndex="0" class="stepHelp">Course IDs may be entered as a comma seperated list.</span>
-                            <br />
-                            <br />
-                            Add courses from a CSV:  <input type="file" name="bbCourseCSV"  id="csvFile" accept=".csv"/>
-                            <br/>
-                            <span tabIndex="0" class="stepHelp">Course IDs may also be entered via a CSV file.</span>
-                            <br />
-                            
-                            <!-- String representation of processed CSV -->
-                            <input type="hidden" name="CSVString" id ="CSVString" value="" />
-                            
-                            <!-- Function for processing input CSV into string for submission -->
-                            <script type="text/javascript">
-                                var fileString = "";
-                                document.getElementById('csvFile').onchange = function(event){
-                                    if(window.File && window.FileReader && window.FileList && window.Blob)
-                                    {
-                                        var file = document.getElementById('csvFile').files[0];
-                                        if(file){
-                                            var reader = new FileReader();
-                                            reader.onload = function(e) 
-                                            { 
-                                                var contents = e.target.result;
-                                                fileString = contents.replace(/(\r\n|\n|\r)/gm,", ");
-                                                document.getElementById('CSVString').value = fileString;
-                                             }
-                                             reader.readAsText(file); 
-                                           
-                                         }
-                                         else
-                                         {
-                                         alert("File not found");
-                                         }
-                                    } 
-                                    else 
-                                    {
-                                        alert("The File APIs are not fully supported by your browser.");
-                                    }
-                                    
-                                };
-                            </script>
-
-                            <input name="add" class="secondary" type="submit" border="0" hspace="5" value="Add"/>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="label">
-                        </div>
-                        <div class="field">
-                            <br />
-                            -- OR --
-                        </div>
-                    </li>
-                    <li>
-                        <div class="label">
-                        </div>
-                        <div class="field">
-                            <br />
-                            <input name="reprovisionAll" class="secondary" type="submit" border="0" hspace="5" value="Reprovision All Courses"/>
-                            <p tabIndex="0" class="stepHelp">Ensures that all previously provisioned courses are correct on the Panopto server. Should be run after upgrading the building block</p>
-                        </div>
-                    </li>
-                    <%
-                    }
-                    %>
-                </ol>
-            </div>
-            
-            <div class="steptitle submittitle" id="steptitle4">
-                <span id="stepnumber4">4</span>
-                Done
-            </div>
-            <div class="stepcontent" id="step4">
-                <ol>
-                    <li>
-                        <div class="jsSubmitButtonDiv">
-                            <bbUI:button type="FORM_ACTION" name="ok" alt="Ok" action="LINK" targetUrl="<%=Utils.buildingBlockManagerURL%>" />
-                        </div>
-                    </li>
-                </ol>
-            </div>
-          </div>
     </form>
     
     <!--  JS function for disabling the checkboxes for Grant Ta Creator Access and Grant TA Provision access when 
