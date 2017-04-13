@@ -73,14 +73,9 @@ if (!ccCourse.userMayConfig())
         </bbUI:receipt>
     </bbUI:docTemplate>
 <%
-    return;
-}
-else
-{
+} else {
     // Reset the course to have no Panopto configuration.
-    if (ccCourse.resetCourse())
-    {
-%>
+    ccCourse.resetCourse(); %>
     <bbUI:docTemplate title="<%=page_title%>">
         <bbUI:receipt type="PASS" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=parentURL%>">
             This course has been reset.
@@ -88,25 +83,8 @@ else
         <div id="configButton">
             <bbUI:button type="INLINE" name="Configure" alt="Configure" action="LINK" targetUrl="<%=courseConfigURL%>" />
         </div>
-    </bbUI:docTemplate>
-<%
-    }
-    // Otherwise, we failed in the reset call.
-    else
-    {
-    %>
-    <bbUI:docTemplate title="<%=page_title%>">
-        <bbUI:receipt type="FAIL" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=parentURL%>">
-            The course failed to reset. Please check the configuration page.
-        </bbUI:receipt>
-        <div id="configButton">
-            <bbUI:button type="INLINE" name="Configure" alt="Configure" action="LINK" targetUrl="<%=courseConfigURL%>" />
-        </div>
-    </bbUI:docTemplate>
+    </bbUI:docTemplate> 
     <%
-    }
-}
-
-%>
+} %>
     </bbUI:coursePage>
     </bbData:context>
