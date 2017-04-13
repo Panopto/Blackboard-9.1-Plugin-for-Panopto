@@ -64,6 +64,9 @@ public class Settings {
     // "false" will avoid doubled Recorder logins, but will force a Recorder quit to clear BB logins.
     // Default to true, the standard behavior.
     private Boolean refreshLogins = true;
+    
+    // If this flag is set to true instead of using the reloggin param we will use the default_login param on sso.jsp
+    private Boolean redirectToDefaultLogin = false;
 
     // Whether to grant TA's creator access
     private Boolean grantTACreator = false;
@@ -218,6 +221,15 @@ public class Settings {
         save();
     }
 
+    public boolean getRedirectToDefaultLogin() {
+        return redirectToDefaultLogin;
+    }
+
+    public void setRedirectToDefaultLogin(boolean useDefaultLogin) {
+    	redirectToDefaultLogin = useDefaultLogin;
+        save();
+    }
+
     public boolean getGrantTACreator() {
         return grantTACreator;
     }
@@ -339,6 +351,10 @@ public class Settings {
             refreshLoginsElem.setAttribute("refresh", refreshLogins.toString());
             docElem.appendChild(refreshLoginsElem);
 
+            Element redirectToDefaultLoginElem = settingsDocument.createElement("redirectToDefaultLogin");
+            redirectToDefaultLoginElem.setAttribute("useDefaultLogin", redirectToDefaultLogin.toString());
+            docElem.appendChild(redirectToDefaultLoginElem);
+
             Element grantTACreatorElem = settingsDocument.createElement("grantTACreator");
             grantTACreatorElem.setAttribute("grantTACreator", grantTACreator.toString());
             docElem.appendChild(grantTACreatorElem);
@@ -381,7 +397,7 @@ public class Settings {
             docElem.appendChild(roleMappingStringElem);
 
             Element courseCopyEnabledElem = settingsDocument.createElement("courseCopyEnabled");
-            roleMappingStringElem.setAttribute("courseCopyEnabled", courseCopyEnabled.toString());
+            courseCopyEnabledElem.setAttribute("courseCopyEnabled", courseCopyEnabled.toString());
             docElem.appendChild(courseCopyEnabledElem);
 
             OutputFormat format = new OutputFormat(settingsDocument);
@@ -450,6 +466,13 @@ public class Settings {
         if (refreshLoginsNodes.getLength() != 0) {
             Element refreshLoginsElem = (Element) refreshLoginsNodes.item(0);
             this.refreshLogins = Boolean.valueOf(refreshLoginsElem.getAttribute("refresh"));
+        }
+
+
+        NodeList redirectToDefaultLoginNodes = docElem.getElementsByTagName("redirectToDefaultLogin");
+        if (redirectToDefaultLoginNodes.getLength() != 0) {
+            Element redirectToDefaultLoginElem = (Element) redirectToDefaultLoginNodes.item(0);
+            this.redirectToDefaultLogin = Boolean.valueOf(redirectToDefaultLoginElem.getAttribute("useDefaultLogin"));
         }
 
         NodeList grantTACreatorNodes = docElem.getElementsByTagName("grantTACreator");

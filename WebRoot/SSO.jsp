@@ -51,7 +51,13 @@
 
 		String returnURL = URLEncoder.encode(selfURL, "UTF-8");
 
-		String loginURL = "/webapps/login?action=relogin&new_loc=" + returnURL; 
+		String loginURL = "/webapps/login?action="; 
+		
+		if (Utils.pluginSettings.getRedirectToDefaultLogin()) {
+			loginURL += "default_login&new_loc=" + returnURL; 
+		} else {
+			loginURL += "relogin&new_loc=" + returnURL;
+		}
 		
 		response.sendRedirect(loginURL);
 		return;

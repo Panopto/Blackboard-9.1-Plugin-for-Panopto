@@ -1,151 +1,123 @@
-#configButton
-{
-	margin: 20px 5px;
+#configButton {
+    margin: 20px 5px;
 }
 
-#provisionLink
-{
-	margin-left: 10px;
+#provisionLink {
+    margin-left: 10px;
 }
 
-#batchProvisionResultsHeader
-{
-	font-weight: bold;
-	font-size: 1.2em;
-	margin: 15px;
+#batchProvisionResultsHeader {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin: 15px;
 }
 
-#batchProvisionResults
-{
-	margin-left: 30px;
+#batchProvisionResults {
+    margin-left: 30px;
 }
 
-.courseProvisionResult
-{
-	border: solid 1px #C0C0C0;
-	padding: 5px;
-	margin-bottom: 20px;
+.courseProvisionResult {
+    border: solid 1px #C0C0C0;
+    padding: 5px;
+    margin-bottom: 20px;
 }
 
-.courseProvisionResult .attribute
-{
-	font-weight: bold;
+.courseProvisionResult .attribute {
+    font-weight: bold;
 }
 
-.courseProvisionResult .value
-{
-	margin-left: 15px;
-	margin-bottom: 5px;
+.courseProvisionResult .value {
+    margin-left: 15px;
+    margin-bottom: 5px;
 }
 
-.courseProvisionResult .successMessage
-{
-	color: green;
+.courseProvisionResult .successMessage {
+    color: green;
 }
 
-.courseProvisionResult .errorMessage
-{
-	color: red;
+.courseProvisionResult .errorMessage {
+    color: red;
 }
 
-#courseContent
-{
-	margin: 15px;
+#courseContent {
+    margin: 15px;
 }
 
-.sectionHeader
-{
-	margin-top: 10px;
-	font-weight: bold;
-	font-size: 1.3em;
-	color: black;
+.sectionHeader {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 1.3em;
+    color: black;
 }
 
-.liveLecture, .completedRecording, .courseLink
-{
-	margin-top: 5px;
-	margin-left: 15px;
+.liveLecture, .completedRecording, .courseLink {
+    margin-top: 5px;
+    margin-left: 15px;
 }
 
-.liveLectureActions
-{
-	white-space: nowrap;
-	font-size: 0.9em;
+.liveLectureActions {
+    white-space: nowrap;
+    font-size: 0.9em;
 }
 
-.rssLink
-{
-	font-size: 0.8em;
+.rssLink {
+    font-size: 0.8em;
 }
 
-/* Simulates Blackboard <bbUI:stepSubmit...>-style layout for javascript-enabled buttons */
-.jsSubmitButtonDiv
-{
-	float: right;
-	margin-right:15px;
+.jsSubmitButtonDiv {
+    float: right;
+    margin: 10px 0px;
 }
 
-.disabled
-{
-	background-color: #EEEEEE;
+.disabled {
+    background-color: #EEEEEE;
 }
 
-#serverList
-{
-	margin: 0px;
+#serverList {
+    margin: 0px;
 }
 
-#noServersMessage
-{
-	margin-top: 15px;
-	font-style: italic;
-	font-size: 1.2em;
+#noServersMessage {
+    margin-top: 15px;
+    font-style: italic;
+    font-size: 1.2em;
 }
 
-#addServerDiv
-{
-	padding-top: 20px;
+#addServerDiv {
+    padding-top: 20px;
 }
 
-.customRoleCell
-{
-	border: 1px solid black;
-	padding: 3px;
+.customRoleCell {
+    border: 1px solid black;
+    padding: 3px;
 }
 
-.settingTable TH
-{
-	font-weight: bold;
-	font-size: 0.8em;
-	text-align: left;
+.settingTable TH {
+    font-weight: bold;
+    font-size: 0.8em;
+    text-align: left;
 }
 
-.settingTable TD
-{
-	vertical-align: top;
+.settingTable TD {
+    vertical-align: top;
 }
 
-.settingNote
-{
-	font-size: .9em;	
+.settingNote {
+    font-size: .9em;
 }
 
-.error
-{
-	color: red;
+.error {
+    color: red;
 }
 
-.selectFoldersListBox
-{
-	min-width: 175;
+.selectFoldersListBox {
+    min-width: 175;
 }
 
-.selectFoldersButton
-{
-	width: 90;
+.selectFoldersButton {
+    width: 90;
 }
 
-.resetReceipt
-{
-	margin: 5px;
+.resetReceipt {
+    margin: 5px;
 }
