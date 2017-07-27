@@ -79,7 +79,7 @@ function AlertAndClose(){
 					                    var returnString = "";
 					                    //Add iframe html for each video to form
 					                    message.ids.each(function (value) {
-					                        var iframeString = "<iframe src=\"https://<%=serverName%>/Panopto/Pages/Embed.aspx?instance=<%=Utils.pluginSettings.getInstanceName()%>&id=" + value + "&v=1\" width=\"720\" height=\"480\" frameborder=\"0\"></iframe><br>";
+					                        var iframeString = "<iframe src=\"https://<%=serverName%>/Panopto/Pages/Embed.aspx?instance=<%=Utils.pluginSettings.getInstanceName()%>&id=" + value + "&v=1\" width=\"720\" height=\"480\" style=\"max-width: 100%; max-height: 100%;\" frameborder=\"0\"></iframe><br>";
 					                        returnString += iframeString;
 					                    });
 					                    document.getElementById("embedHtml").value = returnString;
@@ -108,9 +108,9 @@ function AlertAndClose(){
 		</bbNG:form>
 			<bbNG:dataCollection>
 			    <bbNG:step title="Select Panopto Videos">
-				    <div id='pagediv'>
-				        <iframe id="pageframe" width="990" height="680" src="<%=IFrameSrc%>"></iframe>
-					</div>			   
+				    <div id="pagediv" style="display: inline-block; height: 680px; max-height: calc(100% - 250px); position: relative; width: 100%;">
+                        <iframe id="pageframe" width="100%" height="100%" src="<%=IFrameSrc%>"></iframe>
+                    </div>
 				</bbNG:step>
 				<bbNG:stepSubmit showCancelButton="true" cancelOnClick="self.close();">
 				     <bbNG:stepSubmitButton id="submitbutton" label="Insert Videos" onClick="clickSubmit()"/>

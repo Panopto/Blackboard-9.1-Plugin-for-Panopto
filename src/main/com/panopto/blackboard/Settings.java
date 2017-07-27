@@ -53,9 +53,6 @@ public class Settings {
     // or to allow only admins to provision.
     private Boolean instructorsCanProvision = true;
 
-    // Whether to allow any instructor to create panopto folders
-    private Boolean instructorsCanCreateFolder = true;
-
     // Whether to automatically email instructors when lectures are available, by default.
     private Boolean mailLectureNotifications = true;
 
@@ -64,6 +61,9 @@ public class Settings {
     // "false" will avoid doubled Recorder logins, but will force a Recorder quit to clear BB logins.
     // Default to true, the standard behavior.
     private Boolean refreshLogins = true;
+    
+    // This setting determines whether the code that syncs a user to panopto filters out unavailable memberships or unavailable courses. Default off.
+    private Boolean syncAvailabilityStatus = false;
     
     // If this flag is set to true instead of using the reloggin param we will use the default_login param on sso.jsp
     private Boolean redirectToDefaultLogin = false;
@@ -82,9 +82,6 @@ public class Settings {
 
     // Whether to log verbose
     private Boolean verbose = false;
-
-    // Make ability to provision course exclusive to administrators
-    private Boolean adminProvisionOnly = false;
 
     // Insert a link to panopto tool on course page when a course is provisioned
     private Boolean insertLinkOnProvision = false;
@@ -176,15 +173,6 @@ public class Settings {
         save();
     }
 
-    public boolean getInstructorsCanCreateFolder() {
-        return instructorsCanCreateFolder;
-    }
-
-    public void setInstructorsCanCreateFolder(boolean canCreateFolder) {
-        instructorsCanCreateFolder = canCreateFolder;
-        save();
-    }
-
     public boolean getCourseResetEnabled() {
         return courseResetEnabled;
     }
@@ -221,6 +209,15 @@ public class Settings {
         save();
     }
 
+    public boolean getSyncAvailabilityStatus() {
+        return syncAvailabilityStatus;
+    }
+
+    public void setSyncAvailabilityStatus(boolean syncAvailability) {
+        syncAvailabilityStatus = syncAvailability;
+        save();
+    }
+
     public boolean getRedirectToDefaultLogin() {
         return redirectToDefaultLogin;
     }
@@ -254,15 +251,6 @@ public class Settings {
 
     public void setGrantTAProvision(boolean val) {
         grantTAProvision = val;
-        save();
-    }
-
-    public Boolean getAdminProvisionOnly() {
-        return adminProvisionOnly;
-    }
-
-    public void setAdminProvisionOnly(Boolean adminProvisionOnly) {
-        this.adminProvisionOnly = adminProvisionOnly;
         save();
     }
 
@@ -351,6 +339,10 @@ public class Settings {
             refreshLoginsElem.setAttribute("refresh", refreshLogins.toString());
             docElem.appendChild(refreshLoginsElem);
 
+            Element syncAvailabilityStatusElem = settingsDocument.createElement("syncAvailabilityStatus");
+            syncAvailabilityStatusElem.setAttribute("syncAvailability", syncAvailabilityStatus.toString());
+            docElem.appendChild(syncAvailabilityStatusElem);
+
             Element redirectToDefaultLoginElem = settingsDocument.createElement("redirectToDefaultLogin");
             redirectToDefaultLoginElem.setAttribute("useDefaultLogin", redirectToDefaultLogin.toString());
             docElem.appendChild(redirectToDefaultLoginElem);
@@ -367,11 +359,6 @@ public class Settings {
             grantTAProvisionElem.setAttribute("grantTAProvision", grantTAProvision.toString());
             docElem.appendChild(grantTAProvisionElem);
 
-            Element instructorsCanCreateFolderElem = settingsDocument.createElement("instructorsCanCreateFolder");
-            instructorsCanCreateFolderElem.setAttribute("instructorsCanCreateFolder",
-                    instructorsCanCreateFolder.toString());
-            docElem.appendChild(instructorsCanCreateFolderElem);
-
             Element courseResetEnabledElem = settingsDocument.createElement("courseResetEnabled");
             courseResetEnabledElem.setAttribute("courseResetEnabled", courseResetEnabled.toString());
             docElem.appendChild(courseResetEnabledElem);
@@ -379,10 +366,6 @@ public class Settings {
             Element verboseElem = settingsDocument.createElement("verbose");
             verboseElem.setAttribute("verbose", verbose.toString());
             docElem.appendChild(verboseElem);
-
-            Element adminProvisionOnlyElem = settingsDocument.createElement("adminProvisionOnly");
-            adminProvisionOnlyElem.setAttribute("adminProvisionOnly", adminProvisionOnly.toString());
-            docElem.appendChild(adminProvisionOnlyElem);
 
             Element insertLinkOnProvisionElem = settingsDocument.createElement("insertLinkOnProvision");
             insertLinkOnProvisionElem.setAttribute("insertLinkOnProvision", insertLinkOnProvision.toString());
@@ -468,6 +451,12 @@ public class Settings {
             this.refreshLogins = Boolean.valueOf(refreshLoginsElem.getAttribute("refresh"));
         }
 
+        NodeList syncAvailabilityStatusNodes = docElem.getElementsByTagName("syncAvailabilityStatus");
+        if (syncAvailabilityStatusNodes.getLength() != 0) {
+            Element syncAvailabilityStatusElem = (Element) syncAvailabilityStatusNodes.item(0);
+            this.syncAvailabilityStatus = Boolean.valueOf(syncAvailabilityStatusElem.getAttribute("syncAvailability"));
+        }
+
 
         NodeList redirectToDefaultLoginNodes = docElem.getElementsByTagName("redirectToDefaultLogin");
         if (redirectToDefaultLoginNodes.getLength() != 0) {
@@ -493,13 +482,6 @@ public class Settings {
             this.grantTAProvision = Boolean.valueOf(grantTAProvisionElem.getAttribute("grantTAProvision"));
         }
 
-        NodeList instructorsCanCreateFolderNodes = docElem.getElementsByTagName("instructorsCanCreateFolder");
-        if (instructorsCanCreateFolderNodes.getLength() != 0) {
-            Element instructorsCanCreateFolderElem = (Element) instructorsCanCreateFolderNodes.item(0);
-            this.instructorsCanCreateFolder = Boolean
-                    .valueOf(instructorsCanCreateFolderElem.getAttribute("instructorsCanCreateFolder"));
-        }
-
         NodeList canResetAllNodes = docElem.getElementsByTagName("courseResetEnabled");
         if (canResetAllNodes.getLength() != 0) {
             Element canResetAllElem = (Element) canResetAllNodes.item(0);
@@ -510,12 +492,6 @@ public class Settings {
         if (verboseNodes.getLength() != 0) {
             Element verboseElem = (Element) verboseNodes.item(0);
             this.verbose = Boolean.valueOf(verboseElem.getAttribute("verbose"));
-        }
-
-        NodeList adminProvisionOnlyNodes = docElem.getElementsByTagName("adminProvisionOnly");
-        if (adminProvisionOnlyNodes.getLength() != 0) {
-            Element adminProvisionOnlyElem = (Element) adminProvisionOnlyNodes.item(0);
-            this.adminProvisionOnly = Boolean.valueOf(adminProvisionOnlyElem.getAttribute("adminProvisionOnly"));
         }
 
         NodeList insertLinkOnProvisionNodes = docElem.getElementsByTagName("insertLinkOnProvision");

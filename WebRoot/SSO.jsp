@@ -28,7 +28,7 @@
 <%@taglib uri="/bbUI" prefix="bbUI" %>
 <%@taglib uri="/bbData" prefix="bbData"%>
 
-<bbData:context id="ctx">
+<bbData:context id="ctx" authentication="N">
 <%
 	String serverName = request.getParameter("serverName");
 	String callbackURL = request.getParameter("callbackURL");

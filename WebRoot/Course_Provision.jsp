@@ -59,7 +59,7 @@ boolean reprovisionAll = request.getParameter("reprovisionAll") != null;
         <bbUI:docTemplate title="<%=page_title%>">
         <c:catch>
             <bbUI:docTemplateHead>
-                <link rel="stylesheet" type="text/css" href="main.css" />
+                <link rel="stylesheet" type="text/css" href="css/main.css" />
             </bbUI:docTemplateHead>
 
             <bbUI:titleBar iconUrl="<%=iconUrl%>">

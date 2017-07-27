@@ -102,23 +102,6 @@ if((serverList == null) || (serverList.size() == 0))
 String[] folderIds = request.getParameterValues("selectedFolders");
 if(folderIds != null)
 {
-	// Look through the folderIds list for anything that starts with an !~=. This indicates a folder which needs to be added
-	for (int i = 0; i < folderIds.length; i++)
-	{
-		if (folderIds[i].startsWith("!~="))
-		{
-			Folder newFolder = ccCourse.createFolder(folderIds[i].substring(3));
-			
-			if (newFolder != null)
-			{
-				folderIds[i] = newFolder.getId();
-			}
-			else
-			{
-				folderIds[i] = "";
-			}
-		}
-	}
 	
 	ccCourse.reprovisionCourse(folderIds);
 	
@@ -131,7 +114,7 @@ if(folderIds != null)
 	<bbUI:docTemplate title="<%=page_title%>">
 
 		<bbUI:docTemplateHead>
-			<link rel="stylesheet" type="text/css" href="main.css" />
+			<link rel="stylesheet" type="text/css" href="css/main.css" />
 		</bbUI:docTemplateHead>
 
 		<bbUI:coursePage courseId="<%= ctx.getCourseId() %>">
@@ -271,33 +254,8 @@ if(folderIds != null)
 	          								<br />
 										</td>
 									</tr>
-									<%
-									if (ccCourse.userMayCreateFolder())
-									{ 
-									%>
-									<tr>
-										<td></td>
-										<td></td>
-										<td>
-	          								<input type='button' value="Create New Folder" onclick="onCreateNewFoldersClicked()" />
-										</td>
-									</tr>
-									<%
-									}
-									 %>
 								</Table>
 								<script>
-									function onCreateNewFoldersClicked()
-									{
-										var name=prompt("Enter a folder name:","");
-										if (name!=null && name!="")
-										{
-											var selectedFolders = document.getElementById("selectedFolders");
-											// Insert the new folder into the table. It will be created when the user submits. 
-											// The !~= is referred above and is looked for in the code, it lets the code know this is a new folder that needs to be created
-											addOptionToSortedSelect(selectedFolders, name, "!~=" + name);
-										}
-									}
 									
 									function addOptionToSortedSelect(select, text, value)
 									{

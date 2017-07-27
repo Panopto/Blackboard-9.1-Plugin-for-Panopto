@@ -130,7 +130,7 @@ if(lectureURL != null)
 	<bbUI:docTemplate title="<%=page_title%>">
 
 		<bbUI:docTemplateHead>
-			<link rel="stylesheet" type="text/css" href="main.css" />
+			<link rel="stylesheet" type="text/css" href="css/main.css" />
 		</bbUI:docTemplateHead>
 
 		<bbUI:coursePage courseId="<%= ctx.getCourseId() %>">
