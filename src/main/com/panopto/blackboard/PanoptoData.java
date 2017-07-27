@@ -55,6 +55,9 @@ import blackboard.persist.registry.CourseRegistryEntryDbPersister;
 import blackboard.persist.user.UserDbLoader;
 import blackboard.platform.context.Context;
 import blackboard.platform.persistence.PersistenceServiceFactory;
+import blackboard.platform.plugin.PlugIn;
+import blackboard.platform.plugin.PlugInManager;
+import blackboard.platform.plugin.PlugInManagerFactory;
 
 import com.panopto.services.AccessManagementLocator;
 import com.panopto.services.AuthLocator;
@@ -88,6 +91,10 @@ public class PanoptoData {
     private static final String copySessionGroupIDsRegistryKey = "CourseCast_CopySessionGroupIDs";
     private static final String copySessionGroupDisplayNamesRegistryKey = "CourseCast_CopySessionGroupDisplayNames";
     private static final String originalContextRegistryKey = "CourseCast_OriginalContext";
+    
+    // version strings to report back to Panopto, only need to grab if not defined (see below in InitPanoptoData).
+    private static String plugInVersion;
+    private static String platformVersion;
 
     // Argument used to return empty arrays as they are immutable.
     private static final String[] emptyStringArray = new String[0];
@@ -112,7 +119,7 @@ public class PanoptoData {
 
     // Version number of the current Panopto server
     private PanoptoVersion serverVersion;
-
+    
     // User key to use when talking to Panopto SOAP services
     // (Instance-decorated username of currently-logged-in Blackboard user)
     private String apiUserKey;
@@ -162,7 +169,22 @@ public class PanoptoData {
         this.bbUserName = bbUserName;
         this.isInstructor = PanoptoData.isUserInstructor(this.bbCourse.getId(), this.bbUserName, false);
         this.canAddLinks = PanoptoData.canUserAddLinks(this.bbCourse.getId(), this.bbUserName);
-
+        
+        // If one is pluginVersion is null set both the plugIn and platform versions.
+        if (plugInVersion == null) {
+            PlugInManager plugInManager = PlugInManagerFactory.getInstance();
+            List<PlugIn> plugins = plugInManager.getPlugIns();
+            
+            for (PlugIn plugIn : plugins) {
+                if (plugIn.getName().equals("Panopto Connector")) {
+                    plugInVersion = plugIn.getVersion().toString();
+                    break;
+                }
+            }
+            
+            platformVersion = plugInManager.getPlatformVersion().toString();
+        }
+        
         Utils.pluginSettings = new Settings();
 
         List<String> serverList = Utils.pluginSettings.getServerList();
@@ -493,8 +515,10 @@ public class PanoptoData {
             do {
                 ListFoldersRequest foldersRequest = new ListFoldersRequest(new Pagination(this.perPage, page), null,
                         false, FolderSortField.Name, true);
-                listResponse = getPanoptoSessionManagementSOAPService(serverName).getCreatorFoldersList(auth,
-                        foldersRequest, null);
+
+                listResponse = getPanoptoSessionManagementSOAPService(serverName).getCreatorFoldersList(auth, foldersRequest,
+                            null);
+
                 allFolders.addAll(Arrays.asList(listResponse.getResults()));
 
                 if (totalFoldersExpected == -1) {
@@ -543,12 +567,15 @@ public class PanoptoData {
             ListFoldersResponse listResponse;
             List<Folder> allFolders = new ArrayList<Folder>();
 
+
             do {
                 ListFoldersRequest request = new ListFoldersRequest();
                 request.setPublicOnly(true);
                 request.setPagination(new Pagination(this.perPage, page));
+                
                 listResponse = getPanoptoSessionManagementSOAPService(serverName).getCreatorFoldersList(auth, request,
-                        null);
+                            null);
+                
                 allFolders.addAll(Arrays.asList(listResponse.getResults()));
 
                 if (totalFoldersExpected == -1) {
@@ -990,18 +1017,24 @@ public class PanoptoData {
             Utils.pluginSettings = new Settings();
             for (CourseMembership membership : allCourseMemberships) {
                 try {
-                    Role membershipRole = membership.getRole();
-                    currentCourse = courseLoader.loadById(membership.getCourseId());
-
-                    if (isInstructorRole(membershipRole)) {
-                        instructorCourses.add(currentCourse);
-                    } else if (isTARole(membershipRole)) {
-                        taCourses.add(currentCourse);
-                    } else if (isStudentRole(membershipRole)) {
-                        studentCourses.add(currentCourse);
+                    // This is membership availability, this user was specifically marked unavailable for this membership. Affects all roles. 
+                    if (!Utils.pluginSettings.getSyncAvailabilityStatus() || membership.getIsAvailable()) {
+                        Role membershipRole = membership.getRole();
+                        currentCourse = courseLoader.loadById(membership.getCourseId());
+    
+                        if (isInstructorRole(membershipRole)) {
+                            instructorCourses.add(currentCourse);
+                        } else if (isTARole(membershipRole)) {
+                            taCourses.add(currentCourse);
+                        } else if (isStudentRole(membershipRole)) {
+                            studentCourses.add(currentCourse);
+                        } else {
+                            // This is for a user with no role for this course.
+                            // This is not added to any course list.
+                        }
                     } else {
-                        // This is for a user with no role for this course.
-                        // This is not added to any course list.
+                        Utils.logVerbose(String.format("The membership associated with the course with id %1$s is unavailable.",
+                                membership.getCourseId()));
                     }
                 } catch (KeyNotFoundException e) {
                     Utils.log(String.format("The course with id %1$s either does not exist or is unavailable.",
@@ -1015,16 +1048,20 @@ public class PanoptoData {
             ArrayList<String> externalGroupIds = new ArrayList<String>();
             StringBuilder courseList = new StringBuilder();
             for (Course course : studentCourses) {
-                courseList.append(course.getTitle());
-                Id courseId = course.getId();
-                String courseServerName = getCourseRegistryEntry(courseId, hostnameRegistryKey);
-                if (courseIsCorrectlyProvisioned(courseId, serverName, courseServerName, courseList)) {
-                    String groupName = Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_viewers";
-                    externalGroupIds.add(groupName);
-                    courseList.append('(' + groupName + ')');
+                // This is course based availability, only reason this is restricting students is because both instructors and TA's have access to unavailable courses they are enrolled in. 
+                // Course availability only affects students in blackboard.
+                if (!Utils.pluginSettings.getSyncAvailabilityStatus() || course.getIsAvailable()) {
+                    courseList.append(course.getTitle());
+                    Id courseId = course.getId();
+                    String courseServerName = getCourseRegistryEntry(courseId, hostnameRegistryKey);
+                    if (courseIsCorrectlyProvisioned(courseId, serverName, courseServerName, courseList)) {
+                        String groupName = Utils.decorateBlackboardCourseID(courseId.toExternalString()) + "_viewers";
+                        externalGroupIds.add(groupName);
+                        courseList.append('(' + groupName + ')');
+                    }
+    
+                    courseList.append(';');
                 }
-
-                courseList.append(';');
             }
             Utils.logVerbose(
                     String.format("Sync'ing user %s group membership to server %s. Student group membership: %s",
@@ -1117,28 +1154,6 @@ public class PanoptoData {
         return result;
     }
 
-    // Creates a new Panopto folder. Should only be called by the instructor of
-    // a provisioned course (They have creator
-    // rights in Panopto)
-    public Folder createFolder(String folderName) {
-        if (this.userMayCreateFolder()) {
-            ISessionManagement client = getPanoptoSessionManagementSOAPService(serverName);
-            AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-            try {
-                Folder retVal = client.addFolder(auth, folderName, null, false);
-                Utils.log(
-                        String.format("Successfully created folder (server: %s, folder: %s).", serverName, folderName));
-                return retVal;
-            } catch (Exception e) {
-                Utils.log(e, String.format("Error creating folder (server: %s, folder: %s).", serverName, folderName));
-                return null;
-            }
-        } else {
-            Utils.log("User is not allowed to create a folder");
-            return null;
-        }
-    }
-
     // Updates the course so it is mapped to the given folders
     public boolean reprovisionCourse(String[] folderIds) {
         try {
@@ -1152,9 +1167,9 @@ public class PanoptoData {
             Folder[] folders = getPanoptoSessionManagementSOAPService(serverName).setExternalCourseAccess(auth,
                     fullName, externalCourseId, folderIds);
             updateCourseFolders(folders);
-
-            // Now make sure the copied folders are still mapped.
-            // TODO: Add copy course access call
+            
+            IAuth iAuth = getPanoptoAuthSOAPService(serverName);
+            iAuth.reportIntegrationInfo(auth, Utils.pluginSettings.getInstanceName(), plugInVersion, platformVersion);
 
             // Add menu item if setting is enabled
             if (Utils.pluginSettings.getInsertLinkOnProvision()) {
@@ -1238,7 +1253,10 @@ public class PanoptoData {
             Folder[] folders = new Folder[] { getPanoptoSessionManagementSOAPService(serverName)
                     .provisionExternalCourse(auth, fullName, externalCourseId) };
             updateCourseFolders(folders);
-
+            
+            IAuth iAuth = getPanoptoAuthSOAPService(serverName);
+            iAuth.reportIntegrationInfo(auth, Utils.pluginSettings.getInstanceName(), plugInVersion, platformVersion);
+            
             // Add menu item if setting is enabled
             if (Utils.pluginSettings.getInsertLinkOnProvision()) {
                 addCourseMenuLink();
@@ -1562,15 +1580,9 @@ public class PanoptoData {
 
     public boolean userMayProvision() {
         Utils.pluginSettings = new Settings();
-
-        if (Utils.pluginSettings.getAdminProvisionOnly()) {
-            return Utils.userCanConfigureSystem();
-        } else {
-            // Admins may provision any course. Instructors may provision their
-            // own course if the setting is enabled
-            return Utils.userCanConfigureSystem()
-                    || (IsInstructor() && Utils.pluginSettings.getInstructorsCanProvision());
-        }
+        // Admins may provision any course. Instructors may provision their
+        // own course if the setting is enabled
+        return Utils.userCanConfigureSystem() || (IsInstructor() && Utils.pluginSettings.getInstructorsCanProvision());
     }
 
     // Check for whether a user may add course menu links. This may be done by
@@ -1586,14 +1598,6 @@ public class PanoptoData {
         // Admins may config any course. Instructors may configure their own
         // courses
         return Utils.userCanConfigureSystem() || this.IsInstructor();
-    }
-
-    public boolean userMayCreateFolder() {
-        Utils.pluginSettings = new Settings();
-        // Admins may always create folders. Instructors may if the setting is
-        // enabled
-        return Utils.userCanConfigureSystem()
-                || (this.IsInstructor() && Utils.pluginSettings.getInstructorsCanCreateFolder());
     }
 
     /**

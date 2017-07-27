@@ -58,7 +58,7 @@ if (!Utils.userCanConfigureSystem())
         <bbUI:docTemplate title="<%= page_title %>">
         <c:catch>
             <bbUI:docTemplateHead>
-                <link rel="stylesheet" type="text/css" href="main.css" />
+                <link rel="stylesheet" type="text/css" href="css/main.css" />
             </bbUI:docTemplateHead>
         </c:catch>
 <%
@@ -67,14 +67,13 @@ String instanceName = request.getParameter("instanceName");
 Boolean instructorsCanProvision = (request.getParameter("instructorsCanProvision") != null);
 Boolean mailLectureNotifications = (request.getParameter("mailLectureNotifications") != null);
 Boolean refreshLogins = (request.getParameter("refreshLogins") != null);
+Boolean syncAvailabilityStatus = (request.getParameter("syncAvailabilityStatus") != null);
 Boolean redirectToDefaultLogin = (request.getParameter("redirectToDefaultLogin") != null);
 Boolean grantTACreator = (request.getParameter("grantTACreator") != null);
 Boolean grantTAProvision = (request.getParameter("grantTAProvision") != null);
 Boolean TAsCanCreateLinks = (request.getParameter("TAsCanCreateLinks") != null);
-Boolean instructorsCanCreateFolder = (request.getParameter("instructorsCanCreateFolder") != null);
 Boolean courseResetEnabled = (request.getParameter("courseResetEnabled") != null);
 Boolean verbose = (request.getParameter("verbose") != null);
-Boolean adminProvisionOnly = (request.getParameter("adminProvisionOnly") != null);
 Boolean insertLinkOnProvision = (request.getParameter("insertLinkOnProvision") != null);
 String menuLinkText = request.getParameter("menuLinkText");
 String roleMappingString = request.getParameter("roleMappingString");
@@ -106,14 +105,13 @@ if(instanceName != null)
     Utils.pluginSettings.setInstructorsCanProvision(instructorsCanProvision);
     Utils.pluginSettings.setMailLectureNotifications(mailLectureNotifications);
     Utils.pluginSettings.setRefreshLogins(refreshLogins);
+    Utils.pluginSettings.setSyncAvailabilityStatus(syncAvailabilityStatus);
     Utils.pluginSettings.setRedirectToDefaultLogin(redirectToDefaultLogin);
     Utils.pluginSettings.setGrantTACreator(grantTACreator);
     Utils.pluginSettings.setGrantTAProvision(grantTAProvision);
     Utils.pluginSettings.setTAsCanCreateLinks(TAsCanCreateLinks);
-    Utils.pluginSettings.setInstructorsCanCreateFolder(instructorsCanCreateFolder);
     Utils.pluginSettings.setCourseResetEnabled(courseResetEnabled);
     Utils.pluginSettings.setVerbose(verbose);
-    Utils.pluginSettings.setAdminProvisionOnly(adminProvisionOnly);
     Utils.pluginSettings.setInsertLinkOnProvision(insertLinkOnProvision);
     Utils.pluginSettings.setCourseCopyEnabled(courseCopyEnabled);
     
@@ -142,13 +140,12 @@ instanceName = Utils.pluginSettings.getInstanceName();
 instructorsCanProvision = Utils.pluginSettings.getInstructorsCanProvision();
 mailLectureNotifications = Utils.pluginSettings.getMailLectureNotifications();
 refreshLogins = Utils.pluginSettings.getRefreshLogins();
+syncAvailabilityStatus = Utils.pluginSettings.getSyncAvailabilityStatus();
 grantTACreator = Utils.pluginSettings.getGrantTACreator();
 grantTAProvision = Utils.pluginSettings.getGrantTAProvision();
 TAsCanCreateLinks = Utils.pluginSettings.getTAsCanCreateLinks();
-instructorsCanCreateFolder = Utils.pluginSettings.getInstructorsCanCreateFolder();
 courseResetEnabled = Utils.pluginSettings.getCourseResetEnabled();
 verbose = Utils.pluginSettings.getVerbose();
-adminProvisionOnly = Utils.pluginSettings.getAdminProvisionOnly();
 insertLinkOnProvision = Utils.pluginSettings.getInsertLinkOnProvision();
 menuLinkText = Utils.pluginSettings.getMenuLinkText();
 roleMappingString = Utils.pluginSettings.getRoleMappingString();
@@ -465,7 +462,7 @@ else
                         <div class="field"></div>
                     </li>
                     <li>
-                        <div class="label">User Opt In</div>
+                        <div class="label">Instructors may provision courses</div>
                         <div class="field"><input name="instructorsCanProvision" type="checkbox" <%= instructorsCanProvision ? "checked" : "" %> style="float:left" /></div>
                     </li>
                     <li>
@@ -496,6 +493,47 @@ else
                     </li>
                     <li>
                         <div class="field"></div>
+                    </li>
+                    <li>
+                        <div class="label">Refresh Logins</div>
+                        <div class="field">
+                            <input name="refreshLogins" type="checkbox" <%= refreshLogins ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether to refresh credentials for users logging in from the Panopto Recorder.<br/>
+                                Normally, this should be left checked, so that when one Blackboard user logs out and another logs in,
+                                the Recorder will switch to the new user.<br/>
+                                <br/>
+                                However, if Panopto site cannot redirect to Blackboard SSO page automatically with some reason, 
+                                this behavior may cause unauthenticated users to be prompted to login twice when logging into the Panopto Recorder.<br/>
+                                In this case, disable this setting and instruct your users to exit the Panopto Recorder to complete the logout process.
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field"></div>
+                    </li>
+                    <li>
+                        <div class="label">Synchronize course availability status</div>
+                        <div class="field">
+                            <input name="syncAvailabilityStatus" type="checkbox" <%= syncAvailabilityStatus ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting enables to reflect the course availability and user enrollment status to access control of Panopto permissions.
+                                <br />
+                                Warning: If this setting is enabled, then the students will lose Panopto permission for inactive courses.
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
                     </li>
                     <li>
                         <div class="label">Redirect to Blackboard Default Login</div>
@@ -566,21 +604,6 @@ else
                         </div>
                     </li>
                     <li>
-                        <div class="label">Provisioning by administrators only</div>
-                        <div class="field">
-                            <input id = "adminProvisionOnly" name="adminProvisionOnly" type="checkbox" <%= adminProvisionOnly ? "checked" : "" %> style="float:left" />
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                               When checked, provisioning of a course to Panopto may only be done by a user with administrative status.<br/>
-                                <br/>
-                                <br/>
-                            </p>
-                        </div>
-                    </li>
-                    <li>
                         <div class="label">Panopto link on course menu when provisioned</div>
                         <div class="field">
                             <input name="insertLinkOnProvision" type="checkbox" <%= insertLinkOnProvision ? "checked" : "" %> style="float:left" />
@@ -605,21 +628,6 @@ else
                         <div class="field">
                             <p tabIndex="0" class="stepHelp">
                               Text of link to Panopto content generated on provision, if setting is selected. Default text is "Panopto Video"<br/>
-                                <br/>
-                                <br/>
-                            </p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="label">Instructors may create folders</div>
-                        <div class="field">
-                            <input name="instructorsCanCreateFolder" type="checkbox" <%= instructorsCanCreateFolder ? "checked" : "" %> style="float:left" />
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                This setting determines whether instructors are allowed to create new folders in Panopto.<br/>
                                 <br/>
                                 <br/>
                             </p>
@@ -733,23 +741,6 @@ else
             </div>
         </div>
     </form>
-    
-    <!--  JS function for disabling the checkboxes for Grant Ta Creator Access and Grant TA Provision access when 
-    provisioning by admins only is enabled. This is to prevent confusion caused by the latter setting overriding
-    the former ones. -->
-    <script type = "text/javascript">
-        
-        var adminProvisionOnlyBox = document.getElementById("adminProvisionOnly");
-                
-        var disableTAProvisionSettings = function()
-        {                                  
-            document.getElementById("grantTAProvision").disabled = adminProvisionOnlyBox.checked;
-        }
-        adminProvisionOnlyBox.onclick = disableTAProvisionSettings;
-                       
-        //Execute function once when script is loaded
-        disableTAProvisionSettings();       
-    </script>
     
 <%
 }

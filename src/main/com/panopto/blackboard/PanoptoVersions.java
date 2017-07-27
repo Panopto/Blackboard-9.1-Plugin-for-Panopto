@@ -34,7 +34,6 @@ class PanoptoVersions {
         return panoptoVersion.compareTo(V4_9) >= 0;
     }
     
-    
     /**
      * Determine if the panopto server version supports Copy methods (5.3 and above)
      * @param panoptoVersion Version of Panopto we are pointed at

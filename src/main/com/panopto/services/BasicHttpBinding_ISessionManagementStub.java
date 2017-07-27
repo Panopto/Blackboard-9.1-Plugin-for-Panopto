@@ -1116,7 +1116,6 @@ public class BasicHttpBinding_ISessionManagementStub extends org.apache.axis.cli
         oper.setStyle(org.apache.axis.constants.Style.WRAPPED);
         oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[51] = oper;
-
     }
 
     public BasicHttpBinding_ISessionManagementStub() throws org.apache.axis.AxisFault {
