@@ -79,7 +79,7 @@ function AlertAndClose(){
 					                    var returnString = "";
 					                    //Add iframe html for each video to form
 					                    message.ids.each(function (value) {
-					                        var iframeString = "<iframe src=\"https://<%=serverName%>/Panopto/Pages/Embed.aspx?instance=<%=Utils.pluginSettings.getInstanceName()%>&id=" + value + "&v=1\" width=\"720\" height=\"480\" style=\"max-width: 100%; max-height: 100%;\" frameborder=\"0\"></iframe><br>";
+					                        var iframeString = "<iframe src=\"https://<%=serverName%>/Panopto/Pages/Embed.aspx?instance=<%=Utils.pluginSettings.getInstanceName()%>&id=" + value + "&v=1\" width=\"720\" height=\"480\" style=\"max-width: 100%; max-height: 100%;\" frameborder=\"0\" allowfullscreen></iframe><br>";
 					                        returnString += iframeString;
 					                    });
 					                    document.getElementById("embedHtml").value = returnString;

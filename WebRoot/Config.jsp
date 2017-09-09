@@ -141,6 +141,7 @@ instructorsCanProvision = Utils.pluginSettings.getInstructorsCanProvision();
 mailLectureNotifications = Utils.pluginSettings.getMailLectureNotifications();
 refreshLogins = Utils.pluginSettings.getRefreshLogins();
 syncAvailabilityStatus = Utils.pluginSettings.getSyncAvailabilityStatus();
+redirectToDefaultLogin = Utils.pluginSettings.getRedirectToDefaultLogin();
 grantTACreator = Utils.pluginSettings.getGrantTACreator();
 grantTAProvision = Utils.pluginSettings.getGrantTAProvision();
 TAsCanCreateLinks = Utils.pluginSettings.getTAsCanCreateLinks();

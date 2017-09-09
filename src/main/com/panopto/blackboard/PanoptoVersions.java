@@ -25,6 +25,7 @@ class PanoptoVersions {
 
     static final PanoptoVersion V4_9 = PanoptoVersion.from("4.9");
     static final PanoptoVersion V5_3 = PanoptoVersion.from("5.3");
+    static final PanoptoVersion V5_4 = PanoptoVersion.from("5.4");
 
     //Determines whether or not the block is able to call session or folder availability window API methods
     //based on the version of the current Panopto server.
@@ -41,6 +42,15 @@ class PanoptoVersions {
      */
     static boolean canCallCopyApiMethods(PanoptoVersion panoptoVersion) {
         return panoptoVersion.compareTo(V5_3) >= 0;
+    }
+    
+    /**
+     * Determine if the panopto server version supports Reporting integration info (5.4 and above)
+     * @param panoptoVersion Version of Panopto we are pointed at
+     * @return boolean true if we have at least the minimum version number
+     */
+    static boolean canReportIntegrationInfo(PanoptoVersion panoptoVersion) {
+        return panoptoVersion.compareTo(V5_4) >= 0;
     }
 
     /**

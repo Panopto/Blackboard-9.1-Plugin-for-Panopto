@@ -1153,6 +1153,27 @@ public class PanoptoData {
 
         return result;
     }
+    
+    /** 
+     * Attempts to report basic integration info to the panopto server, called after succesful reprovisioning.
+     * @param auth authentication info of user performing the call.
+     */
+    private void reportIntegrationInfo(AuthenticationInfo auth) {
+
+        try {
+            if (this.serverVersion == null) {
+                this.serverVersion = getServerVersion();
+            }
+    
+            // We can only report back the integration info on a Panopto server v5.4 or greater.
+            if (PanoptoVersions.canReportIntegrationInfo(serverVersion)) {
+                IAuth iAuth = getPanoptoAuthSOAPService(serverName);
+                iAuth.reportIntegrationInfo(auth, Utils.pluginSettings.getInstanceName(), plugInVersion, platformVersion);
+            }
+        } catch (RemoteException ex) {
+            Utils.log(ex, String.format("Error reporting Integration Info to server: %s", serverName));
+        }
+    }
 
     // Updates the course so it is mapped to the given folders
     public boolean reprovisionCourse(String[] folderIds) {
@@ -1168,8 +1189,7 @@ public class PanoptoData {
                     fullName, externalCourseId, folderIds);
             updateCourseFolders(folders);
             
-            IAuth iAuth = getPanoptoAuthSOAPService(serverName);
-            iAuth.reportIntegrationInfo(auth, Utils.pluginSettings.getInstanceName(), plugInVersion, platformVersion);
+            this.reportIntegrationInfo(auth);
 
             // Add menu item if setting is enabled
             if (Utils.pluginSettings.getInsertLinkOnProvision()) {
@@ -1253,10 +1273,9 @@ public class PanoptoData {
             Folder[] folders = new Folder[] { getPanoptoSessionManagementSOAPService(serverName)
                     .provisionExternalCourse(auth, fullName, externalCourseId) };
             updateCourseFolders(folders);
-            
-            IAuth iAuth = getPanoptoAuthSOAPService(serverName);
-            iAuth.reportIntegrationInfo(auth, Utils.pluginSettings.getInstanceName(), plugInVersion, platformVersion);
-            
+
+            this.reportIntegrationInfo(auth);
+
             // Add menu item if setting is enabled
             if (Utils.pluginSettings.getInsertLinkOnProvision()) {
                 addCourseMenuLink();
