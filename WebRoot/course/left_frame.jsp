@@ -93,14 +93,16 @@ form[name=searchForm]
 <SCRIPT>
     function searchNow() 
     {
-      if (document.searchForm.search_string.value=="")
-       {
-         alert('${bbNG:EncodeLabel(viewcatalogSearchCriteriaWarning)}');
-       }
-       else
-       {
-         document.forms.searchForm.submit();
-       }
+        if (document.searchForm.search_string.value == "")
+        {
+            alert('${bbNG:EncodeLabel(viewcatalogSearchCriteriaWarning)}');
+        }
+        else
+        {
+            document.forms.searchForm.submit();
+            
+            location.reload();
+        }
     }
 
     function changeOptions(f, options) {

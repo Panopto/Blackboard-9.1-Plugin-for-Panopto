@@ -22,6 +22,7 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import blackboard.base.FormattedText;
 import blackboard.data.ValidationException;
 import blackboard.data.content.Content;
 import blackboard.data.course.Course;
+import blackboard.data.course.Course.Duration;
 import blackboard.data.course.CourseMembership;
 import blackboard.data.course.CourseMembership.Role;
 import blackboard.data.navigation.CourseToc;
@@ -1048,9 +1050,29 @@ public class PanoptoData {
             ArrayList<String> externalGroupIds = new ArrayList<String>();
             StringBuilder courseList = new StringBuilder();
             for (Course course : studentCourses) {
+                Calendar startDate = course.getStartDate();
+                Calendar endDate = course.getEndDate();
+                
+                // Just to be safe let's make sure the current calendar is in the right timezone
+                Calendar currentDate;
+                boolean isAfterStartDate = true;
+                boolean isBeforeEndDate = true;
+                
+                // we need to include the start and end date so offset the dates we are checking by 1 each.
+                if (startDate != null) {
+                    currentDate = Calendar.getInstance(startDate.getTimeZone());
+                    isAfterStartDate = currentDate.after(startDate);
+                }
+                
+                if (endDate != null) {
+                    currentDate = Calendar.getInstance(endDate.getTimeZone());
+                    isBeforeEndDate = currentDate.before(endDate);
+                }
+                
                 // This is course based availability, only reason this is restricting students is because both instructors and TA's have access to unavailable courses they are enrolled in. 
                 // Course availability only affects students in blackboard.
-                if (!Utils.pluginSettings.getSyncAvailabilityStatus() || course.getIsAvailable()) {
+                if (!Utils.pluginSettings.getSyncAvailabilityStatus() || 
+                        (course.getIsAvailable() && (isAfterStartDate && isBeforeEndDate))) {
                     courseList.append(course.getTitle());
                     Id courseId = course.getId();
                     String courseServerName = getCourseRegistryEntry(courseId, hostnameRegistryKey);
