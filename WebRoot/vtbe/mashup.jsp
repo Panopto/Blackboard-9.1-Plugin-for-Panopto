@@ -47,7 +47,7 @@ function AlertAndClose(){
 	<%
     }
 	//Generate source URL for iframe from info. Blackboard embeds require https
-	String IFrameSrc = "https://" +serverName +"/Panopto/Pages/Sessions/EmbeddedUpload.aspx?instance=" + Utils.pluginSettings.getInstanceName() + folderId;
+	String IFrameSrc = "https://" +serverName +"/Panopto/Pages/Sessions/EmbeddedUpload.aspx?playlistsEnabled=true&instance=" + Utils.pluginSettings.getInstanceName() + folderId;
 %>
 	<bbNG:genericPage bodyClass="popup" onLoad="doOnLoad()">
 		<bbNG:jsBlock>
@@ -76,12 +76,21 @@ function AlertAndClose(){
 			                //Called when "Insert" is clicked. Creates HTML for embedding each selected video into the editor            
 				                if (message.cmd === 'deliveryList') {       
 				                    if(selected){
-					                    var returnString = "";
+					                    var returnString = "",
+					                        PLAYLIST_EMBED_ID = 1,
+					                        VIDEO_EMBED_ID = 0;
+					                    
 					                    //Add iframe html for each video to form
-					                    message.ids.each(function (value) {
-					                        var iframeString = "<iframe src=\"https://<%=serverName%>/Panopto/Pages/Embed.aspx?instance=<%=Utils.pluginSettings.getInstanceName()%>&id=" + value + "&v=1\" width=\"720\" height=\"480\" style=\"max-width: 100%; max-height: 100%;\" frameborder=\"0\" allowfullscreen></iframe><br>";
+					                    for (var i = 0; i < message.ids.length; ++ i) {
+					                    	var idChunk = ''
+					                    	if ((message.playableObjectTypes != null) && (message.playableObjectTypes.size() > i) && (message.playableObjectTypes[i] === PLAYLIST_EMBED_ID)){
+					                    		idChunk = "&pid=" + message.ids[i];
+					                    	} else {
+					                    		idChunk = "&id=" + message.ids[i];
+					                    	}
+					                        var iframeString = "<iframe src=\"https://<%=serverName%>/Panopto/Pages/Embed.aspx?instance=<%=Utils.pluginSettings.getInstanceName()%>" + idChunk + "&v=1\" width=\"720\" height=\"480\" style=\"max-width: 100%; max-height: 100%;\" frameborder=\"0\" allowfullscreen></iframe><br>";
 					                        returnString += iframeString;
-					                    });
+					                    };
 					                    document.getElementById("embedHtml").value = returnString;
 					                    document.forms["submitForm"].submit();
 				                   }
