@@ -100,20 +100,6 @@ Boolean useOldLayout = false;
                 </form>
                 
                 <%
-                // In the case that a course was copied, the provisioning is not going to work, so we need to reset it.
-                if (!ccCourse.isOriginalContext())
-                {
-                    // Reset the course to have no Panopto configuration.
-                    ccCourse.resetCourse(); %>
-                    <div class="resetReceipt">
-                        <bbNG:receipt type="PASS" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseConfigURL%>">
-                            This course has been reset.
-                        </bbNG:receipt>
-                    </div>
-                    <%
-                    courseHasBeenReset = true;
-                } 
-                
                 if(!ccCourse.isMapped() || courseHasBeenReset)
                 { 
                     if(ccCourse.userMayConfig())

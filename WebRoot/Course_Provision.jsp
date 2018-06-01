@@ -20,6 +20,7 @@
 <%@page language="java" pageEncoding="ISO-8859-1" %>
 
 <%@page import="com.panopto.blackboard.Utils"%>
+<%@page import="com.panopto.blackboard.PanoptoCourseSearch"%>
 <%@page import="blackboard.data.course.Course"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
@@ -37,6 +38,7 @@ String page_title = "Configure Panopto Connector";
 
 String returnUrl = request.getParameter("returnUrl");
 
+String courseUrl = request.getParameter("courseUrl");
 
 String provisionServerName = null;
 
@@ -119,11 +121,6 @@ if((   provisionServerName != null)
             
             if(ccCourse.getBBCourse() != null)
             {
-            	if (!ccCourse.isOriginalContext()) {
-            	    ccCourse.resetCourse();
-	            	ccCourse = new PanoptoData(courseID, userName);
-            	}
-            	
                 if (!ccCourse.userMayProvision())
                 {
                     %><div class='error'>Error. You do not have access to provision <%=ccCourse.getBBCourse().getTitle()%></div><%
@@ -289,7 +286,7 @@ else if (reprovisionAll)
                 <div id='batchProvisionResults'>
         <%
         
-        java.util.List<Course> allCourses = PanoptoData.GetAllCourses();
+        java.util.List<Course> allCourses = PanoptoCourseSearch.GetAllCourses();
         if (allCourses.size() == 0)
         {
             %><div class='errorMessage'>Unable to retrieve Blackboard courses</div><%
@@ -329,7 +326,14 @@ else
 <% }
  %>
         <div>
-            <bbUI:button type="INLINE" name="OK" alt="OK" action="LINK" targetUrl="<%=returnUrl%>" />
+            <%
+            if (courseUrl != null) {%>
+                <!-- Currently if courseUrl is not null the return URL will always lead to the configure page with the long load time for large sites. If this changes we should update the button text.-->
+                <bbUI:button type="INLINE" name="Configure more folders" alt="Configure more folders" action="LINK" targetUrl="<%=returnUrl%>" />
+                <bbUI:button type="INLINE" name="Return to course" alt="Return to course" action="LINK" targetUrl="<%=courseUrl%>" />
+            <%} else {%>
+                <bbUI:button type="INLINE" name="OK" alt="OK" action="LINK" targetUrl="<%=returnUrl%>" />
+            <%}%>
         </div>
         </bbUI:docTemplate>
     </bbData:context>

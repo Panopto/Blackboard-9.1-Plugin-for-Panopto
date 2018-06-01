@@ -28,10 +28,10 @@
     <plugins>
     	<plugin>
 			<artifactId>maven-compiler-plugin</artifactId>
-			<version>3.1</version>
+			<version>3.3</version>
 			<configuration>
-				<source>1.7</source>
-				<target>1.7</target>
+				<source>1.8</source>
+				<target>1.8</target>
 			</configuration>
 		</plugin>
 		<plugin>
@@ -98,21 +98,21 @@
 			<artifactId>bb-cms-admin</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/bb-cms-admin-3000.1.0-rel.52.jar</systemPath>
+			<systemPath>${project.basedir}/lib/bb-cms-admin-3300.0.1-rel.60.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>bb</groupId>
 			<artifactId>bb-platform</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/bb-platform-3000.1.0-rel.52.jar</systemPath>
+			<systemPath>${project.basedir}/lib/bb-platform-3300.0.1-rel.60.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>bb</groupId>
 			<artifactId>bb-taglibs</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/bb-taglibs-3000.1.0-rel.52.jar</systemPath>
+			<systemPath>${project.basedir}/lib/bb-taglibs-3300.0.1-rel.60.jar</systemPath>
 		</dependency>
 	  <dependency>
 		  <groupId>junit</groupId>

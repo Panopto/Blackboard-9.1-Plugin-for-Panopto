@@ -5,7 +5,7 @@
         <description value="Provision Panopto courses from Blackboard.  View live listing of available Panopto content from within the associated Blackboard course.  Import Panopto lecture links as Blackboard content items." />
         <handle value="PanoptoCourseTool" />
         <webapp-type value="javaext" />
-        <version value="2017.12.1" />
+        <version value="2018.5.1" />
         <requires>
             <bbversion value="9.1" />
         </requires>
@@ -21,6 +21,23 @@
         </http-actions>
         <!-- Custom content types defined by this extension -->
         <content-handlers>
+            <content-handler>
+                <name value="Panopto Video Embed"/>
+                <handle value= "resource/bb-panopto-bc-mashup"/>
+                <http-actions>
+                    <create value="content/mashup.jsp" />
+                    <modify value="content/modifyMashup.jsp" />
+                </http-actions>
+                <icons>
+                    <toolbar value="images/panopto_logo_32x32.png"/>
+                    <listitem value="images/panopto_logo_50x50.png"/>
+                </icons>
+                <types>
+                    <type>
+                        <action-type value="mashup" />
+                    </type>
+                </types>
+            </content-handler>
             <content-handler>
                 <name value="Panopto Video Link" />
                 <handle value="hyperlink/coursecast" />
@@ -63,15 +80,28 @@
                     </link>
                 </links>
             </application>
+            <application handle="panopto-assignment" is-sys-tool="true" is-course-tool="true"
+                  is-org-tool="true" is-group-tool="false" use-ssl="true"
+                  name="Panopto Student Video Submission" can-allow-guest="false"
+                  small-icon="images/panopto_logo_32x32.png" large-icon="images/panopto_logo_50x50.png">
+                <links>
+                    <link>
+                        <type value="vtbe_mashup_course" />
+                        <name value="Panopto Student Video Submission" />
+                        <url value="vtbe/assignmentMashup.jsp?course_id=@X@course.pk_string@X@" />
+                        <description value="This mashup tool allows you to embed videos for assignments in Blackboard." />
+                    </link>
+                </links>
+            </application>
         </application-defs>
         <extension-defs>
-        	<definition namespace="blackboard.platform">
-				<extension id="CloneHandler"
-						   point = "blackboard.cmsadmin.postCloneCourseEventListener"
+            <definition namespace="blackboard.platform">
+                <extension id="CloneHandler"
+                           point = "blackboard.cmsadmin.postCloneCourseEventListener"
                            class = "com.panopto.blackboard.PanoptoCourseEventListener"
                            singleton="true"/>
-			</definition>
-			<definition namespace="blackboard.platform">
+            </definition>
+            <definition namespace="blackboard.platform">
                 <extension id="CreateHandler"
                            point="blackboard.cmsadmin.postCreateCourseEventListener"
                            class="com.panopto.blackboard.PanoptoCourseEventListener"
@@ -89,6 +119,9 @@
             <permission type="blackboard.data.AttributePermission" name="user.personalinfo" actions="get" />
             <!-- Request the rendering hook permission to avoid the 'action already submitted' message from bug 16109 -->
             <permission type="java.lang.RuntimePermission" name="injectRenderingHook" />
+            
+            <!-- This is needed for the plugin to be able to use LTI -->
+            <permission type="blackboard.platform.blti.BasicLTIPermission" name="*" actions="sendroles,sendemail,sendname"/>
         </permissions>
         <entitlements>
             <entitlement uid="course.panopto.EXECUTE"
