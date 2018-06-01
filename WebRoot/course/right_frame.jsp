@@ -11,7 +11,8 @@
                  blackboard.util.*,
                  blackboard.util.StringUtil,
                  blackboard.webapps.searchwidgets.*,
-                 java.util.*" %>
+                 java.util.*,
+                 com.panopto.blackboard.PanoptoCourseSearch" %>
 
 <%@ taglib uri="/bbNG" prefix="bbNG"%>
 <%@ taglib uri="/bbUI" prefix="bbUI"%>
@@ -47,7 +48,7 @@
    String termOrgName = commonBundle.getString("bbterms.orgname");
    String termOrgId = commonBundle.getString("bbterms.orgid");
 
-    String strMaxRows = ""+ CourseSearch.MAX_ROWS;
+    String strMaxRows = ""+ PanoptoCourseSearch.MAX_ROWS;
 
     List<Course> courses = new ArrayList<Course>();
     String searchString = request.getParameter("search_string");
@@ -60,20 +61,21 @@
     if ( match != null && StringUtil.notEmpty(searchString) )
     {
       boolean exactMatch = "exact".equals(match );
-      int searchBy = CourseSearch.SEARCH_BY_COURSE_NAME;
+      int searchBy = PanoptoCourseSearch.SEARCH_BY_COURSE_NAME;
       if ( "course_name".equals(request.getParameter("search_field")) )
       {
-        searchBy = CourseSearch.SEARCH_BY_COURSE_NAME;
+        searchBy = PanoptoCourseSearch.SEARCH_BY_COURSE_NAME;
       }
       if ( "description".equals(request.getParameter("search_field")) )
       {
-        searchBy = CourseSearch.SEARCH_BY_COURSE_DESC;
+        searchBy = PanoptoCourseSearch.SEARCH_BY_COURSE_DESC;
       }
       if ( "course_id".equals(request.getParameter("search_field")) )
       {
-        searchBy = CourseSearch.SEARCH_BY_COURSE_ID;
+        searchBy = PanoptoCourseSearch.SEARCH_BY_COURSE_ID;
       }
-      courses = CourseSearch.searchForCourses(searchString, exactMatch, searchBy, isCourseSearch);
+      
+      courses = PanoptoCourseSearch.searchForCourses(searchString, exactMatch, searchBy, isCourseSearch);
     }
 
     GenericFieldComparator<Course> compCourseId = new GenericFieldComparator<Course>( BaseComparator.ASCENDING, "getCourseId", Course.class );
@@ -133,7 +135,7 @@
 <%
   if ( courses.size() > 0 )
   {
-    if ( courses.size() == CourseSearch.MAX_ROWS )
+    if ( courses.size() == PanoptoCourseSearch.MAX_ROWS )
     {
       out.println("<strong>" + String.valueOf(pageContext.getAttribute("strMaxResults")) + "</strong><p>");
     }

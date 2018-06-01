@@ -18,6 +18,7 @@
 
 package com.panopto.blackboard;
 
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -35,7 +36,6 @@ import blackboard.base.FormattedText;
 import blackboard.data.ValidationException;
 import blackboard.data.content.Content;
 import blackboard.data.course.Course;
-import blackboard.data.course.Course.Duration;
 import blackboard.data.course.CourseMembership;
 import blackboard.data.course.CourseMembership.Role;
 import blackboard.data.navigation.CourseToc;
@@ -92,7 +92,9 @@ public class PanoptoData {
     private static final String sessionGroupDisplayNameRegistryKey = "CourseCast_SessionGroupDisplayName";
     private static final String copySessionGroupIDsRegistryKey = "CourseCast_CopySessionGroupIDs";
     private static final String copySessionGroupDisplayNamesRegistryKey = "CourseCast_CopySessionGroupDisplayNames";
-    private static final String originalContextRegistryKey = "CourseCast_OriginalContext";
+    
+    // There is no error code associated with this error so we need to parse the message for an expected substring.
+    private static final String personalFolderErrorIdentifier = "provision personal folder";
     
     // version strings to report back to Panopto, only need to grab if not defined (see below in InitPanoptoData).
     private static String plugInVersion;
@@ -135,7 +137,15 @@ public class PanoptoData {
     // ID and display name of associated Panopto courses through a copy
     private String[] copySessionGroupPublicIDs;
     private String[] copySessionGroupDisplayNames;
-
+    
+    // If provisioning fails we output the error here so the parent Java window can grab it and process the error if needed.
+    private String previousProvisioningError = "";
+    
+    // Returns the last error that had occured during provisioning, if the last provisioning call failed.
+    public String getPreviousProvisioningError() {
+        return previousProvisioningError;
+    }
+    
     // SOAP port for talking to Panopto
     private ISessionManagement sessionManagement;
 
@@ -240,12 +250,19 @@ public class PanoptoData {
         return bbCourse;
     }
 
-    public String getProvisionUrl(String serverName, String returnUrl) {
+    public String getProvisionUrl(String serverName, String returnUrl, String courseUrl) {
         if (serverName == null) {
             return "";
         }
-        return "Course_Provision.jsp?provisionServerName=" + serverName + "&bbCourses=" + getBBCourse().getCourseId()
+        
+        String provisionUrl =  "Course_Provision.jsp?provisionServerName=" + serverName + "&bbCourses=" + getBBCourse().getCourseId()
                 + "&returnUrl=" + returnUrl;
+        
+        if (courseUrl != null) {
+            provisionUrl += "&courseUrl=" + courseUrl;
+        }
+        
+        return provisionUrl;
     }
 
     public String getServerName() {
@@ -324,46 +341,18 @@ public class PanoptoData {
 
     // i.e. a Panopto course been selected for this Blackboard course
     public boolean isMapped() {
-        return (sessionGroupPublicIDs != null);
+        return (sessionGroupPublicIDs != null && sessionGroupPublicIDs.length > 0);
     }
 
     // Returns true if this course has inherited any permissions due to course
     // copy
     public boolean isCopyMapped() {
-        return (copySessionGroupPublicIDs != null);
+        return (copySessionGroupPublicIDs != null && sessionGroupPublicIDs.length > 0);
     }
 
     // Get the Panopto user being used for SOAP calls
     public String getApiUserKey() {
         return apiUserKey;
-    }
-
-    // Determine if this course is in the original context and the course has
-    // NOT been copied.
-    public boolean isOriginalContext() {
-        boolean isOriginal = true;
-
-        // If the registry does not exist, assume this is original and set the
-        // value.
-        if (getCourseRegistryEntry(originalContextRegistryKey) == null) {
-            setCourseRegistryEntry(originalContextRegistryKey, bbCourse.getId().toExternalString());
-        } else if (!getCourseRegistryEntry(originalContextRegistryKey)
-                .equalsIgnoreCase(bbCourse.getId().toExternalString())) {
-            // There is a context and it doesn't match the current context.
-            isOriginal = false;
-        }
-        return (isOriginal);
-    }
-
-    // If this course has no original context set it to the context of the
-    // source course.
-    public void setOriginalCopyContext(String sourceId) {
-
-        // If the registry does not exist, assume this is original and set the
-        // value.
-        if (getCourseRegistryEntry(originalContextRegistryKey) == null) {
-            setCourseRegistryEntry(originalContextRegistryKey, sourceId);
-        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1141,9 +1130,7 @@ public class PanoptoData {
      * correct server
      * 
      * Checks both that the course server name in the registry entry is filled
-     * in and correct, and that the original context key is equal to the current
-     * course id. If it isn't that means this is one of the copies that we
-     * didn't initiate.
+     * in and correct.
      * 
      * Will also fill in any information to the courseList string builder.
      * 
@@ -1160,14 +1147,10 @@ public class PanoptoData {
     private static Boolean courseIsCorrectlyProvisioned(Id courseId, String serverName, String courseServerName,
             StringBuilder courseList) {
 
-        String originalId = getCourseRegistryEntry(courseId, originalContextRegistryKey);
-
         Boolean result = false;
         if (courseServerName != null) {
             if (!courseServerName.equalsIgnoreCase(serverName)) {
                 courseList.append("(provisioned against " + courseServerName + ")");
-            } else if (originalId != null && !originalId.equalsIgnoreCase(courseId.toExternalString())) {
-                courseList.append("(never provisioned)");
             } else {
                 result = true;
             }
@@ -1200,6 +1183,10 @@ public class PanoptoData {
     // Updates the course so it is mapped to the given folders
     public boolean reprovisionCourse(String[] folderIds) {
         try {
+            
+            // Reset the last provisioning error since this provisioning is new
+            this.previousProvisioningError = "";
+            
             Utils.pluginSettings = new Settings();
 
             String externalCourseId = Utils.decorateBlackboardCourseID(bbCourse.getId().toExternalString());
@@ -1219,15 +1206,22 @@ public class PanoptoData {
             }
         } catch (Exception e) {
             String folderString = Utils.encodeArrayOfStrings(folderIds);
+            String exceptionMessage = e.getMessage();
+            
             if (folderString == null) {
                 folderString = "empty";
             }
-
+            
+            // Save the last error so we can display it to the user if they are provisioning from the course_configure page.
+            if (exceptionMessage != null) {
+                this.previousProvisioningError = exceptionMessage;
+            }
+            
             Utils.log(e, String.format("Error reprovisioning course (id: %s, server: %s, user: %s, folders: %s).",
                     bbCourse.getId().toExternalString(), serverName, bbUserName, folderString));
             return false;
         }
-
+        
         return true;
     }
 
@@ -1249,7 +1243,6 @@ public class PanoptoData {
             // and only create new ones if the value is
             // not null.
             setCourseRegistryEntry(hostnameRegistryKey, null);
-            setCourseRegistryEntry(originalContextRegistryKey, null);
             setCourseRegistryEntries(sessionGroupIDRegistryKey, null);
             setCourseRegistryEntries(sessionGroupDisplayNameRegistryKey, null);
 
@@ -1284,9 +1277,12 @@ public class PanoptoData {
         Utils.pluginSettings = new Settings();
         updateServerName(serverName);
         setCourseRegistryEntry(hostnameRegistryKey, serverName);
-        setCourseRegistryEntry(originalContextRegistryKey, bbCourse.getId().toExternalString());
 
         try {
+            
+            // Reset the last provisioning error since this provisioning is new
+            this.previousProvisioningError = "";
+            
             String externalCourseId = Utils.decorateBlackboardCourseID(bbCourse.getId().toExternalString());
             String fullName = bbCourse.getCourseId() + ": " + bbCourse.getTitle();
 
@@ -1304,12 +1300,79 @@ public class PanoptoData {
 
             }
         } catch (Exception e) {
+            String exceptionMessage = e.getMessage();
+            
+            // Store the previous error so we can display it if we want to later.
+            if (exceptionMessage != null) {
+                this.previousProvisioningError = exceptionMessage;
+            }
+            
             Utils.log(e, String.format("Error provisioning course (id: %s, server: %s, user: %s).",
                     bbCourse.getId().toExternalString(), serverName, bbUserName));
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * removes the source course registries from the target course so it does not think it is actually provisioned to the source course.
+     * 
+     * @param sourceCourse
+     *            Blackboard Course that we are copying Panopto permission from
+     */
+    public void handleCopyRegistryChanges(PanoptoData sourceCourseData) {
+        try {
+            // If the copy succeeded there is a chance depending on the copy type that the source course registries were copied into the new course.
+            //  If this is the case we should check and remove them all.
+            if (sourceCourseData.isMapped()) {
+                ArrayList<String> mappedSourceFolders = new ArrayList<String>();
+                mappedSourceFolders.addAll(Arrays.asList(sourceCourseData.getFolderIDs()));
+                ArrayList<String> mappedFolders = new ArrayList<String>();
+                mappedFolders.addAll(Arrays.asList(getFolderIDs()));
+                
+                ArrayList<String> mappedSourceFolderNames = new ArrayList<String>();
+                mappedSourceFolderNames.addAll(Arrays.asList(sourceCourseData.getFolderDisplayNames()));
+                ArrayList<String> mappedFolderNames = new ArrayList<String>();
+                mappedFolderNames.addAll(Arrays.asList(getFolderDisplayNames()));
+                
+                ArrayList<String> mappedCopiedSourceFolders = new ArrayList<String>();
+                mappedCopiedSourceFolders.addAll(Arrays.asList(sourceCourseData.getCopiedFolderIDs()));
+                ArrayList<String> mappedCopiedFolders = new ArrayList<String>();
+                mappedCopiedFolders.addAll(Arrays.asList(getCopiedFolderIDs()));
+                
+                ArrayList<String> mappedCopiedSourceFolderNames = new ArrayList<String>();
+                mappedCopiedSourceFolderNames.addAll(Arrays.asList(sourceCourseData.getCopiedFolderDisplayNames()));
+                ArrayList<String> mappedCopiedFolderNames = new ArrayList<String>();
+                mappedCopiedFolderNames.addAll(Arrays.asList(getCopiedFolderDisplayNames()));
+                
+                // If this is the case then a "Copy Settings" was performed, the target course now believes it is provisioned to the source course folder.
+                //  This check removes that belief and provisions the original folder.
+                if (mappedFolders.containsAll(mappedSourceFolders)) {
+                    // Unfortunately if a "Course Settings" included copy is performed on a course then all imported courses and currently mapped folders will be lost forever.
+                    //  The next best thing we can do is clean up the overwritten source folder registries since we don't support those, and attempt to provision the course back to the default folder.
+                    mappedFolders.removeAll(mappedSourceFolders);
+                    mappedFolderNames.removeAll(mappedSourceFolderNames);
+                    
+                    mappedCopiedFolders.removeAll(mappedCopiedSourceFolders);
+                    mappedCopiedFolderNames.removeAll(mappedCopiedSourceFolderNames);
+                    
+                    // We can simply overwrite the previous copySessionGroup registries since that will contain the source folder's copied info
+                    setCourseRegistryEntries(copySessionGroupIDsRegistryKey, mappedCopiedFolders.toArray(emptyStringArray));
+                    setCourseRegistryEntries(copySessionGroupDisplayNamesRegistryKey, mappedCopiedFolderNames.toArray(emptyStringArray));
+                    setCourseRegistryEntries(sessionGroupIDRegistryKey, mappedFolders.toArray(emptyStringArray));
+                    setCourseRegistryEntries(sessionGroupDisplayNameRegistryKey, mappedFolderNames.toArray(emptyStringArray));
+                    
+                    // If no folders are no longer mapped to this folder(as will usually be the case when 'course settings' are copied. Then provision a new folder, if a folder exists in Panopto it should be re-linked so long as the copying user has proper access.
+                    if (mappedFolders.size() <= 0) {
+                        Utils.log("It appears either 'Exact Copy' or a copy including 'Course Settings' was performed using a provisioned course as the source. This will invalidate any current Panopto mappings to the target course. We will continue to provision the target course to a new default folder, and import the source course into it if course copy is enabled.");
+                       provisionCourse(serverName);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Utils.log(e, "There was an error trying to handle the target course registries after a course copy.");
+        }
     }
 
     /**
@@ -1334,12 +1397,11 @@ public class PanoptoData {
             if (this.serverVersion == null) {
                 this.serverVersion = getServerVersion();
             }
-
+            
             // We only do something here if the source course's users have
             // permissions to view some folders in Panopto
             // this can be either regular permission or copied permissions.
-            if (PanoptoVersions.canCallCopyApiMethods(serverVersion)
-                    && (sourceCourseData.isMapped() || sourceCourseData.isCopyMapped())) {
+            if (PanoptoVersions.canCallCopyApiMethods(serverVersion)) {
 
                 // Source course has some Panopto folder permissions, generate a
                 // list of all folders it can see
@@ -1358,7 +1420,6 @@ public class PanoptoData {
                 // Update registry to set this course as mapped to a server and
                 // context
                 setCourseRegistryEntry(hostnameRegistryKey, serverName);
-                setCourseRegistryEntry(originalContextRegistryKey, bbCourse.getId().toExternalString());
 
                 AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
                 String externalCourseId = Utils.decorateBlackboardCourseID(bbCourse.getId().toExternalString());
@@ -1421,19 +1482,6 @@ public class PanoptoData {
 
     public static boolean HasPanoptoServer(Course bbCourse) {
         return getCourseRegistryEntry(bbCourse.getId(), hostnameRegistryKey) != null;
-    }
-
-    public static List<Course> GetAllCourses() {
-        BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
-
-        try {
-            CourseDbLoader courseLoader = (CourseDbLoader) bbPm.getLoader(CourseDbLoader.TYPE);
-            return courseLoader.loadAllCourses();
-        } catch (Exception e) {
-            Utils.log(e, "Error getting all courses.");
-        }
-
-        return null;
     }
 
     // Gets all the members of the course from Blackboard
@@ -1663,7 +1711,12 @@ public class PanoptoData {
     // may add course menu links
     public static boolean isUserInstructor(Id bbCourseId, String bbUserName, boolean checkTACanCreateLinks) {
         BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
-
+        
+        // If there is no user associated just return false, this can happen on async tasks like course copy.
+        if (bbUserName == null || bbUserName.isEmpty()) {
+            return false;
+        }
+        
         try {
             // Get user's blackboard ID from their username
             UserDbLoader userLoader = (UserDbLoader) bbPm.getLoader(UserDbLoader.TYPE);
