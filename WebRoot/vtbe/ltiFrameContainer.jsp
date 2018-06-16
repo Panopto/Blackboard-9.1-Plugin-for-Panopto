@@ -11,6 +11,8 @@
 <%@ page import="blackboard.platform.persistence.PersistenceServiceFactory"%>
 <%@ page import="blackboard.platform.blti.BasicLTILauncher.IdTypeToSend"%>
 <%@ page import="blackboard.persist.course.CourseDbLoader"%>
+<%@ page import="blackboard.persist.course.CourseMembershipDbLoader"%>
+<%@ page import="blackboard.data.course.CourseMembership"%>
 <%@ taglib uri="/bbNG" prefix="bbNG"%>
 <%@ taglib uri="/bbData" prefix="bbData"%>
 
@@ -60,11 +62,18 @@ function AlertAndClose(){
     
     BbPersistenceManager bbPm = PersistenceServiceFactory.getInstance().getDbPersistenceManager();
     Course currCourse = null;
+    CourseMembership usersCourseMembership = null;
     
     try {
 
         CourseDbLoader courseLoader = (CourseDbLoader) bbPm.getLoader(CourseDbLoader.TYPE);
         currCourse = courseLoader.loadByCourseId(course_id);
+
+        // Load the user's membership in the current course to get their
+        // role
+        CourseMembershipDbLoader membershipLoader = (CourseMembershipDbLoader) bbPm
+                .getLoader(CourseMembershipDbLoader.TYPE);
+        usersCourseMembership = membershipLoader.loadByCourseAndUserId(currCourse.getId(), ctx.getUserId());
     } catch (Exception e) {
         Utils.log(e, String.format("Error getting course info (course ID: %s).", course_key));
     }
@@ -77,12 +86,13 @@ function AlertAndClose(){
     // I do not think the IdTypeToSend types matter specifically, but without them the blackboard code eventually throws a null pointer exception.
     BasicLTILauncher launcher = new BasicLTILauncher( LtiSrc, instanceName, Utils.pluginSettings.getApplicationKey(ccCourse.getServerName()), contextId)
             .addResourceLinkInformation("Panopto LTI Tool", "Panopto Basic Lti Tool" )
-            .addUserInformation(ctx.getUser(), ctx.getCourseMembership(), true, true, true, IdTypeToSend.PK1)
+            .addUserInformation(ctx.getUser(), usersCourseMembership, true, true, true, IdTypeToSend.PK1)
             .addCourseInformation(currCourse, IdTypeToSend.PK1)
             .addContextInformation(fullName, contextId);
     
     if (use_sandbox != null && use_sandbox.equals("true")) {
         customParams.put("use_panopto_sandbox", use_sandbox);
+        
         launcher.addCustomToolParameters(customParams);
     }
     
