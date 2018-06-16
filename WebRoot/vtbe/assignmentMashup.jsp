@@ -49,10 +49,11 @@ function AlertAndClose(){
                             courseKey = "<%=course_key%>",
                             linkChunk = "/webapps/ppto-PanoptoCourseTool-BBLEARN/vtbe/ltiFrameContainer.jsp?view_sandbox=true&course_key=" + courseKey + "&course_id=" + courseId,
                             step1String = "Prepare your video in Panopto video library. If it's not ready, click <a href='" + linkChunk + "' target='_blank'>here</a> to navigate to your personal folder in Panopto.",
-                            step2String = "In the text editor expand \"Mashups\" and select \"Panopto Student Video Submission\".",
-                            step3String = "If your submission is not in the default personal folder select the folder where your submission is stored.",
-                            step4String = "Once at the folder your submission is located select the submission and click \"Insert\".",
-                            step5String = "Once your submission has been added to the text editor add any extra information and submit.";
+                            step2String = "Videos are submitted as part of assignments via clicking on \"Write Submission\".",
+                            step3String = "In the text editor expand \"Mashups\" and select \"Panopto Student Video Submission\".",
+                            step4String = "If your submission is not in the default personal folder select the folder where your submission is stored.",
+                            step5String = "Once at the folder your submission is located select the submission and click \"Insert\".",
+                            step6String = "Once your submission has been added to the text editor add any extra information and submit.";
                         
                         instructions += 
                         "<div>" +
@@ -61,6 +62,7 @@ function AlertAndClose(){
                             "<div><b>Step 3:</b> " + step3String + "</div>" +
                             "<div><b>Step 4:</b> " + step4String + "</div>" +
                             "<div><b>Step 5:</b> " + step5String + "</div>" +
+                            "<div><b>Step 6:</b> " + step6String + "</div>" +
                         "</div>";
                         
                         document.getElementById("embedHtml").value = instructions;
