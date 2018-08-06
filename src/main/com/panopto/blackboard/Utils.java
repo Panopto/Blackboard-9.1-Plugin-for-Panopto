@@ -69,6 +69,7 @@ public class Utils {
     public static final String createScriptURL = "Item_Create.jsp";
     public static final String modifyScriptURL = "Item_Modify.jsp";
     public static final String logScriptURL = "Logs.jsp";
+    public static final String ltiFramContainerURL = "vtbe/ltiFrameContainer.jsp";
     public static final String buildingBlockManagerURL = "/webapps/blackboard/admin/manage_plugins.jsp";
 
     public static final String logFilename = "log.txt";
