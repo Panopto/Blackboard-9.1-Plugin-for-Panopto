@@ -6,6 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ page import="blackboard.data.content.Content"%>
 <%@ page import="com.panopto.blackboard.Utils"%>
+<%@ page import="blackboard.platform.plugin.PlugInUtil" %>
 
 <fmt:message var="strLContentAvailable"   key="content.common.contentavailable" bundle="${bundles.content}"/>
 <fmt:message var="strLTrackViews"         key="content.common.trackviews" bundle="${bundles.content}"/>
@@ -43,9 +44,11 @@
     
     String returnUrl = ctx.getRequestUrl();
     
+    String toolUri = PlugInUtil.getUri("ppto", "PanoptoCourseTool", "");
+    
     // Set a return Url to get back to the content page unless it cant be set properly, then just redirect back to the tool.
-    if (returnUrl.indexOf("ppto-PanoptoCourseTool-BBLEARN") != -1) {
-        returnUrl = returnUrl.split("ppto-PanoptoCourseTool-BBLEARN")[0] + "blackboard/content/listContentEditable.jsp?content_id=" + ctx.getContentId().toExternalString() + "&course_id=" + ctx.getCourseId().toExternalString() + "&mode=reset";
+    if (returnUrl.indexOf(toolUri) != -1) {
+        returnUrl = returnUrl.split(toolUri)[0] + "/webapps/blackboard/content/listContentEditable.jsp?content_id=" + ctx.getContentId().toExternalString() + "&course_id=" + ctx.getCourseId().toExternalString() + "&mode=reset";
     } else {
         returnUrl += "?course_id=" + ctx.getCourseId().toExternalString();
     }

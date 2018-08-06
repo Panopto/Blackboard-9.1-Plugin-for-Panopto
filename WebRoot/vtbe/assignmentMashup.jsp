@@ -1,6 +1,7 @@
 <%@ page import="java.lang.reflect.Array"%>
 <%@ page import="com.panopto.blackboard.PanoptoData"%>
 <%@ page import="com.panopto.blackboard.Utils"%>
+<%@ page import="blackboard.platform.plugin.PlugInUtil" %>
 <%@ page import="com.panopto.services.Folder"%>
 <%@ page import="blackboard.platform.plugin.ContentHandler"%>
 <%@ taglib uri="/bbNG" prefix="bbNG"%>
@@ -34,6 +35,8 @@ function AlertAndClose(){
     String IFrameSrc = "ltiFrameContainer.jsp?course_key=" + course_key + "&course_id=" + course_id;
     
     String activeFrameSrc = IFrameSrc + "&use_sandbox=true&show_tabs=chooseOnly";
+
+    String toolUri = PlugInUtil.getUri("ppto", "PanoptoCourseTool", Utils.ltiFramContainerURL);
     
     if (ccCourse.IsInstructor()) {%>
         <bbNG:genericPage bodyClass="popup">
@@ -47,7 +50,7 @@ function AlertAndClose(){
                         var instructions = "",
                             courseId = "<%=course_id%>",
                             courseKey = "<%=course_key%>",
-                            linkChunk = "/webapps/ppto-PanoptoCourseTool-BBLEARN/vtbe/ltiFrameContainer.jsp?view_sandbox=true&course_key=" + courseKey + "&course_id=" + courseId,
+                            linkChunk = "<%=toolUri%>?view_sandbox=true&course_key=" + courseKey + "&course_id=" + courseId,
                             step1String = "Prepare your video in Panopto video library. If it's not ready, click <a href='" + linkChunk + "' target='_blank'>here</a> to navigate to your personal folder in Panopto.",
                             step2String = "Videos are submitted as part of assignments via clicking on \"Write Submission\".",
                             step3String = "In the text editor expand \"Mashups\" and select \"Panopto Student Video Submission\".",
@@ -116,7 +119,7 @@ function AlertAndClose(){
                                     //Add iframe html for each video to form
                                     for (var i = 0; i < message.ids.length; ++ i) {
                                     	var assignmentName = (message.names !== null && message.names.length > i) ? message.names[i] : "Link to Assignment Submission";
-                                        linkChunk = "/webapps/ppto-PanoptoCourseTool-BBLEARN/vtbe/ltiFrameContainer.jsp?course_key=" + courseKey + "&course_id=" + courseId + "&target_submission=" + message.ids[i];
+                                        linkChunk = "<%=toolUri%>?course_key=" + courseKey + "&course_id=" + courseId + "&target_submission=" + message.ids[i];
                                         
                                         console.log(linkChunk);
                                         

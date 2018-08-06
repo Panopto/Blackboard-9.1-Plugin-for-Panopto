@@ -1,6 +1,7 @@
 <%@ page import="java.lang.reflect.Array"%>
 <%@ page import="com.panopto.blackboard.PanoptoData"%>
 <%@ page import="com.panopto.blackboard.Utils"%>
+<%@ page import="blackboard.platform.plugin.PlugInUtil" %>
 <%@ page import="com.panopto.services.Folder"%>
 <%@ taglib uri="/bbNG" prefix="bbNG"%>
 <%@ taglib uri="/bbData" prefix="bbData"%>
@@ -27,9 +28,11 @@ function AlertAndClose(){
 
     String returnUrl = ctx.getRequestUrl();
     
+    String toolUri = PlugInUtil.getUri("ppto", "PanoptoCourseTool", "");
+    
     // Set a return Url to get back to the content page unless it cant be set properly, then just redirect back to the tool.
-    if (returnUrl.indexOf("ppto-PanoptoCourseTool-BBLEARN") != -1) {
-        returnUrl = returnUrl.split("ppto-PanoptoCourseTool-BBLEARN")[0] + "blackboard/content/listContentEditable.jsp?content_id=" + ctx.getContentId().toExternalString() + "&course_id=" + ctx.getCourseId().toExternalString() + "&mode=reset";
+    if (returnUrl.indexOf(toolUri) != -1) {
+        returnUrl = returnUrl.split(toolUri)[0] + "/webapps/blackboard/content/listContentEditable.jsp?content_id=" + ctx.getContentId().toExternalString() + "&course_id=" + ctx.getCourseId().toExternalString() + "&mode=reset";
     } else {
         returnUrl += "?course_id=" + ctx.getCourseId();
     }
