@@ -43,6 +43,8 @@ String courseConfigURL = PlugInUtil.getUri("ppto", "PanoptoCourseTool", Utils.co
 String courseResetURL = PlugInUtil.getUri("ppto", "PanoptoCourseTool", Utils.courseResetURL)
                             + "?course_id=" + course_id;
 
+String courseUrl = "/webapps/blackboard/execute/launcher?type=Course&id=" + course_id;
+
 PanoptoData ccCourse = new PanoptoData(ctx);
 
 Boolean courseHasBeenReset = false;
@@ -52,6 +54,15 @@ Boolean useOldLayout = false;
 %>
     <bbNG:learningSystemPage>
         <bbNG:cssFile href="css/main.css" />
+        <c:set var="courseBreadcrumb" value="Course"/>
+        <c:set var="pageTitle" value="Panopto Content" />
+        <bbNG:pageHeader>
+        	<bbNG:breadcrumbBar environment="COURSE">
+          		<bbNG:breadcrumb title="${courseBreadcrumb}" href="<%=courseUrl%>"/>
+        		<bbNG:breadcrumb title="${pageTitle}"/>
+        	</bbNG:breadcrumbBar>
+            <bbNG:pageTitleBar title="${pageTitle}" />
+        </bbNG:pageHeader>
             <style>
             #containerdiv
             {
@@ -203,7 +214,7 @@ Boolean useOldLayout = false;
                                                                 [<a href="javascript:launchNotes('<%=s.getNotesURL()%>')"
                                                                 >take notes</a
                                                                                                                         >]
-                                                   [<a href="<%= s.getViewerUrl()%>" onclick="return startSSO(this)"
+                                                   [<a href="<%= s.getViewerUrl() + "&instance=" + Utils.pluginSettings.getInstanceName()%>" onclick="return startSSO(this)"
                                                              >watch live</a
                                                             >]
                                                                 </span>
@@ -223,7 +234,7 @@ Boolean useOldLayout = false;
                                             else
                                             {
                                                 %><div class="completedRecording">
-                                                      <a href="<%=s.getViewerUrl()%>" onclick="return startSSO(this)">
+                                                      <a href="<%=s.getViewerUrl() + "&instance=" + Utils.pluginSettings.getInstanceName()%>" onclick="return startSSO(this)">
                                                        <%=s.getName()%>
                                                       </a>
                                                      </div><%

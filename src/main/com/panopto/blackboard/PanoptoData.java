@@ -772,7 +772,7 @@ public class PanoptoData {
                         String strDisplayName = Utils.escapeHTML(session.getName());
 
                         result.append("<option");
-                        result.append(" value='" + session.getViewerUrl() + "'");
+                        result.append(" value='" + session.getViewerUrl() + "&instance=" + Utils.pluginSettings.getInstanceName() + "'");
                         result.append(">");
                         result.append(strDisplayName);
                         result.append("</option>\n");
