@@ -8,23 +8,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 
-<script>
-//Script to alert user and close window if course is not provisioned
-function AlertAndClose(){
-    alert("This course is not provisioned with Panopto. Before a course can be used with Panopto it must be setup. Please contact your administrator or instructor.");
-    self.close();
-}
-</script>
 
 <bbData:context id="ctx">
 
 <%
     //Get course information from page context
     PanoptoData ccCourse = new PanoptoData(ctx);
-
-    if(ccCourse.equals(null)){%>
-        <script> AlertAndClose();</script>
-    <%}
 
     String returnUrl = ctx.getRequestUrl();
     
@@ -36,6 +25,18 @@ function AlertAndClose(){
     } else {
         returnUrl += "?course_id=" + ctx.getCourseId();
     }
+    
+    %><script>
+    //Script to alert user and close window if course is not provisioned
+    function AlertAndRedirect(){
+        alert("This course is not provisioned with Panopto. Before a course can be used with Panopto it must be setup. Please contact your administrator or instructor.");
+        window.location = "<%=returnUrl%>";
+    }
+    </script><%
+
+    if(ccCourse.equals(null)){%>
+        <script> AlertAndRedirect();</script>
+    <%}
     
     String serverName = ccCourse.getServerName();
     Folder[] PanoptoFolders = ccCourse.getFolders();
@@ -56,13 +57,13 @@ function AlertAndClose(){
         }
         else if(folderCount == 0){
         %>
-            <script> AlertAndClose();</script>
+            <script> AlertAndRedirect();</script>
         <% 
         }
     }
     else{
     %>
-    <script> AlertAndClose();</script>
+    <script> AlertAndRedirect();</script>
     <%
     }
     //Generate source URL for iframe from info. Blackboard embeds require https

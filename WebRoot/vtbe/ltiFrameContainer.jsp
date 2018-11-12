@@ -5,6 +5,7 @@
 <%@ page import="com.panopto.services.Folder"%>
 <%@ page import="blackboard.platform.blti.BasicLTILauncher"%>
 <%@ page import="blackboard.data.course.Course"%>
+<%@ page import="blackboard.data.user.User"%>
 <%@ page import="blackboard.data.blti.BasicLTIPlacement"%>
 <%@ page import="blackboard.data.blti.BasicLTIPlacement.Type"%>
 <%@ page import="blackboard.persist.BbPersistenceManager"%>
@@ -83,22 +84,22 @@ function AlertAndClose(){
     
     HashMap<String, String> customParams = new HashMap<String, String>();
     
+    User user = ctx.getUser();
     // I do not think the IdTypeToSend types matter specifically, but without them the blackboard code eventually throws a null pointer exception.
     BasicLTILauncher launcher = new BasicLTILauncher( LtiSrc, instanceName, Utils.pluginSettings.getApplicationKey(ccCourse.getServerName()), contextId)
             .addResourceLinkInformation("Panopto LTI Tool", "Panopto Basic Lti Tool" )
-            .addUserInformation(ctx.getUser(), usersCourseMembership, true, true, true, IdTypeToSend.PK1)
+            .addUserInformation(user, usersCourseMembership, true, true, true, IdTypeToSend.PK1)
             .addCourseInformation(currCourse, IdTypeToSend.PK1)
             .addContextInformation(fullName, contextId);
     
+    customParams.put("blackboard_user_id",  user.getUserName());
+    
     if (use_sandbox != null && use_sandbox.equals("true")) {
         customParams.put("use_panopto_sandbox", use_sandbox);
-        
-        launcher.addCustomToolParameters(customParams);
     }
     
     if (show_tabs != null && !show_tabs.isEmpty()) {
         customParams.put("panopto_show_tabs", show_tabs);
-        launcher.addCustomToolParameters(customParams);
     }
     
     // targetSubmission is a submitted assignment a user is trying to view
@@ -107,31 +108,27 @@ function AlertAndClose(){
         
         // If this is not added then the embed will use the normal embedded view, we want the full featured view.
         customParams.put("use_panopto_interactive_view", "true");
-        
-        launcher.addCustomToolParameters(customParams);
     } 
     // If there are submitIds that means a user is trying to submit videos to an assignment.
     else if (submitIds != null) {
         customParams.put("panopto_assignment_submission", submitIds);
-        
-        launcher.addCustomToolParameters(customParams);
     }
     // This is the case where a user clicked the link in the instructions. Direct them to thier sandbox so they can make a video.
     else if(viewSandbox != null && viewSandbox.equals("true")){
         customParams.put("use_panopto_sandbox", viewSandbox);
-        launcher.addCustomToolParameters(customParams);
     }
     // Base case is opening the EmbeddedUpload.aspx which requires a content item placement type
     else {
         // This parameter does nothing server side currently, but it will be needed when we decide to replace all EmbededUploading with LTI.
         customParams.put("panopto_single_selection", "true");
-        launcher.addCustomToolParameters(customParams);
         
         launcher.setPlacement(ltiPlacement);
         
         // This is needed, if no parent is set then the blackboard code will fail with a generic hard to debug NullPointerException in 'addContentItemLaunchParameters'
         launcher.setParentId(ctx.getContentId());
     }
+    
+    launcher.addCustomToolParameters(customParams);
     
     try {
         launcher.launch( request, response, false, null );
