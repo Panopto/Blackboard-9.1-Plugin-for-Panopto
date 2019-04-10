@@ -224,9 +224,6 @@ public class PanoptoData {
         sessionGroupPublicIDs = getCourseRegistryEntries(sessionGroupIDRegistryKey);
         sessionGroupDisplayNames = getCourseRegistryEntries(sessionGroupDisplayNameRegistryKey);
 
-        copySessionGroupPublicIDs = getCourseRegistryEntries(copySessionGroupIDsRegistryKey);
-        copySessionGroupDisplayNames = getCourseRegistryEntries(copySessionGroupDisplayNamesRegistryKey);
-
         // Check that the list of Ids and names are valid. They must both be the
         // same length
         if ((sessionGroupPublicIDs == null && sessionGroupDisplayNames != null)
@@ -244,6 +241,8 @@ public class PanoptoData {
             setCourseRegistryEntries(sessionGroupIDRegistryKey, null);
             setCourseRegistryEntries(sessionGroupDisplayNameRegistryKey, null);
         }
+
+        ValidateCourseCopyValues();
     }
 
     public Course getBBCourse() {
@@ -626,7 +625,7 @@ public class PanoptoData {
      */
     public String generateCourseConfigCopyFoldersOptionsHTML() {
         StringBuffer result = new StringBuffer();
-        if (copySessionGroupDisplayNames != null) {
+        if (ValidateCourseCopyValues()) {
             for (int i = 0; i < copySessionGroupDisplayNames.length; i++) {
                 result.append("<option");
                 result.append(" value='" + copySessionGroupPublicIDs[i] + "'");
@@ -637,6 +636,35 @@ public class PanoptoData {
         }
 
         return result.toString();
+    }
+    
+    public boolean ValidateCourseCopyValues() {
+
+        this.copySessionGroupPublicIDs = getCourseRegistryEntries(copySessionGroupIDsRegistryKey);
+        this.copySessionGroupDisplayNames = getCourseRegistryEntries(copySessionGroupDisplayNamesRegistryKey);
+
+        // Check that the list of Ids and names for course imports are valid. They must both be the
+        // same length
+        if ((this.copySessionGroupPublicIDs == null && this.copySessionGroupDisplayNames != null)
+                || (this.copySessionGroupPublicIDs != null && this.copySessionGroupDisplayNames == null)
+                || (this.copySessionGroupPublicIDs != null && this.copySessionGroupPublicIDs.length != this.copySessionGroupDisplayNames.length)) {
+            Utils.log(String.format(
+                    "Invalid course import registry settings. Reseting course imports to null. copySessionGroupPublicIDs = %s"
+                            + "copySessionGroupDisplayNames = %s",
+                    Utils.encodeArrayOfStrings(this.copySessionGroupPublicIDs),
+                    Utils.encodeArrayOfStrings(this.copySessionGroupDisplayNames)));
+
+            this.copySessionGroupPublicIDs = null;
+            this.copySessionGroupDisplayNames = null;
+            setCourseRegistryEntries(copySessionGroupIDsRegistryKey, null);
+            setCourseRegistryEntries(copySessionGroupDisplayNamesRegistryKey, null);
+            
+            return false;
+        } else if (this.copySessionGroupPublicIDs == null && this.copySessionGroupDisplayNames == null) {
+            return false;
+        }
+        
+        return true;
     }
 
     // Generates the list of available folders for the course config page's
@@ -837,20 +865,20 @@ public class PanoptoData {
                 // isInAvailabilityWindow defaults to true, so sessions will be
                 // added if calls to the availability
                 // window API cannot be made.
-                PanoptoAvailabilityWindow.AvailabilityState availabilityState = PanoptoAvailabilityWindow.AvailabilityState.Unknown;
-                if (PanoptoVersions.canCallAvailabilityWindowApiMethods(serverVersion)) {
-                    try {
-                        // If user is a creator on Panopto, check if the session
-                        // is in its availability window.
-                        availabilityState = this.checkSessionAvailabilityState(sessionID, auth);
-                    } catch (Exception e) {
-                        // Problem getting availability window information from
-                        // the API. Do not add the session to the
-                        // course.
-                        availabilityState = PanoptoAvailabilityWindow.AvailabilityState.Unknown;
-                        Utils.log(e, "Error getting availability information for sessions from server.");
-                    }
+               PanoptoAvailabilityWindow.AvailabilityState availabilityState = PanoptoAvailabilityWindow.AvailabilityState.Unknown;
+               
+               try {
+                    // If user is a creator on Panopto, check if the session
+                    // is in its availability window.
+                    availabilityState = this.checkSessionAvailabilityState(sessionID, auth);
+                } catch (Exception e) {
+                    // Problem getting availability window information from
+                    // the API. Do not add the session to the
+                    // course.
+                    availabilityState = PanoptoAvailabilityWindow.AvailabilityState.Unknown;
+                    Utils.log(e, "Error getting availability information for sessions from server.");
                 }
+               
                 if (availabilityState == PanoptoAvailabilityWindow.AvailabilityState.Available) {
                     // If the session is in its availability window. add it to
                     // the course and return success.
@@ -924,9 +952,19 @@ public class PanoptoData {
             // the session is available. Load the
             // session data to get the folder, then get the folder availability
             Session session = sessionManagement.getSessionsById(auth, sessionIds)[0];
-
-            folderSettings = sessionManagement
+            
+            try {
+                folderSettings = sessionManagement
                     .getFoldersAvailabilitySettings(auth, new String[] { session.getFolderId() }).getResults()[0];
+            } catch (Exception e) {
+                Utils.logVerbose("first attempt at getFoldersAvailabilitySettings failed, calling syncUser");
+                
+                // If the user has a role that bypasses normal syncing e.g. videographer then we will need to sync them before getting availability settings.
+                syncUser();
+                
+                folderSettings = sessionManagement
+                    .getFoldersAvailabilitySettings(auth, new String[] { session.getFolderId() }).getResults()[0];
+            }
         }
         return PanoptoAvailabilityWindow.getSessionAvailability(sessionSettings, folderSettings);
     }
@@ -1169,13 +1207,10 @@ public class PanoptoData {
             if (this.serverVersion == null) {
                 this.serverVersion = getServerVersion();
             }
-    
-            // We can only report back the integration info on a Panopto server v5.4 or greater.
-            if (PanoptoVersions.canReportIntegrationInfo(serverVersion)) {
-                IAuth iAuth = getPanoptoAuthSOAPService(serverName);
-                iAuth.reportIntegrationInfo(auth, Utils.pluginSettings.getInstanceName(), plugInVersion, platformVersion);
-            }
-        } catch (RemoteException ex) {
+            
+            IAuth iAuth = getPanoptoAuthSOAPService(serverName);
+            iAuth.reportIntegrationInfo(auth, Utils.pluginSettings.getInstanceName(), plugInVersion, platformVersion);
+        } catch (Exception ex) {
             Utils.log(ex, String.format("Error reporting Integration Info to server: %s", serverName));
         }
     }
@@ -1197,6 +1232,11 @@ public class PanoptoData {
             Folder[] folders = getPanoptoSessionManagementSOAPService(serverName).setExternalCourseAccess(auth,
                     fullName, externalCourseId, folderIds);
             updateCourseFolders(folders);
+            
+            // Once a course is unprovisioned/reprovision all imports will be lost and need to be reinitialized.
+            if (Utils.pluginSettings.getCourseCopyEnabled()) {
+                reinitializeImports(); 
+            }
             
             this.reportIntegrationInfo(auth);
 
@@ -1224,6 +1264,62 @@ public class PanoptoData {
         
         return true;
     }
+    
+    // Removes the external context from all Panopto folders and assignment folders) associated with this course.
+    public boolean unprovisionExternalCourse() {
+        boolean result;
+        this.previousProvisioningError = "";
+        
+        AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
+        
+        try {
+            result = getPanoptoSessionManagementSOAPService(serverName).unprovisionExternalCourse(auth, bbCourse.getId().toExternalString());
+            
+            if (!result) {
+                Utils.log(String.format("Unprovisioning course did not succeed(id: %s, server: %s, user: %s).",
+                        bbCourse.getId().toExternalString(), serverName, bbUserName));
+            } else {
+                Utils.logVerbose(String.format("Panopto folders unlinked to course course(unprovisioned) (id: %s, server: %s, user: %s).",
+                    bbCourse.getId().toExternalString(), serverName, bbUserName));
+            }
+        } catch (Exception e) {
+            String exceptionMessage = e.getMessage();
+            
+            // Save the last error so we can display it to the user if they are provisioning from the course_configure page.
+            if (exceptionMessage != null) {
+                this.previousProvisioningError = exceptionMessage;
+            }
+            Utils.log(e, String.format("Error unprovisioning course (id: %s, server: %s, user: %s).",
+                    bbCourse.getId().toExternalString(), serverName, bbUserName));
+            return false;
+        }
+        
+        return result;
+    }
+    
+    // This function will remap an external Id to an existing folder, currently only used after unprovisioing an old folder.
+    public boolean updateFolderExternalIdWithProvider(String folderId) {
+        AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
+        
+        try {
+            getPanoptoSessionManagementSOAPService(serverName).updateFolderExternalIdWithProvider(
+                auth, 
+                folderId, 
+                bbCourse.getId().toExternalString(),
+                Utils.pluginSettings.getInstanceName()
+            );
+        } catch (Exception e) {
+            String exceptionMessage = e.getMessage();
+            
+            // Save the last error so we can display it to the user if they are provisioning from the course_configure page.
+            if (exceptionMessage != null) {
+                this.previousProvisioningError = exceptionMessage;
+            }
+            Utils.log(e, String.format("Error unprovisioning course (id: %s, server: %s, user: %s).",
+                    bbCourse.getId().toExternalString(), serverName, bbUserName));
+        }
+        return true;
+    }
 
     // Updates the course so it has no Panopto data
     public void resetCourse() throws RemoteException {
@@ -1238,13 +1334,19 @@ public class PanoptoData {
                     "Resetting BB course, ID: %s, Title: %s, Old Server: %s, Old Panopto IDs: %s\n, Old folders count: %s\n",
                     bbCourse.getId().toExternalString(), bbCourse.getTitle(), serverName,
                     Utils.encodeArrayOfStrings(sessionGroupPublicIDs), courseFolders.length));
-
+            
+            unprovisionExternalCourse();
+            
             // In the set registry entry function, we delete existing entries
             // and only create new ones if the value is
             // not null.
             setCourseRegistryEntry(hostnameRegistryKey, null);
             setCourseRegistryEntries(sessionGroupIDRegistryKey, null);
             setCourseRegistryEntries(sessionGroupDisplayNameRegistryKey, null);
+            
+            // Remove all existing course imports.
+            setCourseRegistryEntries(copySessionGroupIDsRegistryKey, null);
+            setCourseRegistryEntries(copySessionGroupDisplayNamesRegistryKey, null);
 
             // If there are empty Panopto folders for this course, then delete
             // it so we don't trail empty unused
@@ -1375,6 +1477,34 @@ public class PanoptoData {
         }
     }
 
+    public void reinitializeImports( ) {
+        try {
+            this.copySessionGroupPublicIDs = getCourseRegistryEntries(copySessionGroupIDsRegistryKey);
+            
+            if (this.copySessionGroupPublicIDs != null && (this.copySessionGroupPublicIDs.length > 0)) {
+                if (this.serverVersion == null) {
+                    this.serverVersion = getServerVersion();
+                }
+                
+                if (PanoptoVersions.canCallCopyApiMethods(serverVersion)) {
+                    AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
+                    String externalCourseId = Utils.decorateBlackboardCourseID(bbCourse.getId().toExternalString());
+                    String fullName = bbCourse.getCourseId() + ": " + bbCourse.getTitle();
+                    getPanoptoSessionManagementSOAPService(serverName).setCopiedExternalCourseAccess(auth, fullName,
+                            externalCourseId, copySessionGroupPublicIDs);
+    
+                    // Log the action
+                    Utils.logVerbose(String.format(
+                            "reinitialized course imports, Target ID: %s, Title: %s, Server: %s, Panopto ID: %s\n",
+                            bbCourse.getId().toExternalString(), bbCourse.getTitle(),
+                            serverName, Utils.encodeArrayOfStrings(sessionGroupPublicIDs)));
+                }
+            }
+        } catch (Exception e) {
+            Utils.log(e, String.format("Error reinitializing imports (course id: %s, server: %s, user: %s).",
+                    bbCourse.getId().toExternalString(), serverName, bbUserName));
+        }
+    }
     /**
      * Copy Panopto folder permissions from the source course into this course
      * as viewer access.

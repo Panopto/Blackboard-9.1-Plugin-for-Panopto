@@ -1,0 +1,1 @@
+The bb-*.jar files are obtained from within '/usr/local/blackboard/apps/tomcat/lib' on bb-saas1.d.panopto.com using bblearn version Release 3500.11.0-rel.4+84745af

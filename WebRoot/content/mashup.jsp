@@ -19,13 +19,8 @@
     
     String toolUri = PlugInUtil.getUri("ppto", "PanoptoCourseTool", "");
     
-    // Set a return Url to get back to the content page unless it cant be set properly, then just redirect back to the tool.
-    if (returnUrl.indexOf(toolUri) != -1) {
-        returnUrl = returnUrl.split(toolUri)[0] + "/webapps/blackboard/content/listContentEditable.jsp?content_id=" + ctx.getContentId().toExternalString() + "&course_id=" + ctx.getCourseId().toExternalString() + "&mode=reset";
-    } else {
-        returnUrl += "?course_id=" + ctx.getCourseId();
-    }
-    
+    // Set a return Url to get back to the content page.
+    returnUrl = PlugInUtil.getContentReturnURL(ctx.getContentId(), ctx.getCourseId());
     %><script>
     //Script to alert user and close window if course is not provisioned
     function AlertAndRedirect(){

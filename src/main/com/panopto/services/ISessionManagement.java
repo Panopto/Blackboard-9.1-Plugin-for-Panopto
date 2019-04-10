@@ -40,6 +40,7 @@ public interface ISessionManagement extends java.rmi.Remote {
     public void deleteSessions(com.panopto.services.AuthenticationInfo auth, java.lang.String[] sessionIds) throws java.rmi.RemoteException;
     public void deleteFolders(com.panopto.services.AuthenticationInfo auth, java.lang.String[] folderIds) throws java.rmi.RemoteException;
     public com.panopto.services.Folder provisionExternalCourse(com.panopto.services.AuthenticationInfo auth, java.lang.String name, java.lang.String externalId) throws java.rmi.RemoteException;
+    public java.lang.Boolean unprovisionExternalCourse(com.panopto.services.AuthenticationInfo auth, java.lang.String externalContextId) throws java.rmi.RemoteException;
     public com.panopto.services.Folder[] setExternalCourseAccess(com.panopto.services.AuthenticationInfo auth, java.lang.String name, java.lang.String externalId, java.lang.String[] folderIds) throws java.rmi.RemoteException;
     public com.panopto.services.Folder[] setCopiedExternalCourseAccess(com.panopto.services.AuthenticationInfo auth, java.lang.String name, java.lang.String externalId, java.lang.String[] folderIds) throws java.rmi.RemoteException;
     public com.panopto.services.RecorderDownloadUrlResponse getRecorderDownloadUrls() throws java.rmi.RemoteException;

@@ -98,21 +98,21 @@
 			<artifactId>bb-cms-admin</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/bb-cms-admin-3300.0.1-rel.60.jar</systemPath>
+			<systemPath>${project.basedir}/lib/bb-cms-admin.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>bb</groupId>
 			<artifactId>bb-platform</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/bb-platform-3300.0.1-rel.60.jar</systemPath>
+			<systemPath>${project.basedir}/lib/bb-platform.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>bb</groupId>
 			<artifactId>bb-taglibs</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/bb-taglibs-3300.0.1-rel.60.jar</systemPath>
+			<systemPath>${project.basedir}/lib/bb-taglibs.jar</systemPath>
 		</dependency>
 	  <dependency>
 		  <groupId>junit</groupId>
