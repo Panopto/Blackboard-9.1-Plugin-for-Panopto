@@ -31,15 +31,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 
 import blackboard.platform.plugin.PlugInUtil;
 
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
-
-// API (XMLSerializer & OutputFormat) are deprecated but still work, suppress warnings for clean build.
-// TODO Bug 43355 (Remove the classes and use the non deprecated one)
-@SuppressWarnings("restriction")
 public class Settings {
 
     // Enable users to connect to multiple Panopto servers from one Blackboard site.
@@ -383,20 +381,20 @@ public class Settings {
             courseCopyEnabledElem.setAttribute("courseCopyEnabled", courseCopyEnabled.toString());
             docElem.appendChild(courseCopyEnabledElem);
 
-            OutputFormat format = new OutputFormat(settingsDocument);
-            format.setIndenting(true);
-            format.setLineSeparator("\r\n");
-
             File configDir = PlugInUtil.getConfigDirectory(Utils.vendorID, Utils.pluginHandle);
             File settingsFile = new File(configDir, "settings.xml");
-
+            
+            DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+            LSSerializer writer = impl.createLSSerializer();
+            writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
+            
+            LSOutput output = impl.createLSOutput();
             FileOutputStream outStream = new FileOutputStream(settingsFile);
-
-            // API is deprecated but still works, suppress warnings for clean build.
-            XMLSerializer serializer = new XMLSerializer(outStream, format);
+            output.setByteStream(outStream);
 
             // Serialize to XML.
-            serializer.serialize(settingsDocument);
+            writer.write(settingsDocument, output);
         } catch (Exception e) {
             Utils.log(e, "Error saving settings.");
         }

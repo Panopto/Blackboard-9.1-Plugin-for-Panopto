@@ -101,12 +101,19 @@ if((serverList == null) || (serverList.size() == 0))
 
 // On main form submit, set final course association and redirect to referring page.
 String[] folderIds = request.getParameterValues("selectedFolders");
+
 if(folderIds != null)
 {
-    
+
     String redirectURL = "";
+    
+    // Since we are reconfiguring a course we should reset the existing context and assignment folders so new ones can be made.
     // Only redirect if the provisioning all succeeded, otherwise keep the user there and display the error.
+    ccCourse.unprovisionExternalCourse();
+    
     if(ccCourse.reprovisionCourse(folderIds)) {
+        ccCourse.updateFolderExternalIdWithProvider(folderIds[0]);
+        
         redirectURL = response.encodeRedirectURL(parentURL);
         response.sendRedirect(redirectURL);
     } else{
@@ -256,6 +263,10 @@ if(folderIds != null)
                                     You may update the list of Panopto folders associated with this course. 
                                     <br />
                                     Instructors of this course will be able to create content in any folder associated with it and students will be able to view the content.
+                                    <br />
+                                    The first folder in the 'Selected Folders' list will be designated as the primary external folder for the course. 
+                                    <br />
+                                    This primary external folder will be the folder used as the parent for the course's Student Submissions folder.
                                 </p> 
                             </div>
                         </li>

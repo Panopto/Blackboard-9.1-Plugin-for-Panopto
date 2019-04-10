@@ -16,7 +16,7 @@ public class BasicHttpBinding_ISessionManagementStub extends org.apache.axis.cli
     static org.apache.axis.description.OperationDesc [] _operations;
 
     static {
-        _operations = new org.apache.axis.description.OperationDesc[52];
+        _operations = new org.apache.axis.description.OperationDesc[53];
         _initOperationDesc1();
         _initOperationDesc2();
         _initOperationDesc3();
@@ -1116,6 +1116,22 @@ public class BasicHttpBinding_ISessionManagementStub extends org.apache.axis.cli
         oper.setStyle(org.apache.axis.constants.Style.WRAPPED);
         oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[51] = oper;
+        
+        oper = new org.apache.axis.description.OperationDesc();
+        oper.setName("UnprovisionExternalCourse");
+        param = new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("http://tempuri.org/", "auth"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://schemas.datacontract.org/2004/07/Panopto.Server.Services.PublicAPI.V40", "AuthenticationInfo"), com.panopto.services.AuthenticationInfo.class, false, false);
+        param.setOmittable(true);
+        param.setNillable(true);
+        oper.addParameter(param);
+        param = new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("http://tempuri.org/", "externalContextId"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"), java.lang.String.class, false, false);
+        param.setOmittable(true);
+        param.setNillable(true);
+        oper.addParameter(param);
+        oper.setReturnType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "boolean"));
+        oper.setReturnClass(java.lang.Boolean.class);
+        oper.setStyle(org.apache.axis.constants.Style.WRAPPED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
+        _operations[52] = oper;
     }
 
     public BasicHttpBinding_ISessionManagementStub() throws org.apache.axis.AxisFault {
@@ -1123,8 +1139,9 @@ public class BasicHttpBinding_ISessionManagementStub extends org.apache.axis.cli
     }
 
     public BasicHttpBinding_ISessionManagementStub(java.net.URL endpointURL, javax.xml.rpc.Service service) throws org.apache.axis.AxisFault {
-         this(service);
-         super.cachedEndpoint = endpointURL;
+
+        this(service);
+        super.cachedEndpoint = endpointURL;
     }
 
     public BasicHttpBinding_ISessionManagementStub(javax.xml.rpc.Service service) throws org.apache.axis.AxisFault {
@@ -1416,7 +1433,6 @@ public class BasicHttpBinding_ISessionManagementStub extends org.apache.axis.cli
             cachedSerClasses.add(cls);
             cachedSerFactories.add(org.apache.axis.encoding.ser.BaseSerializerFactory.createFactory(org.apache.axis.encoding.ser.SimpleSerializerFactory.class, cls, qName));
             cachedDeserFactories.add(org.apache.axis.encoding.ser.BaseDeserializerFactory.createFactory(org.apache.axis.encoding.ser.SimpleDeserializerFactory.class, cls, qName));
-
     }
 
     protected org.apache.axis.client.Call createCall() throws java.rmi.RemoteException {
@@ -3129,6 +3145,36 @@ public class BasicHttpBinding_ISessionManagementStub extends org.apache.axis.cli
   } catch (org.apache.axis.AxisFault axisFaultException) {
   throw axisFaultException;
 }
+    }
+    
+    public java.lang.Boolean unprovisionExternalCourse(com.panopto.services.AuthenticationInfo auth, java.lang.String externalContextId) throws java.rmi.RemoteException {
+        if (super.cachedEndpoint == null) {
+            throw new org.apache.axis.NoEndPointException();
+        }
+        org.apache.axis.client.Call _call = createCall();
+        _call.setOperation(_operations[52]);
+        _call.setUseSOAPAction(true);
+        _call.setSOAPActionURI("http://tempuri.org/ISessionManagement/UnprovisionExternalCourse");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
+        _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
+        _call.setOperationName(new javax.xml.namespace.QName("http://tempuri.org/", "UnprovisionExternalCourse"));
+
+        setRequestHeaders(_call);
+        setAttachments(_call);
+        try {        
+            java.lang.Object _resp = _call.invoke(new java.lang.Object[] {auth, externalContextId});
+        
+            if (_resp instanceof java.rmi.RemoteException) {
+                throw (java.rmi.RemoteException)_resp;
+            }
+            else {
+                return (java.lang.Boolean) _resp;
+            }
+         } catch (org.apache.axis.AxisFault axisFaultException) {
+             throw axisFaultException;
+         }
     }
 
 }
