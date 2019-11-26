@@ -104,7 +104,7 @@ public class PanoptoData {
     private static final String[] emptyStringArray = new String[0];
 
     // Constants used for paging.
-    private final int maxPages = 100;
+    private int maxPages = 100;
     private final int perPage = 100;
 
     // Blackboard course we are associating with
@@ -181,6 +181,14 @@ public class PanoptoData {
         this.bbUserName = bbUserName;
         this.isInstructor = PanoptoData.isUserInstructor(this.bbCourse.getId(), this.bbUserName, false);
         this.canAddLinks = PanoptoData.canUserAddLinks(this.bbCourse.getId(), this.bbUserName);
+        
+        int maxListedFolders = Integer.parseInt(Utils.pluginSettings.getMaxListedFolders());
+        this.maxPages = (maxListedFolders / this.perPage);
+        
+        // If the user put in a maxListedFolders value that isn't divisible by our pages then add an extra page.
+        if ((maxListedFolders % this.perPage) != 0) {
+            ++this.maxPages;
+        }
         
         // If one is pluginVersion is null set both the plugIn and platform versions.
         if (plugInVersion == null) {

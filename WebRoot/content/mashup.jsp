@@ -38,8 +38,9 @@
     String folderId = "";
     //If course is associated with a single folder, append folder's id to iframe source url
     //This will automatically display course's video's in frame
-    //  If more than one folder is provisioned to a course it will grab the folderId of the first folder with a valid Id.
-    //  If no folders have a valid Id this tool will open to the first folder the user has creator access to, usually thier personal folder.
+    // If the plugin believes no folders are linked to the course it will show an error
+    // If at least one folder is provisioned to the course it will grab the folderId of the first folder it can.
+    // If at least one folder is provisioned to the course but all of them have bad Ids(null, deleted, or corrupted in any way) it will open to the first folder the user has Creator access on.
     if(PanoptoFolders != null){
         int folderCount = Array.getLength(PanoptoFolders);
         if(folderCount >= 1){
@@ -103,38 +104,38 @@
                             selected = false;
                         }
                         //Called when "Insert" is clicked. Creates HTML for embedding each selected video into the editor            
-                            if (message.cmd === 'deliveryList') {       
-                                if(selected){
-                                    var returnString = "",
-                                        PLAYLIST_EMBED_ID = 1,
-                                        VIDEO_EMBED_ID = 0;
-                                    
-                                    // Name the content after the title of the 1st embed, user can edit this later.
-                                    if (message.names && message.names.length > 0) {
-                                        document.getElementById("content_title").value =  message.names[0];
+                        if (message.cmd === 'deliveryList') {       
+                            if(selected){
+                                var returnString = "",
+                                    PLAYLIST_EMBED_ID = 1,
+                                    VIDEO_EMBED_ID = 0;
+                                
+                                // Name the content after the title of the 1st embed, user can edit this later.
+                                if (message.names && message.names.length > 0) {
+                                    document.getElementById("content_title").value =  message.names[0];
+                                }
+                                
+                                //This is going to need to only pass the Id chunks, it looks link BB parses our params and strips out any 'dangerous' html
+                                for (var i = 0; i < message.ids.length; ++ i) {
+                                    var idChunk = '';
+                                    if ((message.playableObjectTypes != null) && (message.playableObjectTypes.size() > i) && (message.playableObjectTypes[i] === PLAYLIST_EMBED_ID)){
+                                        idChunk = "&pid=" + message.ids[i];
+                                    } else {
+                                        idChunk = "&id=" + message.ids[i];
                                     }
                                     
-                                    //This is going to need to only pass the Id chunks, it looks link BB parses our params and strips out any 'dangerous' html
-                                    for (var i = 0; i < message.ids.length; ++ i) {
-                                        var idChunk = '';
-                                        if ((message.playableObjectTypes != null) && (message.playableObjectTypes.size() > i) && (message.playableObjectTypes[i] === PLAYLIST_EMBED_ID)){
-                                            idChunk = "&pid=" + message.ids[i];
-                                        } else {
-                                            idChunk = "&id=" + message.ids[i];
-                                        }
-                                        
-                                        returnString += idChunk;
-                                        if (i < message.ids.length - 1) {
-                                            returnString += ","
-                                        }
-                                    };
-                                    document.getElementById("embed_ids").value =  returnString;
-                                    document.forms["submitForm"].submit();
-                               }
-                               else{
-                                   alert("Please select a video to embed.");
-                               }
+                                    returnString += idChunk;
+                                    if (i < message.ids.length - 1) {
+                                        returnString += ","
+                                    }
+                                };
+                                document.getElementById("embed_ids").value =  returnString;
+                                document.forms["submitForm"].submit();
                            }
+                           else{
+                               alert("Please select a video to embed.");
+                           }
+                       }
                      }, false);
                 }
                 

@@ -51,12 +51,12 @@ function AlertAndClose(){
                             courseId = "<%=course_id%>",
                             courseKey = "<%=course_key%>",
                             linkChunk = "<%=toolUri%>?view_sandbox=true&course_key=" + courseKey + "&course_id=" + courseId,
-                            step1String = "Prepare your video in Panopto video library. If it's not ready, click <a href='" + linkChunk + "' target='_blank'>here</a> to navigate to your personal folder in Panopto.",
-                            step2String = "Videos are submitted as part of assignments via clicking on \"Write Submission\".",
-                            step3String = "In the text editor expand \"Mashups\" and select \"Panopto Student Video Submission\".",
-                            step4String = "If your submission is not in the default personal folder select the folder where your submission is stored.",
-                            step5String = "Once at the folder your submission is located select the submission and click \"Insert\".",
-                            step6String = "Once your submission has been added to the text editor add any extra information and submit.";
+                            step1String = "Record or upload your video in Panopto. To start creating your video, <a href='" + linkChunk + "' target='_blank'>click here to open your personal folder</a>.",
+                            step2String = "Open the assignment in Blackboard and select <b>Write Submission</b>.",
+                            step3String = "In the text editor, expand <b>Mashups</b> and select <b>Panopto Student Video Submission.</b>",
+                            step4String = "A window will open to show the videos in your personal folder. If your video is located in a different folder, select the correct folder from the drop-down at the top.",
+                            step5String = "Select the video you wish to submit and click <b>Insert.</b>",
+                            step6String = "Your video will be added to the submission. Add any extra information and <b>Submit</b>.";
                         
                         instructions += 
                         "<div>" +

@@ -88,6 +88,8 @@ public class Settings {
     private String menuLinkText = "Panopto Video";
 
     private String roleMappingString = "";
+    
+    private String maxListedFolders = "10000";
 
     /**
      * Boolean setting that turns on copying Panopto permissions during Blackboard course copy
@@ -278,7 +280,15 @@ public class Settings {
         this.roleMappingString = roleMappingString;
         save();
     }
+    
+    public String getMaxListedFolders() {
+        return maxListedFolders;
+    }
 
+    public void setMaxListedFolders(String maxListedFolders) {
+        this.maxListedFolders = maxListedFolders;
+        save();
+    }
     /**
      * Get accessor for the Panopto copy permissions boolean
      * 
@@ -380,6 +390,10 @@ public class Settings {
             Element courseCopyEnabledElem = settingsDocument.createElement("courseCopyEnabled");
             courseCopyEnabledElem.setAttribute("courseCopyEnabled", courseCopyEnabled.toString());
             docElem.appendChild(courseCopyEnabledElem);
+
+            Element maxListedFoldersElem = settingsDocument.createElement("maxListedFolders");
+            maxListedFoldersElem.setAttribute("maxListedFolders", maxListedFolders);
+            docElem.appendChild(maxListedFoldersElem);
 
             File configDir = PlugInUtil.getConfigDirectory(Utils.vendorID, Utils.pluginHandle);
             File settingsFile = new File(configDir, "settings.xml");
@@ -515,6 +529,12 @@ public class Settings {
         if (courseCopyEnabledNodes.getLength() != 0) {
             Element courseCopyEnabledElem = (Element) courseCopyEnabledNodes.item(0);
             this.courseCopyEnabled = Boolean.valueOf(courseCopyEnabledElem.getAttribute("courseCopyEnabled"));
+        }
+
+        NodeList maxListedFoldersNodes = docElem.getElementsByTagName("maxListedFolders");
+        if (maxListedFoldersNodes.getLength() != 0) {
+            Element maxListedFoldersElem = (Element) maxListedFoldersNodes.item(0);
+            this.maxListedFolders = maxListedFoldersElem.getAttribute("maxListedFolders");
         }
     }
 

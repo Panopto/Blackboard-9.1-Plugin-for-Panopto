@@ -78,6 +78,7 @@ Boolean insertLinkOnProvision = (request.getParameter("insertLinkOnProvision") !
 String menuLinkText = request.getParameter("menuLinkText");
 String roleMappingString = request.getParameter("roleMappingString");
 Boolean courseCopyEnabled = (request.getParameter("courseCopyEnabled") != null);
+String maxListedFolders = request.getParameter("maxListedFolders");
 
 //Bounce page address to copy into Panopto
 String SSOAddress = "https://" + ctx.getHostName()  + PlugInUtil.getUri("ppto", "PanoptoCourseTool", "SSO.jsp");
@@ -88,10 +89,10 @@ List<Role> customRoles = new ArrayList<Role>();
 
 for(Role courseRole: courseRoles)
 {
-if(courseRole.getDbRole().isRemovable())
-{
-customRoles.add(courseRole);
-}
+	if(courseRole.getDbRole().isRemovable())
+	{
+		customRoles.add(courseRole);
+	}
 }
 
 
@@ -101,29 +102,33 @@ if(instanceName != null)
     {
         Utils.pluginSettings.setInstanceName(instanceName.trim());
     }
-    
-    Utils.pluginSettings.setInstructorsCanProvision(instructorsCanProvision);
-    Utils.pluginSettings.setMailLectureNotifications(mailLectureNotifications);
-    Utils.pluginSettings.setRefreshLogins(refreshLogins);
-    Utils.pluginSettings.setSyncAvailabilityStatus(syncAvailabilityStatus);
-    Utils.pluginSettings.setRedirectToDefaultLogin(redirectToDefaultLogin);
-    Utils.pluginSettings.setGrantTACreator(grantTACreator);
-    Utils.pluginSettings.setGrantTAProvision(grantTAProvision);
-    Utils.pluginSettings.setTAsCanCreateLinks(TAsCanCreateLinks);
-    Utils.pluginSettings.setCourseResetEnabled(courseResetEnabled);
-    Utils.pluginSettings.setVerbose(verbose);
-    Utils.pluginSettings.setInsertLinkOnProvision(insertLinkOnProvision);
-    Utils.pluginSettings.setCourseCopyEnabled(courseCopyEnabled);
-    
-    if(roleMappingString != null)
-    {
-        Utils.pluginSettings.setRoleMappingString(roleMappingString.trim());
-    }
-    else
-    {
-        Utils.pluginSettings.setRoleMappingString("");
-    }
+
+	Utils.pluginSettings.setInstructorsCanProvision(instructorsCanProvision);
+	Utils.pluginSettings.setMailLectureNotifications(mailLectureNotifications);
+	Utils.pluginSettings.setRefreshLogins(refreshLogins);
+	Utils.pluginSettings.setSyncAvailabilityStatus(syncAvailabilityStatus);
+	Utils.pluginSettings.setRedirectToDefaultLogin(redirectToDefaultLogin);
+	Utils.pluginSettings.setGrantTACreator(grantTACreator);
+	Utils.pluginSettings.setGrantTAProvision(grantTAProvision);
+	Utils.pluginSettings.setTAsCanCreateLinks(TAsCanCreateLinks);
+	Utils.pluginSettings.setCourseResetEnabled(courseResetEnabled);
+	Utils.pluginSettings.setVerbose(verbose);
+	Utils.pluginSettings.setInsertLinkOnProvision(insertLinkOnProvision);
+	Utils.pluginSettings.setCourseCopyEnabled(courseCopyEnabled);
+	
+	maxListedFolders = (maxListedFolders == null) || maxListedFolders.isEmpty() ? Utils.pluginSettings.getMaxListedFolders() : maxListedFolders;
+	Utils.pluginSettings.setMaxListedFolders(Integer.toString(Integer.max(100, Integer.parseInt(maxListedFolders))));
+	
+	if(roleMappingString != null)
+	{
+	    Utils.pluginSettings.setRoleMappingString(roleMappingString.trim());
+	}
+	else
+	{
+	    Utils.pluginSettings.setRoleMappingString("");
+	}
 }
+
  
 //If menu link text is not null, save it.
 if(menuLinkText != null)
@@ -151,6 +156,7 @@ insertLinkOnProvision = Utils.pluginSettings.getInsertLinkOnProvision();
 menuLinkText = Utils.pluginSettings.getMenuLinkText();
 roleMappingString = Utils.pluginSettings.getRoleMappingString();
 courseCopyEnabled = Utils.pluginSettings.getCourseCopyEnabled();
+maxListedFolders = Utils.pluginSettings.getMaxListedFolders();
 
 // Server list form submitted, add/remove servers if valid operation
 String add_hostname = request.getParameter("add_hostname");
@@ -444,166 +450,22 @@ else
                         <div class="field">
                             <p tabIndex="0" class="stepHelp">
                                 The instance name identifies this Blackboard system to Panopto.<br />
-                                If this is the only Blackboard system that will connect to the Panopto servers below, it is not necessary to change the default ("blackboard"). 
+                                If this is the only Blackboard system that will connect to the Panopto servers above, it is not necessary to change the default ("blackboard"). 
                             </p>
                         </div>
                     </li>
-                      <li>
+                    <li>
                         <div class="label">Bounce Page URL</div>
                         <div class="field"><b><%= SSOAddress %></b></div>
                     </li>
                     <li>
                         <div class="field">
                             <p tabIndex="0" class="stepHelp">
-                                Use this address for the bounce page URL in for your Blackboard instance in the service provider section of your Panopto server.
+                                Use this address for the bounce page URL in for your Blackboard instance in the Identity Provider section of your Panopto server.
                             </p>
                         </div>
                     </li>
-                    <li>
-                        <div class="field"></div>
-                    </li>
-                    <li>
-                        <div class="label">Instructors may provision courses</div>
-                        <div class="field"><input name="instructorsCanProvision" type="checkbox" <%= instructorsCanProvision ? "checked" : "" %> style="float:left" /></div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                This setting determines whether instructors are entitled to add courses to Panopto.<br/>
-                                If checked, instructors will be able to create content for their course with the Panopto Recorder.<br/>
-                                If unchecked, only administrators (users entitled to configure tools at the system level) will be able to add courses to Panopto.
-                            </p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field"></div>
-                    </li>
-                    <li>
-                        <div class="label">Email Instructors</div>
-                        <div class="field">
-                            <input name="mailLectureNotifications" type="checkbox" <%= mailLectureNotifications ? "checked" : "" %> style="float:left" />
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                This setting determines whether an email is automatically sent to instructors when lectures are processed and ready to view.<br/>
-                                This default may be overridden for individual users via the account settings page in Panopto, after adding a course to Panopto or syncing users.
-                            </p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field"></div>
-                    </li>
-                    <li>
-                        <div class="label">Refresh Logins</div>
-                        <div class="field">
-                            <input name="refreshLogins" type="checkbox" <%= refreshLogins ? "checked" : "" %> style="float:left" />
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                This setting determines whether to refresh credentials for users logging in from the Panopto Recorder.<br/>
-                                Normally, this should be left checked, so that when one Blackboard user logs out and another logs in,
-                                the Recorder will switch to the new user.<br/>
-                                <br/>
-                                However, if Panopto site cannot redirect to Blackboard SSO page automatically with some reason, 
-                                this behavior may cause unauthenticated users to be prompted to login twice when logging into the Panopto Recorder.<br/>
-                                In this case, disable this setting and instruct your users to exit the Panopto Recorder to complete the logout process.
-                                <br/>
-                                <br/>
-                            </p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field"></div>
-                    </li>
-                    <li>
-                        <div class="label">Synchronize course availability status</div>
-                        <div class="field">
-                            <input name="syncAvailabilityStatus" type="checkbox" <%= syncAvailabilityStatus ? "checked" : "" %> style="float:left" />
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                This setting enables to reflect the course availability and user enrollment status to access control of Panopto permissions.
-                                <br />
-                                Warning: If this setting is enabled, then the students will lose Panopto permission for inactive courses.
-                                <br/>
-                                <br/>
-                            </p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="label">Redirect to Blackboard Default Login</div>
-                        <div class="field">
-                            <input name="redirectToDefaultLogin" type="checkbox" <%= redirectToDefaultLogin ? "checked" : "" %> style="float:left" />
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                This setting determines if the SSO forces a redirection to the default login page instead of the relogin URL that was provided. <br />
-                                Enable this feature only if Panopto support advises it. 
-                                <br/>
-                                <br/>
-                            </p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field"></div>
-                    </li>
-                    <li>
-                        <div class="label">Grant TA Creator Access</div>
-                        <div class="field">
-                            <input id="grantTACreator" name="grantTACreator" type="checkbox" <%= grantTACreator ? "checked" : "" %> style="float:left" />
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                This setting determines whether teaching assistants are granted creator access in Panopto.<br/>
-                                If checked TAs will be able to create, edit, and delete recordings. 
-                                In addition to this global setting this can be overridden on a course by course basis.
-                                <br/>
-                                <br/>
-                            </p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="label">Allow TAs to Create Panopto Course Tool Links</div>
-                        <div class="field">
-                            <input name="TAsCanCreateLinks" type="checkbox" <%= TAsCanCreateLinks ? "checked" : "" %> style="float:left" />
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                This setting determines whether teaching assistants have the ability to create Panopto Course Tool Links on a course's Course Menu.<br/>
-                                 If checked, TAs will be able to create links regardless of whether they have creator access or course provisioning access.              
-                                <br/>
-                                <br/>
-                            </p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="label">Grant TA Provisioning Access</div>
-                        <div class="field">
-                            <input id="grantTAProvision" name="grantTAProvision" type="checkbox" <%= grantTAProvision ? "checked" : "" %> style="float:left" />
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                This setting determines whether teaching assistants are granted provisioning access in the Panopto block.<br/>
-                                If checked TAs will be able to provision courses and create links. 
-                                <br/>
-                                <br/>
-                            </p>
-                        </div>
-                    </li>
+                    
                     <li>
                         <div class="label">Panopto link on course menu when provisioned</div>
                         <div class="field">
@@ -629,6 +491,193 @@ else
                         <div class="field">
                             <p tabIndex="0" class="stepHelp">
                               Text of link to Panopto content generated on provision, if setting is selected. Default text is "Panopto Video"<br/>
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Instructors may provision courses</div>
+                        <div class="field"><input name="instructorsCanProvision" type="checkbox" <%= instructorsCanProvision ? "checked" : "" %> style="float:left" /></div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether instructors can provision their Blackboard courses to create Panopto folders.<br/>
+                                If checked, instructors will be able to configure courses on their own.<br/>
+                                If unchecked, instructors will come across an error when attempting to provision a course. Administrators (users entitled to configure tools at the system level) will need to assist them.
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Grant TA Provisioning Access</div>
+                        <div class="field">
+                            <input id="grantTAProvision" name="grantTAProvision" type="checkbox" <%= grantTAProvision ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether teaching assistants are granted provisioning access in the Panopto block.<br/>
+                                If checked TAs will be able to provision courses and create links.<br />
+                                If unchecked, they will receive an error "Please contact your administrator or instructor."
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Grant TA Creator Access</div>
+                        <div class="field">
+                            <input id="grantTACreator" name="grantTACreator" type="checkbox" <%= grantTACreator ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether teaching assistants are granted creator access in Panopto.<br/>
+                                If checked TAs will be able to create, edit, and delete recordings.
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Allow TAs to Create Panopto Course Tool Links</div>
+                        <div class="field">
+                            <input name="TAsCanCreateLinks" type="checkbox" <%= TAsCanCreateLinks ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether teaching assistants have the ability to create Panopto Course Tool Links on a course's Course Menu.<br/>
+                                 If checked, TAs will be able to create links regardless of whether they have creator access or course provisioning access.              
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Assign custom role mappings</div>
+                        <div class="field">
+                            <input name="roleMappingString" type="text" size="30" value="<%= roleMappingString %>" style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                            Define mappings between custom blackboard roles and the blackboard roles they are recognized by the Panopto block.<br/>
+                            The syntax for mappings is [custom role ID]:[mapped role type], with each mapping separated by a ';'. <br/>
+                            The available role types to map to are 'instructor', 'ta', and 'none' with any unmapped custom roles being recognized<br/>
+                            as students by the Panopto block. Role specified as 'none' gets no access to the Panopto folder associated with the course.<br/><br/>
+                            
+                            An example mapping string would be: 'RoleID1:instructor;RoleID2:ta;RoleID3:none' (Note: case does not matter)<br/><br/>
+                            
+                            The custom roles available to be mapped are the following:<br/></p>
+	                        <div id = "rolesList">
+	                            <table>
+	                                <tr>
+	                                    <th class="customRoleCell">Role Type</th>
+	                                    <th class="customRoleCell">Role ID</th>
+	                                </tr>
+	                                  <% for(Role customRole:customRoles)
+	                                    { %>
+	                                        <tr>
+	                                            <td class="customRoleCell">
+	                                            <%=customRole.getDbRole().getCourseName()%>
+	                                            </td>
+	                                            <td class = "customRoleCell">
+	                                            <%=customRole.getIdentifier()%>
+	                                            </td>
+	                                        </tr>
+	                                <% } %>
+	                            </table>
+	                         </div>   
+	                        <br/>
+	                        <br/>
+	                        <br/>
+                        </div>
+                    </li>                    
+                    <li>
+                        <div class="label">Blackboard course copy also copies Panopto permissions</div>
+                        <div class="field">
+                            <input name="courseCopyEnabled" type="checkbox" <%= courseCopyEnabled ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether users enrolled in the new course can see Panopto content created for the old course when Blackboard courses are copied.<br/>
+                                If checked the Panopto Viewer and Creator groups from the new course folder are added to the old course's folder as 'viewer' groups.
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Synchronize course availability status</div>
+                        <div class="field">
+                            <input name="syncAvailabilityStatus" type="checkbox" <%= syncAvailabilityStatus ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting enables to reflect the course availability and user enrollment status to access control of Panopto permissions.
+                                <br />
+                                Warning: If this setting is enabled, then the users will lose Panopto permission for unavailable courses or users.
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Email Users</div>
+                        <div class="field">
+                            <input name="mailLectureNotifications" type="checkbox" <%= mailLectureNotifications ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether an email is automatically sent to users when lectures are processed and ready to view.<br/>
+                                This default may be overridden for individual users via the account settings page in Panopto, after adding a course to Panopto or syncing users.
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Refresh Logins</div>
+                        <div class="field">
+                            <input name="refreshLogins" type="checkbox" <%= refreshLogins ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines whether to refresh credentials for users logging in from the Panopto Recorder.<br/>
+                                Normally, this should be left checked, so that when one Blackboard user logs out and another logs in,
+                                the Recorder will switch to the new user.<br/>
+                                <br/>
+                                However, if Panopto site cannot redirect to Blackboard SSO page automatically with some reason, 
+                                this behavior may cause unauthenticated users to be prompted to login twice when logging into the Panopto Recorder.<br/>
+                                In this case, disable this setting and instruct your users to exit the Panopto Recorder to complete the logout process.
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Redirect to Blackboard Default Login</div>
+                        <div class="field">
+                            <input name="redirectToDefaultLogin" type="checkbox" <%= redirectToDefaultLogin ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting determines if the SSO forces a redirection to the default login page instead of the relogin URL that was provided. <br />
+                                Enable this feature only if Panopto support advises it. 
                                 <br/>
                                 <br/>
                             </p>
@@ -663,66 +712,23 @@ else
                                 <br/>
                             </p>
                         </div>
-                    </li>
                     <li>
-                        <div class="label">Assign custom role mappings</div>
+                        <div class="label">Max folders per request</div>
                         <div class="field">
-                            <input name="roleMappingString" type="text" size="30" value="<%= roleMappingString %>" style="float:left" />
+                            <input name="maxListedFolders" type="number" min="100" value="<%= maxListedFolders %>" style="float:left" />
                         </div>
                     </li>
                     <li>
                         <div class="field">
                             <p tabIndex="0" class="stepHelp">
-                            Define mappings between custom blackboard roles and the blackboard roles they are recognized by the Panopto block.<br/>
-                            The syntax for mappings is [custom role identifier]:[mapped role name], with each mapping separated by a ';'. <br/>
-                            The available roles to map to are 'instructor', 'ta', and 'none' with any unmapped custom roles being recognized<br/>
-                            as students by the Panopto block. Role specified as 'none' gets no access to the Panopto folder associated with the course.<br/><br/>
-                            
-                            An example mapping string would be: 'custom1:instructor;custom2:ta;custom3:none' (Note: case does not matter)<br/><br/>
-                            
-                            The custom roles available to be mapped are the following:<br/>
-                                <div id = "rolesList">
-                                    <table>
-                                        <tr>
-                                            <th class="customRoleCell">Role Name</th>
-                                            <th class="customRoleCell">Role Identifier</th>
-                                        </tr>
-                                          <% for(Role customRole:customRoles)
-                                            { %>
-                                                <tr>
-                                                    <td class="customRoleCell">
-                                                    <%=customRole.getDbRole().getCourseName()%>
-                                                    </td>
-                                                    <td class = "customRoleCell">
-                                                    <%=customRole.getIdentifier()%>
-                                                    </td>
-                                                </tr>
-                                        <% } %>
-                                    </table>
-                                 </div>   
-                                <br/>
-                                <br/>
-                                <br/>
-                            </p>
-                        </div>
-                    </li>                    
-                    <li>
-                        <div class="label">Blackboard course copy also copies Panopto permissions</div>
-                        <div class="field">
-                            <input name="courseCopyEnabled" type="checkbox" <%= courseCopyEnabled ? "checked" : "" %> style="float:left" />
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                This setting determines whether Panopto permissions are copied along with the course when Blackboard courses are copied.<br/>
-                                <br/>
+                                This setting controls the max number of folders all pages that deal with folders will load.<br/>
+                                It is not recomended to change this setting, increasing this setting may cause timeouts. <br/>
+                                By default this is set to 10000, minimum is 100<br/>
                                 <br/>
                             </p>
                         </div>
                     </li>
                     <li>
-            
 			            <div class="steptitle submittitle" id="steptitle4">
 			                <span id="stepnumber4">4</span>
 			                Done
