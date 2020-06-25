@@ -5,7 +5,7 @@
         <description value="Provision Panopto courses from Blackboard.  View live listing of available Panopto content from within the associated Blackboard course.  Import Panopto lecture links as Blackboard content items." />
         <handle value="PanoptoCourseTool" />
         <webapp-type value="javaext" />
-        <version value="2019.11.1" />
+        <version value="2020.6.1" />
         <requires>
             <bbversion value="9.1" />
         </requires>
@@ -121,9 +121,10 @@
             </definition>
         </extension-defs>
         <permissions>
-            <!-- Change value of "name" attribute below to restrict socket access to your Panopto server -->
-            <!-- e.g. name="panopto.myinstitution.edu" -->
-            <permission type="socket" name="*" actions="connect" />
+            <!-- socket permissions are needed for Axis2 -->
+            <permission type="socket" name="*" actions="listen,resolve,connect" />
+            <permission type="java.net.SocketPermission" name="*" actions="listen,resolve,connect"/>
+            
             <permission type="runtime" name="getClassLoader" actions="" />
             <permission type="persist" name="content" actions="persist" />
             <permission type="blackboard.persist.PersistPermission" name="coursetoc" actions="create,modify,delete"/>
