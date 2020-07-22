@@ -73,6 +73,8 @@ import com.panopto.services.SessionManagementStub.GetCreatorFoldersListResponse;
 import com.panopto.services.SessionManagementStub.GetFoldersAvailabilitySettings;
 import com.panopto.services.SessionManagementStub.GetFoldersById;
 import com.panopto.services.SessionManagementStub.GetFoldersByIdResponse;
+import com.panopto.services.SessionManagementStub.GetFoldersList;
+import com.panopto.services.SessionManagementStub.GetFoldersListResponse;
 import com.panopto.services.SessionManagementStub.GetRecorderDownloadUrls;
 import com.panopto.services.SessionManagementStub.GetRecorderDownloadUrlsResponse;
 import com.panopto.services.SessionManagementStub.GetSessionsAvailabilitySettings;
@@ -430,13 +432,18 @@ public class PanoptoData {
                 
                 listResponse = resp.getGetSessionsListResult();
                 
-                allSessions.addAll(Arrays.asList(listResponse.getResults().getSession()));
+                
                 if (totalSessionsExpected == -1) {
                     // First time through, grab the expected total count.
                     totalSessionsExpected = listResponse.getTotalNumberResults();
                 }
-                Session[] returnedSessions = listResponse.getResults().getSession();
-                responseCount += returnedSessions.length;
+                
+                Session[] folderSessions = listResponse.getResults().getSession();
+                if (folderSessions != null && folderSessions.length > 0) {
+                    allSessions.addAll(Arrays.asList(folderSessions));
+                    responseCount += folderSessions.length;
+                }
+                
                 page++;
             } while ((responseCount < totalSessionsExpected) && (page < this.maxPages));
 
@@ -673,48 +680,49 @@ public class PanoptoData {
 
             do {
                 ListFoldersRequest request = new ListFoldersRequest();
-                request.setPublicOnly(false);
+                request.setPublicOnly(true);
                 SessionManagementStub.Pagination pagination = new SessionManagementStub.Pagination();
                 pagination.setMaxNumberResults(this.perPage);
                 pagination.setPageNumber(page);
                 request.setPagination(pagination);
                 
-                GetCreatorFoldersList getCreatorFoldersListParams = new GetCreatorFoldersList();
-                getCreatorFoldersListParams.setAuth(auth);
-                getCreatorFoldersListParams.setRequest(request);
-                getCreatorFoldersListParams.setSearchQuery(null);
+                GetFoldersList getFoldersListParams = new GetFoldersList();
+                getFoldersListParams.setAuth(auth);
+                getFoldersListParams.setRequest(request);
+                getFoldersListParams.setSearchQuery(null);
+
+                GetFoldersListResponse resp = getPanoptoSessionManagementSOAPService(serverName).getFoldersList(getFoldersListParams);
                 
-                GetCreatorFoldersListResponse resp = getPanoptoSessionManagementSOAPService(serverName).getCreatorFoldersList(getCreatorFoldersListParams);
-                
-                listResponse = resp.getGetCreatorFoldersListResult();
+                listResponse = resp.getGetFoldersListResult();
                 
                 if (totalFoldersExpected == -1) {
                     // First time through, grab the expected total count.
                     totalFoldersExpected = listResponse.getTotalNumberResults();
                 }
                 
+
                 Folder[] currFolders = listResponse.getResults().getFolder();
                 if (totalFoldersExpected != 0 && currFolders != null) {
                     allFolders.addAll(Arrays.asList(currFolders));
+                    
+	                // Log which folders we got back. foldersWithCreatorAccess,
+	                // folderIdList, and returnedFolders are all
+	                // just in place for logging.
+	                publicFolders = new HashSet<String>();
+	                for (Folder folder : currFolders) {
+	                    publicFolders.add(folder.getId().getGuid());
+	                }
+	                
+	                String[] folderIdList = publicFolders.toArray(new String[0]);
+	                Utils.logVerbose(
+	                        String.format("getPublicFolders. User: %s, page: %d, returned from getPublicFolders: %s",
+	                                bbUserName, page, Utils.encodeArrayOfStrings(folderIdList)));
+	
+	                responseCount += currFolders.length;
+	                page++;
                 }
-
-                Folder[] returnedFolders = listResponse.getResults().getFolder();
-
-                // Log which folders we got back. foldersWithCreatorAccess,
-                // folderIdList, and returnedFolders are all
-                // just in place for logging.
-                publicFolders = new HashSet<String>();
-                for (Folder folder : returnedFolders) {
-                    publicFolders.add(folder.getId().getGuid());
-                }
-                String[] folderIdList = publicFolders.toArray(new String[0]);
-                Utils.logVerbose(
-                        String.format("getPublicFolders. User: %s, page: %d, returned from getPublicFolders: %s",
-                                bbUserName, page, Utils.encodeArrayOfStrings(folderIdList)));
-
-                responseCount += returnedFolders.length;
-                page++;
-            } while ((responseCount < totalFoldersExpected) && (page < this.maxPages));
+            } while ((totalFoldersExpected != 0) && (responseCount < totalFoldersExpected) && (page < this.maxPages));
+            
             Utils.logVerbose(
                     String.format("Expected %d folders, returned %d folders", totalFoldersExpected, allFolders.size()));
             return allFolders.toArray(new Folder[allFolders.size()]);
@@ -813,7 +821,7 @@ public class PanoptoData {
 
         // Finally write out the options in sorted order
         for (Folder folder : sortedFolders) {
-            if (!currentFolderIds.contains(folder.getId())) {
+            if (!currentFolderIds.contains(folder.getId().toString())) {
                 result.append("<option");
                 result.append(" value='" + folder.getId() + "'");
                 result.append(">");
@@ -845,6 +853,8 @@ public class PanoptoData {
         StringBuffer result = new StringBuffer();
 
         Folder[] publicFolders = this.getPublicFolders();
+        Folder[] creatorFolders = Utils.pluginSettings.getVideoLinkToolIncludeCreatorFolders() ? this.getFoldersWithCreatorAccess() : null;
+        
         int numFolders = getNumberOfFolders();
         numFolders += publicFolders != null ? publicFolders.length : 0;
         if (numFolders == 0) {
@@ -854,7 +864,8 @@ public class PanoptoData {
 
             // Only use option groups if we have elements in both groups
             boolean useOptionalGroups = sessionGroupDisplayNames != null && sessionGroupDisplayNames.length > 0
-                    && publicFolders != null && publicFolders.length > 0;
+                    && ((publicFolders != null && publicFolders.length > 0) || 
+                        (creatorFolders != null && creatorFolders.length > 0));
 
             // Add all the mapped folders
             if (sessionGroupDisplayNames != null && sessionGroupDisplayNames.length > 0) {
@@ -887,6 +898,29 @@ public class PanoptoData {
                 for (int i = 0; i < publicFolders.length; i++) {
                     String strDisplayName = Utils.escapeHTML(publicFolders[i].getName());
                     String strID = publicFolders[i].getId().getGuid();
+
+                    result.append("<option");
+                    result.append(" value='" + strID + "'");
+                    if (strID.equals(folderId)) {
+                        result.append(" SELECTED");
+                    }
+                    result.append(">");
+                    result.append(strDisplayName);
+                    result.append("</option>\n");
+                }
+                if (useOptionalGroups) {
+                    result.append("</optgroup>\n");
+                }
+            }
+
+            // Add all the creator folders
+            if (creatorFolders != null && creatorFolders.length > 0) {
+                if (useOptionalGroups) {
+                    result.append("<optgroup label='Creator Folders'>\n");
+                }
+                for (int i = 0; i < creatorFolders.length; i++) {
+                    String strDisplayName = Utils.escapeHTML(creatorFolders[i].getName());
+                    String strID = creatorFolders[i].getId().getGuid();
 
                     result.append("<option");
                     result.append(" value='" + strID + "'");
@@ -1434,13 +1468,22 @@ public class PanoptoData {
             SessionManagementStub.ArrayOfguid folderGuids = new SessionManagementStub.ArrayOfguid();
             for(int i = 0; i < folderIds.length; ++i) {
                 SessionManagementStub.Guid folderGuid = new SessionManagementStub.Guid();
-                folderGuid.setGuid(folderIds[0]);
+                folderGuid.setGuid(folderIds[i]);
                 folderGuids.addGuid(folderGuid);
             }
             setExternalCourseAccessParams.setFolderIds(folderGuids);
             
             Folder[] folders = getPanoptoSessionManagementSOAPService(serverName)
-                    .setExternalCourseAccess(setExternalCourseAccessParams).getSetExternalCourseAccessResult().getFolder();
+                .setExternalCourseAccess(setExternalCourseAccessParams).getSetExternalCourseAccessResult().getFolder();
+            
+            if (folders == null || folders.length == 0) {
+            	Utils.log("No folders returned from setExternalCourseAccess while re-provisioning. Could the folder have been deleted in Panopto?");
+            	
+            	// This string needs to be wrapped in quotes to be used in the Alert properly. 
+            	this.previousProvisioningError = "\"Failed to reprovision course, could the target folder have been deleted in Panopto?\"";
+            	return false; 
+            }
+            
             updateCourseFolders(folders);
             
             // Once a course is unprovisioned/reprovision all imports will be lost and need to be reinitialized.
@@ -1550,51 +1593,52 @@ public class PanoptoData {
             Utils.log(String.format("Cannot reset BB course, not mapped yet. ID: %s, Title: %s\n",
                     bbCourse.getId().toExternalString(), bbCourse.getTitle()));
         } else {
+
             // Before blowing away the data, get the folder list.
             Folder[] courseFolders = getFolders();
-
+            
             Utils.log(String.format(
                     "Resetting BB course, ID: %s, Title: %s, Old Server: %s, Old Panopto IDs: %s\n, Old folders count: %s\n",
                     bbCourse.getId().toExternalString(), bbCourse.getTitle(), serverName,
                     Utils.encodeArrayOfStrings(sessionGroupPublicIDs), courseFolders.length));
             
-            unprovisionExternalCourse();
-            
-            // In the set registry entry function, we delete existing entries
-            // and only create new ones if the value is
-            // not null.
-            setCourseRegistryEntry(hostnameRegistryKey, null);
-            setCourseRegistryEntries(sessionGroupIDRegistryKey, null);
-            setCourseRegistryEntries(sessionGroupDisplayNameRegistryKey, null);
-            
-            // Remove all existing course imports.
-            setCourseRegistryEntries(copySessionGroupIDsRegistryKey, null);
-            setCourseRegistryEntries(copySessionGroupDisplayNamesRegistryKey, null);
-
-            // If there are empty Panopto folders for this course, then delete
-            // it so we don't trail empty unused
-            // folders. This also reduces provisioning errors when a folder
-            // already exists.
-            if (courseFolders.length < 0) {
-                SessionManagementStub.ArrayOfguid folderGuids = new SessionManagementStub.ArrayOfguid();
+            if (unprovisionExternalCourse()) {            
+                // In the set registry entry function, we delete existing entries
+                // and only create new ones if the value is
+                // not null.
+                setCourseRegistryEntry(hostnameRegistryKey, null);
+                setCourseRegistryEntries(sessionGroupIDRegistryKey, null);
+                setCourseRegistryEntries(sessionGroupDisplayNameRegistryKey, null);
                 
-                for (int idx = 0; idx < courseFolders.length; idx++) {
-                    Session[] sessionsInFolder = this.getSessions(courseFolders[idx].getId().getGuid());
-                    if ((sessionsInFolder == null) || (sessionsInFolder.length == 0)) {
-                        folderGuids.addGuid(courseFolders[idx].getId());
+                // Remove all existing course imports.
+                setCourseRegistryEntries(copySessionGroupIDsRegistryKey, null);
+                setCourseRegistryEntries(copySessionGroupDisplayNamesRegistryKey, null);
+    
+                // If there are empty Panopto folders for this course, then delete
+                // it so we don't trail empty unused
+                // folders. This also reduces provisioning errors when a folder
+                // already exists.
+                if (courseFolders.length < 0) {
+                    SessionManagementStub.ArrayOfguid folderGuids = new SessionManagementStub.ArrayOfguid();
+                    
+                    for (int idx = 0; idx < courseFolders.length; idx++) {
+                        Session[] sessionsInFolder = this.getSessions(courseFolders[idx].getId().getGuid());
+                        if ((sessionsInFolder == null) || (sessionsInFolder.length == 0)) {
+                            folderGuids.addGuid(courseFolders[idx].getId());
+                        }
                     }
+    
+                    // Batch delete all empty folders to reduce the API calls made.
+                    SessionManagementStub.AuthenticationInfo auth = new SessionManagementStub.AuthenticationInfo();
+                    auth.setAuthCode(apiUserAuthCode);
+                    auth.setPassword(null);
+                    auth.setUserKey(apiUserKey);
+                    
+                    DeleteFolders deleteFoldersParams = new DeleteFolders();
+                    deleteFoldersParams.setAuth(auth);
+                    deleteFoldersParams.setFolderIds(folderGuids);
+                    sessionManagement.deleteFolders(deleteFoldersParams);
                 }
-
-                // Batch delete all empty folders to reduce the API calls made.
-                SessionManagementStub.AuthenticationInfo auth = new SessionManagementStub.AuthenticationInfo();
-                auth.setAuthCode(apiUserAuthCode);
-                auth.setPassword(null);
-                auth.setUserKey(apiUserKey);
-                
-                DeleteFolders deleteFoldersParams = new DeleteFolders();
-                deleteFoldersParams.setAuth(auth);
-                deleteFoldersParams.setFolderIds(folderGuids);
-                sessionManagement.deleteFolders(deleteFoldersParams);
             }
         }
     }
