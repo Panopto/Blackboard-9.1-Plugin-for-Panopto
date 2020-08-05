@@ -84,9 +84,6 @@ public class Settings {
     // Insert a link to panopto tool on course page when a course is provisioned
     private Boolean insertLinkOnProvision = false;
 
-    // Whether or not the Panopto Link tool uses Mapped + Public or Mapped + Creator folders. 
-    private Boolean videoLinkToolIncludeCreatorFolders = false;
-    
     // Text for link created on provision. Default is "Panopto Video"
     private String menuLinkText = "Panopto Video";
 
@@ -226,7 +223,7 @@ public class Settings {
     }
 
     public void setRedirectToDefaultLogin(boolean useDefaultLogin) {
-        redirectToDefaultLogin = useDefaultLogin;
+    	redirectToDefaultLogin = useDefaultLogin;
         save();
     }
 
@@ -266,15 +263,6 @@ public class Settings {
         save();
     }
 
-    public Boolean getVideoLinkToolIncludeCreatorFolders() {
-        return videoLinkToolIncludeCreatorFolders;
-    }
-
-    public void setVideoLinkToolIncludeCreatorFolders(Boolean videoLinkToolIncludeCreatorFolders) {
-        this.videoLinkToolIncludeCreatorFolders = videoLinkToolIncludeCreatorFolders;
-        save();
-    }
-    
     public String getMenuLinkText() {
         return menuLinkText;
     }
@@ -391,10 +379,6 @@ public class Settings {
             insertLinkOnProvisionElem.setAttribute("insertLinkOnProvision", insertLinkOnProvision.toString());
             docElem.appendChild(insertLinkOnProvisionElem);
 
-            Element videoLinkToolIncludeCreatorFoldersElem = settingsDocument.createElement("videoLinkToolIncludeCreatorFolders");
-            videoLinkToolIncludeCreatorFoldersElem.setAttribute("videoLinkToolIncludeCreatorFolders", videoLinkToolIncludeCreatorFolders.toString());
-            docElem.appendChild(videoLinkToolIncludeCreatorFoldersElem);
-            
             Element menuLinkTextElem = settingsDocument.createElement("menuLinkText");
             menuLinkTextElem.setAttribute("menutext", menuLinkText);
             docElem.appendChild(menuLinkTextElem);
@@ -529,13 +513,6 @@ public class Settings {
                     .valueOf(insertLinkOnProvisionElem.getAttribute("insertLinkOnProvision"));
         }
 
-        NodeList videoLinkToolIncludeCreatorFoldersNodes = docElem.getElementsByTagName("videoLinkToolIncludeCreatorFolders");
-        if (videoLinkToolIncludeCreatorFoldersNodes.getLength() != 0) {
-            Element videoLinkToolIncludeCreatorFoldersElem = (Element) videoLinkToolIncludeCreatorFoldersNodes.item(0);
-            this.videoLinkToolIncludeCreatorFolders = Boolean
-                    .valueOf(videoLinkToolIncludeCreatorFoldersElem.getAttribute("videoLinkToolIncludeCreatorFolders"));
-        }
-        
         NodeList menuLinkTextNodes = docElem.getElementsByTagName("menuLinkText");
         if (menuLinkTextNodes.getLength() != 0) {
             Element menuLinkTextElem = (Element) menuLinkTextNodes.item(0);
