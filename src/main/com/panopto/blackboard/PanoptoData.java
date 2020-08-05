@@ -571,7 +571,7 @@ public class PanoptoData {
                 request.setPublicOnly(true);
                 request.setPagination(new Pagination(this.perPage, page));
                 
-                listResponse = getPanoptoSessionManagementSOAPService(serverName).getCreatorFoldersList(auth, request,
+                listResponse = getPanoptoSessionManagementSOAPService(serverName).getFoldersList(auth, request,
                             null);
                 
                 allFolders.addAll(Arrays.asList(listResponse.getResults()));
@@ -727,6 +727,8 @@ public class PanoptoData {
         StringBuffer result = new StringBuffer();
 
         Folder[] publicFolders = this.getPublicFolders();
+        Folder[] creatorFolders = Utils.pluginSettings.getVideoLinkToolIncludeCreatorFolders() ? this.getFoldersWithCreatorAccess() : null;
+        
         int numFolders = getNumberOfFolders();
         numFolders += publicFolders != null ? publicFolders.length : 0;
         if (numFolders == 0) {
@@ -736,7 +738,8 @@ public class PanoptoData {
 
             // Only use option groups if we have elements in both groups
             boolean useOptionalGroups = sessionGroupDisplayNames != null && sessionGroupDisplayNames.length > 0
-                    && publicFolders != null && publicFolders.length > 0;
+                    && ((publicFolders != null && publicFolders.length > 0) || 
+                       (creatorFolders != null && creatorFolders.length > 0));
 
             // Add all the mapped folders
             if (sessionGroupDisplayNames != null && sessionGroupDisplayNames.length > 0) {
@@ -769,6 +772,29 @@ public class PanoptoData {
                 for (int i = 0; i < publicFolders.length; i++) {
                     String strDisplayName = Utils.escapeHTML(publicFolders[i].getName());
                     String strID = publicFolders[i].getId();
+
+                    result.append("<option");
+                    result.append(" value='" + strID + "'");
+                    if (strID.equals(folderId)) {
+                        result.append(" SELECTED");
+                    }
+                    result.append(">");
+                    result.append(strDisplayName);
+                    result.append("</option>\n");
+                }
+                if (useOptionalGroups) {
+                    result.append("</optgroup>\n");
+                }
+            }
+            
+            // Add all the creator folders
+            if (creatorFolders != null && creatorFolders.length > 0) {
+                if (useOptionalGroups) {
+                    result.append("<optgroup label='Creator Folders'>\n");
+                }
+                for (int i = 0; i < creatorFolders.length; i++) {
+                    String strDisplayName = Utils.escapeHTML(creatorFolders[i].getName());
+                    String strID = creatorFolders[i].getId();
 
                     result.append("<option");
                     result.append(" value='" + strID + "'");
@@ -1239,6 +1265,14 @@ public class PanoptoData {
             AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
             Folder[] folders = getPanoptoSessionManagementSOAPService(serverName).setExternalCourseAccess(auth,
                     fullName, externalCourseId, folderIds);
+            
+            if (folders == null || folders.length == 0) {
+                Utils.log("No folders returned from setExternalCourseAccess while re-provisioning. Could the folder have been deleted in Panopto?");
+                
+                // This string needs to be wrapped in quotes to be used in the Alert properly. 
+                this.previousProvisioningError = "\"Failed to reprovision course, could the target folder have been deleted in Panopto?\"";
+                return false; 
+            }
             updateCourseFolders(folders);
             
             // Once a course is unprovisioned/reprovision all imports will be lost and need to be reinitialized.
@@ -1343,35 +1377,35 @@ public class PanoptoData {
                     bbCourse.getId().toExternalString(), bbCourse.getTitle(), serverName,
                     Utils.encodeArrayOfStrings(sessionGroupPublicIDs), courseFolders.length));
             
-            unprovisionExternalCourse();
+            if(unprovisionExternalCourse()) {
+                // In the set registry entry function, we delete existing entries
+                // and only create new ones if the value is
+                // not null.
+                setCourseRegistryEntry(hostnameRegistryKey, null);
+                setCourseRegistryEntries(sessionGroupIDRegistryKey, null);
+                setCourseRegistryEntries(sessionGroupDisplayNameRegistryKey, null);
+                
+                // Remove all existing course imports.
+                setCourseRegistryEntries(copySessionGroupIDsRegistryKey, null);
+                setCourseRegistryEntries(copySessionGroupDisplayNamesRegistryKey, null);
             
-            // In the set registry entry function, we delete existing entries
-            // and only create new ones if the value is
-            // not null.
-            setCourseRegistryEntry(hostnameRegistryKey, null);
-            setCourseRegistryEntries(sessionGroupIDRegistryKey, null);
-            setCourseRegistryEntries(sessionGroupDisplayNameRegistryKey, null);
-            
-            // Remove all existing course imports.
-            setCourseRegistryEntries(copySessionGroupIDsRegistryKey, null);
-            setCourseRegistryEntries(copySessionGroupDisplayNamesRegistryKey, null);
-
-            // If there are empty Panopto folders for this course, then delete
-            // it so we don't trail empty unused
-            // folders. This also reduces provisioning errors when a folder
-            // already exists.
-            if (courseFolders.length < 0) {
-                ArrayList<String> foldersToDelete = new ArrayList<String>(courseFolders.length);
-                for (int idx = 0; idx < courseFolders.length; idx++) {
-                    Session[] sessionsInFolder = this.getSessions(courseFolders[idx].getId());
-                    if ((sessionsInFolder == null) || (sessionsInFolder.length == 0)) {
-                        foldersToDelete.add(courseFolders[idx].getId());
+                // If there are empty Panopto folders for this course, then delete
+                // it so we don't trail empty unused
+                // folders. This also reduces provisioning errors when a folder
+                // already exists.
+                if (courseFolders.length < 0) {
+                    ArrayList<String> foldersToDelete = new ArrayList<String>(courseFolders.length);
+                    for (int idx = 0; idx < courseFolders.length; idx++) {
+                        Session[] sessionsInFolder = this.getSessions(courseFolders[idx].getId());
+                        if ((sessionsInFolder == null) || (sessionsInFolder.length == 0)) {
+                            foldersToDelete.add(courseFolders[idx].getId());
+                        }
                     }
+            
+                    // Batch delete all empty folders to reduce the API calls made.
+                    AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
+                    sessionManagement.deleteFolders(auth, foldersToDelete.toArray(new String[foldersToDelete.size()]));
                 }
-
-                // Batch delete all empty folders to reduce the API calls made.
-                AuthenticationInfo auth = new AuthenticationInfo(apiUserAuthCode, null, apiUserKey);
-                sessionManagement.deleteFolders(auth, foldersToDelete.toArray(new String[foldersToDelete.size()]));
             }
         }
     }
