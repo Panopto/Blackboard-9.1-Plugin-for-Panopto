@@ -124,8 +124,6 @@ if(folderIds != null)
         String provisioningError = ccCourse.getPreviousProvisioningError();
         
         if (!provisioningError.isEmpty()) {
-			// If the reprovisioning failed and we are in a bad state then re-provision the course with the original folders.
-			ccCourse.reprovisionCourse();
         %>
         <script>
             if (typeof printPanoptoAlert === "undefined") {

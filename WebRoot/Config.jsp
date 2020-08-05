@@ -75,7 +75,6 @@ Boolean TAsCanCreateLinks = (request.getParameter("TAsCanCreateLinks") != null);
 Boolean courseResetEnabled = (request.getParameter("courseResetEnabled") != null);
 Boolean verbose = (request.getParameter("verbose") != null);
 Boolean insertLinkOnProvision = (request.getParameter("insertLinkOnProvision") != null);
-Boolean videoLinkToolIncludeCreatorFolders = (request.getParameter("videoLinkToolIncludeCreatorFolders") != null);
 String menuLinkText = request.getParameter("menuLinkText");
 String roleMappingString = request.getParameter("roleMappingString");
 Boolean courseCopyEnabled = (request.getParameter("courseCopyEnabled") != null);
@@ -115,7 +114,6 @@ if(instanceName != null)
 	Utils.pluginSettings.setCourseResetEnabled(courseResetEnabled);
 	Utils.pluginSettings.setVerbose(verbose);
 	Utils.pluginSettings.setInsertLinkOnProvision(insertLinkOnProvision);
-	Utils.pluginSettings.setVideoLinkToolIncludeCreatorFolders(videoLinkToolIncludeCreatorFolders);
 	Utils.pluginSettings.setCourseCopyEnabled(courseCopyEnabled);
 	
 	maxListedFolders = (maxListedFolders == null) || maxListedFolders.isEmpty() ? Utils.pluginSettings.getMaxListedFolders() : maxListedFolders;
@@ -155,7 +153,6 @@ TAsCanCreateLinks = Utils.pluginSettings.getTAsCanCreateLinks();
 courseResetEnabled = Utils.pluginSettings.getCourseResetEnabled();
 verbose = Utils.pluginSettings.getVerbose();
 insertLinkOnProvision = Utils.pluginSettings.getInsertLinkOnProvision();
-videoLinkToolIncludeCreatorFolders = Utils.pluginSettings.getVideoLinkToolIncludeCreatorFolders();
 menuLinkText = Utils.pluginSettings.getMenuLinkText();
 roleMappingString = Utils.pluginSettings.getRoleMappingString();
 courseCopyEnabled = Utils.pluginSettings.getCourseCopyEnabled();
@@ -485,23 +482,6 @@ else
                         </div>
                     </li>
                     <li>
-                        <div class="label">Panopto Video Link Tool will include creator folders</div>
-                        <div class="field">
-                            <input name="videoLinkToolIncludeCreatorFolders" type="checkbox"
-                                <%=videoLinkToolIncludeCreatorFolders ? "checked" : ""%>
-                                style="float: left" />
-                        </div>
-                    </li>
-                    <li>
-                        <div class="field">
-                            <p tabIndex="0" class="stepHelp">
-                                When checked, the Panopto Video Link Tool will include folders the user has creator access to in it's list.<br />
-                                Check this if you want to embed videos from sub-folders that are 
-                                inheriting access from mapped folders.<br /> <br />
-                            </p>
-                        </div>
-                    </li>
-                    <li>
                         <div class="label">Panopto Link Text</div>
                         <div class="field">
                             <input name="menuLinkText" type="text" size="30" value="<%= menuLinkText %>" style="float:left" />
@@ -563,7 +543,7 @@ else
                         </div>
                     </li>
                     <li>
-                        <div class="label">Allow TAs to embed with the Panopto Video Link Tool</div>
+                        <div class="label">Allow TAs to Create Panopto Course Tool Links</div>
                         <div class="field">
                             <input name="TAsCanCreateLinks" type="checkbox" <%= TAsCanCreateLinks ? "checked" : "" %> style="float:left" />
                         </div>
@@ -571,8 +551,8 @@ else
                     <li>
                         <div class="field">
                             <p tabIndex="0" class="stepHelp">
-                                This setting determines whether teaching assistants have the ability to create Panopto Video Links on a course's content page.<br/>
-                                 If checked, TAs will be able to create video links regardless of whether they have creator access or course provisioning access.              
+                                This setting determines whether teaching assistants have the ability to create Panopto Course Tool Links on a course's Course Menu.<br/>
+                                 If checked, TAs will be able to create links regardless of whether they have creator access or course provisioning access.              
                                 <br/>
                                 <br/>
                             </p>
