@@ -4,13 +4,13 @@ import java.rmi.RemoteException;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import com.panopto.services.DateTimeOffset;
-import com.panopto.services.FolderAvailabilitySettings;
-import com.panopto.services.FolderEndSettingType;
-import com.panopto.services.FolderStartSettingType;
-import com.panopto.services.SessionAvailabilitySettings;
-import com.panopto.services.SessionEndSettingType;
-import com.panopto.services.SessionStartSettingType;
+import com.panopto.services.SessionManagementStub.DateTimeOffset;
+import com.panopto.services.SessionManagementStub.FolderAvailabilitySettings;
+import com.panopto.services.SessionManagementStub.FolderEndSettingType;
+import com.panopto.services.SessionManagementStub.FolderStartSettingType;
+import com.panopto.services.SessionManagementStub.SessionAvailabilitySettings;
+import com.panopto.services.SessionManagementStub.SessionEndSettingType;
+import com.panopto.services.SessionManagementStub.SessionStartSettingType;
 
 // Helper class for handling Panopto availability windows
 public class PanoptoAvailabilityWindow {

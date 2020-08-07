@@ -2,7 +2,7 @@
 <%@ page import="com.panopto.blackboard.PanoptoData"%>
 <%@ page import="com.panopto.blackboard.Utils"%>
 <%@ page import="blackboard.platform.plugin.PlugInUtil" %>
-<%@ page import="com.panopto.services.Folder"%>
+<%@ page import="com.panopto.services.SessionManagementStub.Folder"%>
 <%@ taglib uri="/bbNG" prefix="bbNG"%>
 <%@ taglib uri="/bbData" prefix="bbData"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>

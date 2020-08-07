@@ -1,6 +1,6 @@
 <%@ page import="java.lang.reflect.Array"%>
 <%@ page import="com.panopto.blackboard.PanoptoData"%>
-<%@ page import="com.panopto.services.Folder"%>
+<%@ page import="com.panopto.services.SessionManagementStub.Folder"%>
 <%@ page import="com.panopto.blackboard.Utils"%>
 <%@ taglib uri="/bbNG" prefix="bbNG"%>
 <%@ taglib uri="/bbData" prefix="bbData"%>

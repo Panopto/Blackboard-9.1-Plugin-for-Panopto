@@ -18,7 +18,10 @@
 
 package com.panopto.blackboard;
 
-import com.panopto.services.IAuth;
+import com.panopto.blackboard.Utils;
+import com.panopto.services.AuthStub;
+import com.panopto.services.AuthStub.GetServerVersion;
+import com.panopto.services.AuthStub.GetServerVersionResponse;
 
 class PanoptoVersion implements Comparable<PanoptoVersion> {
 
@@ -45,10 +48,13 @@ class PanoptoVersion implements Comparable<PanoptoVersion> {
         return toReturn;
     }
 
-    static PanoptoVersion fetchOrEmpty(IAuth iAuth) {
+    static PanoptoVersion fetchOrEmpty(AuthStub authStub) {
         PanoptoVersion serverVersion;
         try {
-            serverVersion = PanoptoVersion.from(iAuth.getServerVersion());
+            GetServerVersion getServerVersionParams = new GetServerVersion();
+            GetServerVersionResponse resp = authStub.getServerVersion(getServerVersionParams);
+            
+            serverVersion = PanoptoVersion.from(resp.getGetServerVersionResult());
         } catch (Exception e) {
             Utils.log(e, "Error retrieving Panopto server version from the server.");
             serverVersion= EMPTY;
