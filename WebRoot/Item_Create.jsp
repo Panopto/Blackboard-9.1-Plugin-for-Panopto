@@ -29,6 +29,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%@taglib uri="/bbUI" prefix="bbUI" %>
+<%@taglib uri="/bbNG" prefix="bbNG" %>
 <%@taglib uri="/bbData" prefix="bbData"%>
 
 <bbUI:coursePage>
@@ -64,11 +65,11 @@ if (!ccCourse.userMayAddLinks())
 {
 %>
 <c:catch>
-	<bbUI:docTemplate title="<%=page_title%>">
-		<bbUI:receipt type="FAIL" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
+	<bbNG:genericPage title="<%=page_title%>">
+		<bbNG:receipt type="FAIL" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
 			You do not have access to configure this course. 
-		</bbUI:receipt>
-	</bbUI:docTemplate>
+		</bbNG:receipt>
+	</bbNG:genericPage>
 </c:catch>
 <%
     return;
@@ -81,11 +82,11 @@ if(lectureURL != null)
 	{
 %>
 <c:catch>
-	<bbUI:docTemplate title="<%=page_title%>">
-		<bbUI:receipt type="SUCCESS" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
+	<bbNG:genericPage title="<%=page_title%>">
+		<bbNG:receipt type="SUCCESS" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
 			Item created.
-		</bbUI:receipt>
-	</bbUI:docTemplate>
+		</bbNG:receipt>
+	</bbNG:genericPage>
 </c:catch>
 <%
     }
@@ -93,33 +94,33 @@ if(lectureURL != null)
     {
 %>
     <c:catch>
-        <bbUI:docTemplate title="<%=page_title%>">
-            <bbUI:receipt type="FAILURE" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
+        <bbNG:genericPage title="<%=page_title%>">
+            <bbNG:receipt type="FAILURE" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
                 <font color = "red">The session cannot be added. Please have the creator approve the session in Panopto and then add the session.</font>
-            </bbUI:receipt>
-        </bbUI:docTemplate>
+            </bbNG:receipt>
+        </bbNG:genericPage>
     </c:catch><%
         }
         else if(linkCreationOutput.equals(PanoptoData.LinkAddedResult.NOTPUBLISHER))
         {
     %>
     <c:catch>
-        <bbUI:docTemplate title="<%=page_title%>">
-            <bbUI:receipt type="FAILURE" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
+        <bbNG:genericPage title="<%=page_title%>">
+            <bbNG:receipt type="FAILURE" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
                 <font color = "red">The session cannot be added. Please have the publisher make the session available in Panopto and then add the session.</font>
-            </bbUI:receipt>
-        </bbUI:docTemplate>
+            </bbNG:receipt>
+        </bbNG:genericPage>
     </c:catch><%
     }
     else
     {
     %>
     <c:catch>
-        <bbUI:docTemplate title="<%=page_title%>">
-            <bbUI:receipt type="FAILURE" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
+        <bbNG:genericPage title="<%=page_title%>">
+            <bbNG:receipt type="FAILURE" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=courseDocsURL%>">
                 <font color = "red">The session could not be added to the course. See logs for details.</font>
-            </bbUI:receipt>
-        </bbUI:docTemplate>
+            </bbNG:receipt>
+        </bbNG:genericPage>
     </c:catch><%
     }
 	return;
@@ -127,18 +128,18 @@ if(lectureURL != null)
 }
 %>
 
-	<bbUI:docTemplate title="<%=page_title%>">
+	<bbNG:genericPage title="<%=page_title%>">
 
-		<bbUI:docTemplateHead>
+		<bbNG:pageHeader>
+			<c:catch>
+				<bbNG:pageTitleBar iconUrl="<%=iconUrl%>">
+					<%=page_title%>
+				</bbNG:pageTitleBar>
+			</c:catch>
 			<link rel="stylesheet" type="text/css" href="css/main.css" />
-		</bbUI:docTemplateHead>
+		</bbNG:pageHeader>
 
 		<bbUI:coursePage courseId="<%= ctx.getCourseId() %>">
-		<c:catch>
-			<bbUI:titleBar iconUrl="<%=iconUrl%>">
-				<%=page_title%>
-			</bbUI:titleBar>
-		</c:catch>
 
 			<% 
 			if (!ccCourse.isMapped())
@@ -273,7 +274,7 @@ if(lectureURL != null)
 	
 		</bbUI:coursePage>
 
-	</bbUI:docTemplate>
+	</bbNG:genericPage>
 
 </bbData:context>
 </bbUI:coursePage>

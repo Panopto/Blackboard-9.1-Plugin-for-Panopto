@@ -20,7 +20,10 @@
 
 <%@page import="com.panopto.blackboard.Utils"%>
 <%@page import="com.panopto.blackboard.PanoptoData"%>
-<%@page import="com.panopto.services.*"%>
+<%@page import="com.panopto.services.SessionManagementStub.Folder"%>
+<%@page import="com.panopto.services.SessionManagementStub.Session"%>
+<%@page import="com.panopto.services.SessionManagementStub.SessionState"%>
+<%@page import="com.panopto.services.SessionManagementStub.RecorderDownloadUrlResponse"%>
 <%@page import="blackboard.platform.plugin.PlugInUtil" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -193,7 +196,7 @@ Boolean useOldLayout = false;
                                     {
                                         %><div id="classicView"  height="100%" width="100%"><div class="sectionHeader"><h2>Panopto Folder for: <%=ccCourse.getFolderDisplayNames()[i] %></h2></div><%
                                         // Write out all the sessions (both live and completed)
-                                        Session[] sessions = ccCourse.getSessions(folders[i].getId());
+                                        Session[] sessions = ccCourse.getSessions(folders[i].getId().getGuid());
                                         if (sessions == null)
                                         {
                                             %><div class="error">Error getting the recordings from the Panopto server.</div><%                                

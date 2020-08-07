@@ -10,7 +10,6 @@
                  blackboard.platform.intl.*,
                  blackboard.util.*,
                  blackboard.util.StringUtil,
-                 blackboard.webapps.searchwidgets.*,
                  java.util.*,
                  com.panopto.blackboard.PanoptoCourseSearch" %>
 

@@ -2,7 +2,7 @@
 <%@ page import="java.util.HashMap"%>
 <%@ page import="com.panopto.blackboard.PanoptoData"%>
 <%@ page import="com.panopto.blackboard.Utils"%>
-<%@ page import="com.panopto.services.Folder"%>
+<%@ page import="com.panopto.services.SessionManagementStub.Folder"%>
 <%@ page import="blackboard.platform.blti.BasicLTILauncher"%>
 <%@ page import="blackboard.data.course.Course"%>
 <%@ page import="blackboard.data.user.User"%>
