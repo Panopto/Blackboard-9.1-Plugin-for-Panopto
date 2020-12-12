@@ -57,8 +57,8 @@
            	<includes>
                	<include>activation-1.1.jar</include>
                	<include>apache-mime4j-core-0.7.2.jar</include>
-               	<include>axiom-api-1.2.21.jar</include>
-               	<include>axiom-impl-1.2.21.jar</include>
+               	<include>axiom-api-1.2.22.jar</include>
+               	<include>axiom-impl-1.2.22.jar</include>
                	<include>axis2-kernel-1.7.9.jar</include>
                	<include>axis2-adb-1.7.9.jar</include>
                	<include>axis2-transport-http-1.7.9.jar</include>
@@ -107,12 +107,18 @@
 		<dependency>
 			<groupId>org.apache.ws.commons.axiom</groupId>
 			<artifactId>axiom-api</artifactId>
-			<version>1.2.21</version>
+			<version>1.2.22</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-stax-api_1.0_spec</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.ws.commons.axiom</groupId>
 			<artifactId>axiom-impl</artifactId>
-			<version>1.2.21</version>
+			<version>1.2.22</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.axis2</groupId>

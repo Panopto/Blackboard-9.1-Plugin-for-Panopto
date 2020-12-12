@@ -64,6 +64,7 @@ if (!Utils.userCanConfigureSystem())
 <%
     // Scalar settings form submitted, store in settings file.
 String instanceName = request.getParameter("instanceName");
+String defaultPanoptoServer = request.getParameter("defaultPanoptoServer");
 Boolean instructorsCanProvision = (request.getParameter("instructorsCanProvision") != null);
 Boolean mailLectureNotifications = (request.getParameter("mailLectureNotifications") != null);
 Boolean refreshLogins = (request.getParameter("refreshLogins") != null);
@@ -80,6 +81,8 @@ String menuLinkText = request.getParameter("menuLinkText");
 String roleMappingString = request.getParameter("roleMappingString");
 Boolean courseCopyEnabled = (request.getParameter("courseCopyEnabled") != null);
 String maxListedFolders = request.getParameter("maxListedFolders");
+String maxConnectionWait = request.getParameter("maxConnectionWait");
+String maxSocketWait = request.getParameter("maxSocketWait");
 
 //Bounce page address to copy into Panopto
 String SSOAddress = "https://" + ctx.getHostName()  + PlugInUtil.getUri("ppto", "PanoptoCourseTool", "SSO.jsp");
@@ -103,7 +106,8 @@ if(instanceName != null)
     {
         Utils.pluginSettings.setInstanceName(instanceName.trim());
     }
-
+	
+    Utils.pluginSettings.setDefaultPanoptoServer(defaultPanoptoServer);
 	Utils.pluginSettings.setInstructorsCanProvision(instructorsCanProvision);
 	Utils.pluginSettings.setMailLectureNotifications(mailLectureNotifications);
 	Utils.pluginSettings.setRefreshLogins(refreshLogins);
@@ -120,6 +124,12 @@ if(instanceName != null)
 	
 	maxListedFolders = (maxListedFolders == null) || maxListedFolders.isEmpty() ? Utils.pluginSettings.getMaxListedFolders() : maxListedFolders;
 	Utils.pluginSettings.setMaxListedFolders(Integer.toString(Integer.max(100, Integer.parseInt(maxListedFolders))));
+
+	maxConnectionWait = (maxConnectionWait == null) || maxConnectionWait.isEmpty() ? Utils.pluginSettings.getMaxConnectionWait() : maxConnectionWait;
+	Utils.pluginSettings.setMaxConnectionWait(Integer.toString(Integer.max(1, Integer.parseInt(maxConnectionWait))));
+	
+	maxSocketWait = (maxSocketWait == null) || maxSocketWait.isEmpty() ? Utils.pluginSettings.getMaxSocketWait() : maxSocketWait;
+	Utils.pluginSettings.setMaxSocketWait(Integer.toString(Integer.max(1, Integer.parseInt(maxSocketWait))));
 	
 	if(roleMappingString != null)
 	{
@@ -144,6 +154,7 @@ if(menuLinkText != null)
 
 
 instanceName = Utils.pluginSettings.getInstanceName();
+defaultPanoptoServer = Utils.pluginSettings.getDefaultPanoptoServer();
 instructorsCanProvision = Utils.pluginSettings.getInstructorsCanProvision();
 mailLectureNotifications = Utils.pluginSettings.getMailLectureNotifications();
 refreshLogins = Utils.pluginSettings.getRefreshLogins();
@@ -160,6 +171,8 @@ menuLinkText = Utils.pluginSettings.getMenuLinkText();
 roleMappingString = Utils.pluginSettings.getRoleMappingString();
 courseCopyEnabled = Utils.pluginSettings.getCourseCopyEnabled();
 maxListedFolders = Utils.pluginSettings.getMaxListedFolders();
+maxConnectionWait = Utils.pluginSettings.getMaxConnectionWait();
+maxSocketWait = Utils.pluginSettings.getMaxSocketWait();
 
 // Server list form submitted, add/remove servers if valid operation
 String add_hostname = request.getParameter("add_hostname");
@@ -194,12 +207,7 @@ if(serverList == null)
 }
 else
 {
-    // If there's only one server, prepopulate server field in provision form.
-    String provisionServerName = null;
-    if(serverList.size() == 1)
-    {
-        provisionServerName = serverList.get(0);
-    }
+    String provisionServerName = defaultPanoptoServer;
 %>
     <bbUI:titleBar iconUrl="<%=iconUrl%>">
         <%=page_title%>
@@ -348,7 +356,7 @@ else
                             Server 
                         </div>
                         <div class="field">
-                            <select name="provisionServerName" <%=((serverList.size() == 1) ? "DISABLED='disabled'" : "")%>>
+                            <select name="panoptoServerName" <%=((serverList.size() == 1) ? "DISABLED='disabled'" : "")%>>
                                 <%= Utils.generateServerOptionsHTML(provisionServerName) %>
                             </select>
                         </div>
@@ -454,6 +462,22 @@ else
                             <p tabIndex="0" class="stepHelp">
                                 The instance name identifies this Blackboard system to Panopto.<br />
                                 If this is the only Blackboard system that will connect to the Panopto servers above, it is not necessary to change the default ("blackboard"). 
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                        <div class="label">Default Panopto Server</div>
+                            <select name="defaultPanoptoServer" <%=((serverList.size() == 1) ? "DISABLED='disabled'" : "")%>>
+                                <%= Utils.generateServerOptionsHTML(defaultPanoptoServer) %>
+                            </select>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                Sets the default Panopto server to use if this Blackboard server is connected to multiple Panopto servers.<br />
+                                The default Panopto server is used for embedding Panopto content in unprovisioned courses, and will also be pre-selected in the server select boxes for provisioning.<br />
                             </p>
                         </div>
                     </li>
@@ -732,6 +756,7 @@ else
                                 <br/>
                             </p>
                         </div>
+                    </li>
                     <li>
                         <div class="label">Max folders per request</div>
                         <div class="field">
@@ -742,8 +767,38 @@ else
                         <div class="field">
                             <p tabIndex="0" class="stepHelp">
                                 This setting controls the max number of folders all pages that deal with folders will load.<br/>
-                                It is not recomended to change this setting, increasing this setting may cause timeouts. <br/>
+                                It is not recommended to change this setting, increasing this setting may cause timeouts. <br/>
                                 By default this is set to 10000, minimum is 100<br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Max connection timeout per Panopto request (in seconds)</div>
+                        <div class="field">
+                            <input name="maxConnectionWait" type="number" min="1" value="<%= maxConnectionWait %>" style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting controls how long a single Panopto request will wait to get a connection with Panopto before timing out.<br/>
+                                By Default this is set to 15 seconds, minimum is 1 second.<br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="label">Max socket timeout per Panopto request (in seconds)</div>
+                        <div class="field">
+                            <input name="maxSocketWait" type="number" min="1" value="<%= maxSocketWait %>" style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                                This setting controls how long a single Panopto request will wait to process a task with Panopto before timing out.<br/>
+                                By Default this is set to 60 seconds, minimum is 1 second.<br/>
                                 <br/>
                             </p>
                         </div>

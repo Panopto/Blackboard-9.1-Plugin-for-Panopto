@@ -46,6 +46,9 @@ public class Settings {
     // Enable multiple instances to talk to the same CC server.
     // Set a default to avoid confusing users.
     private String instanceName = "blackboard";
+    
+    // The default Panopto server used for unprovisioned course mashups and panopto server selects.
+    private String defaultPanoptoServer;
 
     // Whether to allow any instructor to provision their course into Panopto,
     // or to allow only admins to provision.
@@ -94,6 +97,12 @@ public class Settings {
     
     private String maxListedFolders = "10000";
 
+    private String defaultMaxConnectionWait = "15";
+    private String maxConnectionWait = defaultMaxConnectionWait;
+
+    private String defaultMaxSocketWait = "60";
+    private String maxSocketWait = defaultMaxSocketWait;
+
     /**
      * Boolean setting that turns on copying Panopto permissions during Blackboard course copy
      */
@@ -128,6 +137,28 @@ public class Settings {
 
     public void setInstanceName(String instanceName) {
         this.instanceName = instanceName;
+        save();
+    }
+
+    public String getDefaultPanoptoServer() {
+        
+        // If no defaultPanoptoServer is set and we have a server list just set it to the 1st one available.
+        if (defaultPanoptoServer == null || defaultPanoptoServer.isEmpty()) {
+            // Load current server list.
+            List<String> serverList = Utils.pluginSettings.getServerList(); 
+    
+            // Check for errors loading the list
+            if(serverList != null && serverList.size() > 0)
+            {
+                defaultPanoptoServer = serverList.get(0);
+            }
+        }
+        
+        return defaultPanoptoServer;
+    }
+
+    public void setDefaultPanoptoServer(String defaultPanoptoServer) {
+        this.defaultPanoptoServer = defaultPanoptoServer;
         save();
     }
 
@@ -301,6 +332,25 @@ public class Settings {
         this.maxListedFolders = maxListedFolders;
         save();
     }
+    
+    public String getMaxConnectionWait() {
+        return maxConnectionWait;
+    }
+
+    public void setMaxConnectionWait(String maxConnectionWait) {
+        this.maxConnectionWait = maxConnectionWait;
+        save();
+    }
+    
+    public String getMaxSocketWait() {
+        return maxSocketWait;
+    }
+
+    public void setMaxSocketWait(String maxSocketWait) {
+        this.maxSocketWait = maxSocketWait;
+        save();
+    }
+    
     /**
      * Get accessor for the Panopto copy permissions boolean
      * 
@@ -337,6 +387,10 @@ public class Settings {
 
             Element serverListElem = settingsDocument.createElement("serverList");
             docElem.appendChild(serverListElem);
+
+            Element defaultPanoptoServerElem = settingsDocument.createElement("defaultPanoptoServer");
+            defaultPanoptoServerElem.setAttribute("defaultPanoptoServer", defaultPanoptoServer);
+            docElem.appendChild(defaultPanoptoServerElem);
 
             for (Map.Entry<String, String> serverEntry : serverTable.entrySet()) {
                 Element serverElem = settingsDocument.createElement("server");
@@ -411,6 +465,14 @@ public class Settings {
             maxListedFoldersElem.setAttribute("maxListedFolders", maxListedFolders);
             docElem.appendChild(maxListedFoldersElem);
 
+            Element maxConnectionWaitElem = settingsDocument.createElement("maxConnectionWait");
+            maxConnectionWaitElem.setAttribute("maxConnectionWait", maxConnectionWait);
+            docElem.appendChild(maxConnectionWaitElem);
+
+            Element maxSocketWaitElem = settingsDocument.createElement("maxSocketWait");
+            maxSocketWaitElem.setAttribute("maxSocketWait", maxSocketWait);
+            docElem.appendChild(maxSocketWaitElem);
+
             File configDir = PlugInUtil.getConfigDirectory(Utils.vendorID, Utils.pluginHandle);
             File settingsFile = new File(configDir, "settings.xml");
             
@@ -458,6 +520,12 @@ public class Settings {
             }
         }
         this.serverTable = servers;
+        
+        NodeList defaultPanoptoServerNodes = docElem.getElementsByTagName("defaultPanoptoServer");
+        if (defaultPanoptoServerNodes.getLength() != 0) {
+            Element defaultPanoptoServerElem = (Element) defaultPanoptoServerNodes.item(0);
+            this.defaultPanoptoServer = defaultPanoptoServerElem.getAttribute("defaultPanoptoServer");
+        }
 
         // Parse <instructorsCanProvision canProvision="true/false" />
         NodeList instructorsCanProvisionNodes = docElem.getElementsByTagName("instructorsCanProvision");
@@ -558,6 +626,30 @@ public class Settings {
         if (maxListedFoldersNodes.getLength() != 0) {
             Element maxListedFoldersElem = (Element) maxListedFoldersNodes.item(0);
             this.maxListedFolders = maxListedFoldersElem.getAttribute("maxListedFolders");
+        }
+        
+        NodeList maxConnectionWaitNodes = docElem.getElementsByTagName("maxConnectionWait");
+        if (maxConnectionWaitNodes.getLength() != 0) {
+            Element maxConnectionWaitElem = (Element) maxConnectionWaitNodes.item(0);
+            this.maxConnectionWait = maxConnectionWaitElem.getAttribute("maxConnectionWait");
+
+            if (this.maxConnectionWait == null || this.maxConnectionWait.isEmpty()) {
+                this.maxConnectionWait = defaultMaxConnectionWait;
+            }
+        } else if (this.maxConnectionWait == null || this.maxConnectionWait.isEmpty()) {
+            this.maxConnectionWait = defaultMaxConnectionWait;
+        }
+        
+        NodeList maxSocketWaitNodes = docElem.getElementsByTagName("maxSocketWait");
+        if (maxSocketWaitNodes.getLength() != 0) {
+            Element maxSocketWaitElem = (Element) maxSocketWaitNodes.item(0);
+            this.maxSocketWait = maxSocketWaitElem.getAttribute("maxSocketWait");
+
+            if (this.maxSocketWait == null || this.maxSocketWait.isEmpty()) {
+                this.maxSocketWait = defaultMaxSocketWait;
+            }
+        } else if (this.maxSocketWait == null || this.maxSocketWait.isEmpty()) {
+            this.maxSocketWait = defaultMaxSocketWait;
         }
     }
 

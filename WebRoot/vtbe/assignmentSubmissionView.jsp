@@ -10,7 +10,7 @@
 <script>
 //Script to alert user and close window if course is not provisioned
 function AlertAndClose(){
-    alert("This course is not provisioned with Panopto. Before a course can be used with Panopto it must be setup. Please contact your administrator or instructor.");
+    alert("This course is not provisioned with Panopto, and no default Panopto server is set. Before a course can be used with Panopto, it must either be setup or a Default Panopto Server must be set in the Panopto block configuration. Please contact your administrator or instructor.");
     self.close();
 }
 </script>

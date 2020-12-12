@@ -24,37 +24,39 @@
     %><script>
     //Script to alert user and close window if course is not provisioned
     function AlertAndRedirect(){
-        alert("This course is not provisioned with Panopto. Before a course can be used with Panopto it must be setup. Please contact your administrator or instructor.");
+        alert("This course is not provisioned with Panopto, and no default Panopto server is set. Before a course can be used with Panopto, it must either be setup or a Default Panopto Server must be set in the Panopto block configuration. Please contact your administrator or instructor.");
         window.location = "<%=returnUrl%>";
     }
     </script><%
-
-    if(ccCourse.equals(null)){%>
-        <script> AlertAndRedirect();</script>
+    
+    String serverName = null;
+    Folder[] PanoptoFolders = null;
+    
+    // If the course is unprovisioned check for a default Panopto server and use that. If the server is still null after that just display an empty frame with error.  
+    if(ccCourse.equals(null) || !ccCourse.isServerSet()){
+        serverName = Utils.pluginSettings.getDefaultPanoptoServer();
+    } else {
+        serverName = ccCourse.getServerName();
+        PanoptoFolders = ccCourse.getFolders();
+    }
+    
+    if(serverName == null || serverName.isEmpty()){%>    
+        <script> AlertAndRedirect();</script>   
     <%}
     
-    String serverName = ccCourse.getServerName();
-    Folder[] PanoptoFolders = ccCourse.getFolders();
+    
     String folderId = "";
     //If course is associated with a single folder, append folder's id to iframe source url
     //This will automatically display course's video's in frame
-    // If the plugin believes no folders are linked to the course it will show an error
     // If at least one folder is provisioned to the course it will grab the folderId of the first folder it can.
     // If at least one folder is provisioned to the course but all of them have bad Ids(null, deleted, or corrupted in any way) it will open to the first folder the user has Creator access on.
     if(PanoptoFolders != null){
         int folderCount = Array.getLength(PanoptoFolders);
-        if(folderCount >= 1){
-            for (int i = 0; i < folderCount; ++i) {
-                if (PanoptoFolders[i].getId() != null) {
-                    folderId += "&folderID=" + PanoptoFolders[i].getId();
-                    break;
-                }
+        for (int i = 0; i < folderCount; ++i) {
+            if (PanoptoFolders[i].getId() != null) {
+                folderId += "&folderID=" + PanoptoFolders[i].getId();
+                break;
             }
-        }
-        else if(folderCount == 0){
-        %>
-            <script> AlertAndRedirect();</script>
-        <% 
         }
     }
     else{
