@@ -3,14 +3,16 @@
 <%@ page import="com.panopto.blackboard.Utils"%>
 <%@ page import="blackboard.platform.plugin.PlugInUtil" %>
 <%@ page import="com.panopto.services.SessionManagementStub.Folder"%>
-<%@ page import="blackboard.platform.plugin.ContentHandler"%>
+<%@ page import="blackboard.platform.plugin.Version"%>
+<%@ page import="blackboard.platform.plugin.PlugInManager"%>
+<%@ page import="blackboard.platform.plugin.PlugInManagerFactory"%>
 <%@ taglib uri="/bbNG" prefix="bbNG"%>
 <%@ taglib uri="/bbData" prefix="bbData"%>
 
 <script>
 //Script to alert user and close window if course is not provisioned
 function AlertAndClose(){
-    alert("This course is not provisioned with Panopto. Before a course can be used with Panopto it must be setup. Please contact your administrator or instructor.");
+    alert("This course is not provisioned with Panopto, and no default Panopto server is set. Before a course can be used with Panopto, it must either be setup or a Default Panopto Server must be set in the Panopto block configuration. Please contact your administrator or instructor.");
     self.close();
 }
 </script>
@@ -21,16 +23,23 @@ function AlertAndClose(){
     //Get course information from page context
     String course_key = request.getParameter("course_id");
     String course_id = ctx.getCourse().getCourseId();
+    PlugInManager plugInManager = PlugInManagerFactory.getInstance();
+    Version newEditorVersion = new Version("3900.0.0-rel.42+47a7c9a");
+    int hasNewEditor = plugInManager.getPlatformVersion().compare(newEditorVersion);
     PanoptoData ccCourse = new PanoptoData(ctx);
-    ContentHandler contentHandler;
+    String serverName = null;
     
-    if(ccCourse.equals(null)){%>
-        <script> AlertAndClose();</script>
-    <%
+    // If the course is unprovisioned grab the first Panopto server available and display an embed without to that. 
+    if(ccCourse.equals(null) || !ccCourse.isServerSet()){
+        serverName = Utils.pluginSettings.getDefaultPanoptoServer();
+    } else {
+        serverName = ccCourse.getServerName();
     }
 
-    String serverName = ccCourse.getServerName();
-    
+    if(serverName == null || serverName.isEmpty()){%>    
+    <script> AlertAndClose();</script>   
+	<%}
+	    
     //Generate source URL for iframe from info. Blackboard embeds require https
     String IFrameSrc = "ltiFrameContainer.jsp?course_key=" + course_key + "&course_id=" + course_id;
     
@@ -50,24 +59,37 @@ function AlertAndClose(){
                         var instructions = "",
                             courseId = "<%=course_id%>",
                             courseKey = "<%=course_key%>",
+                            serverName = "<%=serverName%>",
                             linkChunk = "<%=toolUri%>?view_sandbox=true&course_key=" + courseKey + "&course_id=" + courseId,
-                            step1String = "Record or upload your video in Panopto. To start creating your video, <a href='" + linkChunk + "' target='_blank'>click here to open your personal folder</a>.",
+                            step1String = "Record or upload your video in Panopto. To start creating your video, open your <a href='" + linkChunk + "' target='_blank'>Panopto video library.</a>.",
                             step2String = "Open the assignment in Blackboard and select <b>Write Submission</b>.",
-                            step3String = "In the text editor, expand <b>Mashups</b> and select <b>Panopto Student Video Submission.</b>",
+                            step3OldEditorString = "In the text editor, expand <b>Mashups</b> and select <b>Panopto Student Video Submission</b>.",
+                            step3NewEditorString = "In the text editor, select the three dots to expand the entire toolbar, and then select the icon, which looks like a circle with a plus symbol inside of it, to open the Add Content window. Then select <b>Panopto Student Video Submission</b>.",
                             step4String = "A window will open to show the videos in your personal folder. If your video is located in a different folder, select the correct folder from the drop-down at the top.",
                             step5String = "Select the video you wish to submit and click <b>Insert.</b>",
                             step6String = "Your video will be added to the submission. Add any extra information and <b>Submit</b>.";
                         
-                        instructions += 
-                        "<div>" +
-                            "<div><b>Step 1:</b> " + step1String + "</div>" +
-                            "<div><b>Step 2:</b> " + step2String + "</div>" +
-                            "<div><b>Step 3:</b> " + step3String + "</div>" +
-                            "<div><b>Step 4:</b> " + step4String + "</div>" +
-                            "<div><b>Step 5:</b> " + step5String + "</div>" +
-                            "<div><b>Step 6:</b> " + step6String + "</div>" +
-                        "</div>";
-                        
+                        if (serverName) {
+	                        instructions += 
+                            "<ol>" +
+                            "<li>" + step1String + "</li>" +
+                            "<li>" + step2String + "</li>";
+                           
+                            if(parseInt(<%=hasNewEditor%>) >= 0) {
+                                instructions += "<li>" + step3NewEditorString + "</li>";
+                            } 
+                            else {
+                                instructions += "<li>" + step3OldEditorString + "</li>";
+                            }
+                           
+                            instructions += "<li>" + step4String + "</li>" +
+	                            "<li>" + step5String + "</li>" +
+	                            "<li>" + step6String + "</li>" +
+	                            "</ol>";
+                        } else {
+                        	instructions = "";
+                        }
+                       
                         document.getElementById("embedHtml").value = instructions;
                         document.forms["submitForm"].submit();
                     }

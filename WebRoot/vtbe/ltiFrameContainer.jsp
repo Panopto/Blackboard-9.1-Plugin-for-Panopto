@@ -20,7 +20,7 @@
 <script>
 //Script to alert user and close window if course is not provisioned
 function AlertAndClose(){
-    alert("This course is not provisioned with Panopto. Before a course can be used with Panopto it must be setup. Please contact your administrator or instructor.");
+    alert("This course is not provisioned with Panopto, and no default Panopto server is set. Before a course can be used with Panopto, it must either be setup or a Default Panopto Server must be set in the Panopto block configuration. Please contact your administrator or instructor.");
     self.close();
 }
 </script>
@@ -42,14 +42,20 @@ function AlertAndClose(){
     
     String userName = ctx.getUser().getUserName();
     PanoptoData ccCourse = new PanoptoData(course_id, userName);
+    String serverName = null;
+    Folder[] PanoptoFolders = null;
     
-    if(ccCourse.equals(null)){
-    %>
-<script> AlertAndClose();</script>
-<%
+    // If the course is unprovisioned check for a default Panopto server and use that. If the server is still null after that just display an empty frame with error.  
+    if(ccCourse.equals(null) || !ccCourse.isServerSet()){
+        serverName = Utils.pluginSettings.getDefaultPanoptoServer();
+    } else {
+        serverName = ccCourse.getServerName();
+        PanoptoFolders = ccCourse.getFolders();
     }
-    String serverName = ccCourse.getServerName();
-    Folder[] PanoptoFolders = ccCourse.getFolders();
+    
+    if(serverName == null || serverName.isEmpty()){%>    
+        <script> AlertAndClose();</script>   
+    <%}
     
     //Generate source URL for iframe from info. Blackboard embeds require https
     String instanceName = Utils.pluginSettings.getInstanceName();

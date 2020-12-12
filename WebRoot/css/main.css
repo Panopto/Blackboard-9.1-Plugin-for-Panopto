@@ -110,6 +110,10 @@
     color: red;
 }
 
+.error-container {
+    margin: 15px 0px;
+}
+
 .selectFoldersListBox {
     min-width: 175;
 }

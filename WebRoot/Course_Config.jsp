@@ -170,6 +170,10 @@ if(folderIds != null)
                 {
                     serverName = Utils.getServerList().get(0);
                 }
+                
+                if (serverName == null || serverName.isEmpty()) {
+                    serverName = Utils.pluginSettings.getDefaultPanoptoServer();
+                }
             %> 
                 <form name="serverForm" id="serverForm">
                     <!-- Passed from Blackboard, see above -->

@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.axis2.transport.http.HTTPConstants;
+
 import blackboard.base.BbList.Iterator;
 import blackboard.base.FormattedText;
 import blackboard.data.ValidationException;
@@ -209,21 +211,6 @@ public class PanoptoData {
             ++this.maxPages;
         }
         
-        // If one is pluginVersion is null set both the plugIn and platform versions.
-        if (plugInVersion == null) {
-            PlugInManager plugInManager = PlugInManagerFactory.getInstance();
-            List<PlugIn> plugins = plugInManager.getPlugIns();
-            
-            for (PlugIn plugIn : plugins) {
-                if (plugIn.getName().equals("Panopto Connector")) {
-                    plugInVersion = plugIn.getVersion().toString();
-                    break;
-                }
-            }
-            
-            platformVersion = plugInManager.getPlatformVersion().toString();
-        }
-        
         Utils.pluginSettings = new Settings();
 
         List<String> serverList = Utils.pluginSettings.getServerList();
@@ -270,6 +257,7 @@ public class PanoptoData {
         }
 
         ValidateCourseCopyValues();
+        
     }
 
     public Course getBBCourse() {
@@ -460,6 +448,7 @@ public class PanoptoData {
     // will return as null.
     public Folder[] getFolders() {
         Folder[] retVal = null;
+        boolean userSynced = false;
         if (sessionGroupPublicIDs != null && sessionGroupPublicIDs.length > 0) {
             SessionManagementStub.AuthenticationInfo auth = new SessionManagementStub.AuthenticationInfo();
             auth.setAuthCode(apiUserAuthCode);
@@ -467,6 +456,14 @@ public class PanoptoData {
             auth.setUserKey(apiUserKey);
             
             try {
+                syncUser(serverName, bbUserName);
+                userSynced = true;
+            } 
+            catch (Exception e) {
+                Utils.log(e, "syncUser call failed, will not attempt to get Panopto content without a succesful sync.");
+            }
+            
+            if (userSynced) {
                 GetFoldersById getFoldersByIdParams = new GetFoldersById();
                 getFoldersByIdParams.setAuth(auth);
                 
@@ -480,56 +477,42 @@ public class PanoptoData {
                 
                 getFoldersByIdParams.setFolderIds(guidFolderIds);
                 
-                GetFoldersByIdResponse resp = sessionManagement.getFoldersById(getFoldersByIdParams);
-                retVal = resp.getGetFoldersByIdResult().getFolder();
-            } catch (Exception e) {
-                Utils.logVerbose("first attempt at getFoldersById failed, calling syncUser");
-                // Got an error from the panopto server. sync the user's
-                // credentials and try again
-                syncUser(serverName, bbUserName);
                 try {
-                    GetFoldersById getFoldersByIdParams = new GetFoldersById();
-                    getFoldersByIdParams.setAuth(auth);
-                    
-                    SessionManagementStub.ArrayOfguid guidFolderIds = new SessionManagementStub.ArrayOfguid();
-                    
-                    for (int i = 0; i < sessionGroupPublicIDs.length; ++i) {
-                        SessionManagementStub.Guid currFolderGuid = new SessionManagementStub.Guid();
-                        currFolderGuid.setGuid(sessionGroupPublicIDs[i]);
-                        guidFolderIds.addGuid(currFolderGuid);
-                    }
-                    
-                    getFoldersByIdParams.setFolderIds(guidFolderIds);
-                    
                     GetFoldersByIdResponse resp = sessionManagement.getFoldersById(getFoldersByIdParams);
                     retVal = resp.getGetFoldersByIdResult().getFolder();
-                } catch (Exception e2) {
-                    // Still failed. Could be because one of the folders has
+                } 
+                catch (Exception getFoldersException) {
+                    // Failed. Could be because one of the folders has    
                     // been deleted. Get them one at a time.
-                    retVal = new Folder[sessionGroupPublicIDs.length];
-                    for (int i = 0; i < sessionGroupPublicIDs.length; i++) {
-                        try {
-                            GetFoldersById getFoldersByIdParams = new GetFoldersById();
-                            getFoldersByIdParams.setAuth(auth);
-                            
-                            SessionManagementStub.ArrayOfguid guidFolderIds = new SessionManagementStub.ArrayOfguid();
-                            
-                            SessionManagementStub.Guid currFolderGuid = new SessionManagementStub.Guid();
-                            currFolderGuid.setGuid(sessionGroupPublicIDs[i]);
-                            guidFolderIds.addGuid(currFolderGuid);
-                            
-                            getFoldersByIdParams.setFolderIds(guidFolderIds);
-                            
-                            GetFoldersByIdResponse resp = sessionManagement.getFoldersById(getFoldersByIdParams);
-                            retVal[i] = resp.getGetFoldersByIdResult().getFolder()[0];
-                        } catch (Exception e3) {
-                            Utils.log(e3,
-                                    String.format(
-                                            "Error getting folder(courseId: %s, courseTitle %s, folder ID: %s, api"
-                                                    + "user: %s).",
-                                            bbCourse.getId().toExternalString(), bbCourse.getTitle(),
-                                            sessionGroupPublicIDs[i], apiUserKey));
-                            retVal[i] = null;
+                    if (getFoldersException.getMessage().contains("was not found")) {
+                        retVal = new Folder[sessionGroupPublicIDs.length];  
+                        for (int i = 0; i < sessionGroupPublicIDs.length; ++i) {    
+                            try {   
+                                getFoldersByIdParams = new GetFoldersById(); 
+                                getFoldersByIdParams.setAuth(auth); 
+    
+                                guidFolderIds = new SessionManagementStub.ArrayOfguid();
+                                SessionManagementStub.Guid currFolderGuid = new SessionManagementStub.Guid();   
+                                currFolderGuid.setGuid(sessionGroupPublicIDs[i]);   
+                                guidFolderIds.addGuid(currFolderGuid);  
+    
+                                getFoldersByIdParams.setFolderIds(guidFolderIds);   
+    
+                                GetFoldersByIdResponse resp = sessionManagement.getFoldersById(getFoldersByIdParams);   
+                                retVal[i] = resp.getGetFoldersByIdResult().getFolder()[0];  
+                            } 
+                            catch (Exception getSingleFolderError) {    
+                                Utils.log(getSingleFolderError,   
+                                        String.format(  
+                                                "Error getting folder(courseId: %s, courseTitle %s, folder ID: %s, api" 
+                                                        + "user: %s).", 
+                                                bbCourse.getId().toExternalString(), bbCourse.getTitle(),   
+                                                sessionGroupPublicIDs[i], apiUserKey)); 
+                                retVal[i] = null;   
+                                if (!getSingleFolderError.getMessage().contains("was not found")) {
+                                    return retVal;
+                                }
+                            }   
                         }
                     }
                 }
@@ -1425,19 +1408,43 @@ public class PanoptoData {
             if (this.serverVersion == null) {
                 this.serverVersion = getServerVersion();
             }
-            AuthStub.AuthenticationInfo auth = new AuthStub.AuthenticationInfo();
-            auth.setAuthCode(apiUserAuthCode);
-            auth.setPassword(null);
-            auth.setUserKey(apiUserKey);
             
-            AuthStub authStub = getPanoptoAuthSOAPService(serverName);
-            ReportIntegrationInfo reportIntegrationInfoParams = new ReportIntegrationInfo();
-            reportIntegrationInfoParams.setAuth(auth);
-            reportIntegrationInfoParams.setIdProviderName(Utils.pluginSettings.getInstanceName());
-            reportIntegrationInfoParams.setModuleVersion(plugInVersion);
-            reportIntegrationInfoParams.setTargetPlatformVersion(platformVersion);
-            
-            authStub.reportIntegrationInfo(reportIntegrationInfoParams);
+            if (PanoptoVersions.canReportIntegrationInfo(this.serverVersion)) {
+                // If one is pluginVersion is null set both the plugIn and platform versions.
+                if (plugInVersion == null || platformVersion == null) {
+                    PlugInManager plugInManager = PlugInManagerFactory.getInstance();
+                    List<PlugIn> plugins = plugInManager.getPlugIns();
+                    
+                    for (PlugIn plugIn : plugins) {
+                        if (plugIn.getName().equals("Panopto Connector")) {
+                            plugInVersion = plugIn.getVersion().toString();
+                            break;
+                        }
+                    }
+                    
+                    platformVersion = plugInManager.getPlatformVersion().toString();
+                }
+                
+                AuthStub.AuthenticationInfo auth = new AuthStub.AuthenticationInfo();
+                auth.setAuthCode(apiUserAuthCode);
+                auth.setPassword(null);
+                auth.setUserKey(apiUserKey);
+                
+                AuthStub authStub = getPanoptoAuthSOAPService(serverName);
+                ReportIntegrationInfo reportIntegrationInfoParams = new ReportIntegrationInfo();
+                reportIntegrationInfoParams.setAuth(auth);
+                reportIntegrationInfoParams.setIdProviderName(Utils.pluginSettings.getInstanceName());
+                reportIntegrationInfoParams.setModuleVersion(plugInVersion);
+                reportIntegrationInfoParams.setTargetPlatformVersion(platformVersion);
+                
+                authStub.reportIntegrationInfo(reportIntegrationInfoParams);
+            } else {
+                Utils.log(
+                    String.format("Newer version of Panopto Required to be able to report integration info. Current version: %s, Minimum version: %s",
+                    this.serverVersion.toString(),
+                    PanoptoVersions.V5_4)
+                );
+            }
         } catch (Exception ex) {
             Utils.log(ex, String.format("Error reporting Integration Info to server: %s", serverName));
         }
@@ -2216,6 +2223,15 @@ public class PanoptoData {
 
         try {
             stub = new AccessManagementStub("https://" + serverName + "/Panopto/PublicAPI/4.6/AccessManagement.svc");
+            
+            // Multiply the value by 1000 to convert the time from seconds to ms.
+            int maxConnectionWait = new Integer(Utils.pluginSettings.getMaxConnectionWait()) * 1000;
+            
+            stub._getServiceClient().getOptions().setProperty(HTTPConstants.CONNECTION_TIMEOUT, maxConnectionWait);
+            
+            int maxSocketWait = new Integer(Utils.pluginSettings.getMaxSocketWait()) * 1000;
+            
+            stub._getServiceClient().getOptions().setProperty(HTTPConstants.SO_TIMEOUT, maxSocketWait);
         } catch (Exception e) {
             Utils.log(e, String.format("Error getting Access Management SOAP service (server: %s).", serverName));
         }
@@ -2228,6 +2244,15 @@ public class PanoptoData {
 
         try {
             stub = new SessionManagementStub("https://" + serverName + "/Panopto/PublicAPI/4.6/SessionManagement.svc");
+
+            // Multiply the value by 1000 to convert the time from seconds to ms.
+            int maxConnectionWait = new Integer(Utils.pluginSettings.getMaxConnectionWait()) * 1000;
+            
+            stub._getServiceClient().getOptions().setProperty(HTTPConstants.CONNECTION_TIMEOUT, maxConnectionWait);
+            
+            int maxSocketWait = new Integer(Utils.pluginSettings.getMaxSocketWait()) * 1000;
+            
+            stub._getServiceClient().getOptions().setProperty(HTTPConstants.SO_TIMEOUT, maxSocketWait);
         } catch (Exception e) {
             Utils.log(e, String.format("Error getting Session Management SOAP service (server: %s).", serverName));
         }
@@ -2240,6 +2265,15 @@ public class PanoptoData {
 
         try {
             stub = new UserManagementStub("https://" + serverName + "/Panopto/PublicAPI/4.6/UserManagement.svc");
+
+            // Multiply the value by 1000 to convert the time from seconds to ms.
+            int maxConnectionWait = new Integer(Utils.pluginSettings.getMaxConnectionWait()) * 1000;
+            
+            stub._getServiceClient().getOptions().setProperty(HTTPConstants.CONNECTION_TIMEOUT, maxConnectionWait);
+            
+            int maxSocketWait = new Integer(Utils.pluginSettings.getMaxSocketWait()) * 1000;
+            
+            stub._getServiceClient().getOptions().setProperty(HTTPConstants.SO_TIMEOUT, maxSocketWait);
         } catch (Exception e) {
             Utils.log(e, String.format("Error getting User Management SOAP service (server: %s).", serverName));
         }
@@ -2252,6 +2286,15 @@ public class PanoptoData {
 
         try {
             stub = new AuthStub("https://" + serverName + "/Panopto/PublicAPI/4.6/Auth.svc");
+
+            // Multiply the value by 1000 to convert the time from seconds to ms.
+            int maxConnectionWait = new Integer(Utils.pluginSettings.getMaxConnectionWait()) * 1000;
+            
+            stub._getServiceClient().getOptions().setProperty(HTTPConstants.CONNECTION_TIMEOUT, maxConnectionWait);
+            
+            int maxSocketWait = new Integer(Utils.pluginSettings.getMaxSocketWait()) * 1000;
+            
+            stub._getServiceClient().getOptions().setProperty(HTTPConstants.SO_TIMEOUT, maxSocketWait);
         } catch (Exception e) {
             Utils.log(e, String.format("Error getting Auth SOAP service (server: %s).", serverName));
         }

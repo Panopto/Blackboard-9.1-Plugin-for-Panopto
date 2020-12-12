@@ -50,7 +50,6 @@ String courseUrl = "/webapps/blackboard/execute/launcher?type=Course&id=" + cour
 
 PanoptoData ccCourse = new PanoptoData(ctx);
 
-Boolean courseHasBeenReset = false;
 Boolean useOldLayout = false;
 
 
@@ -108,13 +107,9 @@ Boolean useOldLayout = false;
             </style>
             <div id="courseContent" style="padding:0px 0px; height: 800px; overflow: auto">
             
-                <!-- Add POST parameter to links into Panopto to activate SSO auto-login -->
-                <form name="SSO" method="post">
-                    <input type="hidden" name="instance" value="<%=Utils.pluginSettings.getInstanceName()%>" />
-                </form>
                 
                 <%
-                if(!ccCourse.isMapped() || courseHasBeenReset)
+                if(!ccCourse.isMapped())
                 { 
                     if(ccCourse.userMayConfig())
                     { %>
@@ -171,7 +166,11 @@ Boolean useOldLayout = false;
                             {
                                 if (folders[i] == null)
                                 {
-                                    %><div class="error">Error getting the folder from the Panopto server. It may have been deleted.</div><%
+                                    %><div class="error error-container">
+                                        <span>Error getting the folder from the Panopto server.</span>
+                                        <span>This could be because the folder was deleted or the user does not have access to it.</span>
+                                        <span>Please see the Panopto Building Block error logs for more details.</span>
+                                      </div><%
                                 }
                                 else
                                 {
@@ -214,13 +213,9 @@ Boolean useOldLayout = false;
                                                     %><div class="liveLecture">
                                                         <%=s.getName()%>
                                                         <span class="liveLectureActions">
-                                                                [<a href="javascript:launchNotes('<%=s.getNotesURL()%>')"
-                                                                >take notes</a
-                                                                                                                        >]
-                                                   [<a href="<%= s.getViewerUrl() + "&instance=" + Utils.pluginSettings.getInstanceName()%>" onclick="return startSSO(this)"
-                                                             >watch live</a
-                                                            >]
-                                                                </span>
+                                                            [<a href="javascript:launchNotes('<%=s.getNotesURL()%>')">take notes</a>]
+                                                            [<a href='<%= s.getViewerUrl() + "&instance=" + Utils.pluginSettings.getInstanceName()%>' target="_blank">watch live</a>]
+                                                        </span>
                                                  </div><%
                                             }
                                             else if (s.getState() == SessionState.Recording)
@@ -237,7 +232,7 @@ Boolean useOldLayout = false;
                                             else
                                             {
                                                 %><div class="completedRecording">
-                                                      <a href="<%=s.getViewerUrl() + "&instance=" + Utils.pluginSettings.getInstanceName()%>" onclick="return startSSO(this)">
+                                                      <a href="<%=s.getViewerUrl() + "&instance=" + Utils.pluginSettings.getInstanceName()%>" target="_blank">
                                                        <%=s.getName()%>
                                                       </a>
                                                      </div><%
@@ -274,7 +269,7 @@ Boolean useOldLayout = false;
                                     if(ccCourse.IsInstructor())
                                     {
                                         %><div class="courseLink">
-                                               <a href="<%=folders[i].getSettingsUrl()%>" onclick="return startSSO(this)"
+                                               <a href="<%=folders[i].getSettingsUrl() + "&instance=" + Utils.pluginSettings.getInstanceName()%>"  target="_blank"
                                                    >Panopto Folder Settings</a>
                                              </div><%
                                        } 
@@ -346,16 +341,6 @@ Boolean useOldLayout = false;
 
                     // Ensure the new window is brought to the front of the z-order.
                     notesWindow.focus();
-                }
-                
-                function startSSO(linkElem)
-                {
-                    document.SSO.action = linkElem.href;
-                    document.SSO.target = "_blank";
-                    document.SSO.submit();
-                    
-                    // Cancel default link navigation.
-                      return false;
                 }
                 
                 window.onload = function(){ fitToWindow(); };
