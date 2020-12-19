@@ -61,12 +61,12 @@ function AlertAndClose(){
                             courseKey = "<%=course_key%>",
                             serverName = "<%=serverName%>",
                             linkChunk = "<%=toolUri%>?view_sandbox=true&course_key=" + courseKey + "&course_id=" + courseId,
-                            step1String = "Record or upload your video in Panopto. To start creating your video, open your <a href='" + linkChunk + "' target='_blank'>Panopto video library.</a>.",
+                            step1String = "Record or upload your video in Panopto. To start creating your video, open your <a href='" + linkChunk + "' target='_blank'>Panopto video library</a>.",
                             step2String = "Open the assignment in Blackboard and select <b>Write Submission</b>.",
                             step3OldEditorString = "In the text editor, expand <b>Mashups</b> and select <b>Panopto Student Video Submission</b>.",
                             step3NewEditorString = "In the text editor, select the three dots to expand the entire toolbar, and then select the icon, which looks like a circle with a plus symbol inside of it, to open the Add Content window. Then select <b>Panopto Student Video Submission</b>.",
                             step4String = "A window will open to show the videos in your personal folder. If your video is located in a different folder, select the correct folder from the drop-down at the top.",
-                            step5String = "Select the video you wish to submit and click <b>Insert.</b>",
+                            step5String = "Select the video you wish to submit and click <b>Submit Video</b>.",
                             step6String = "Your video will be added to the submission. Add any extra information and <b>Submit</b>.";
                         
                         if (serverName) {
