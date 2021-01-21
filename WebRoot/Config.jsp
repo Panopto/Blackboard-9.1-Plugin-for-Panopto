@@ -207,7 +207,7 @@ if(serverList == null)
 }
 else
 {
-    String provisionServerName = defaultPanoptoServer;
+    String defaultProvisionServerName = defaultPanoptoServer;
 %>
     <bbUI:titleBar iconUrl="<%=iconUrl%>">
         <%=page_title%>
@@ -356,8 +356,8 @@ else
                             Server 
                         </div>
                         <div class="field">
-                            <select name="panoptoServerName" <%=((serverList.size() == 1) ? "DISABLED='disabled'" : "")%>>
-                                <%= Utils.generateServerOptionsHTML(provisionServerName) %>
+                            <select name="provisionServerName" <%=((serverList.size() == 1) ? "DISABLED='disabled'" : "")%>>
+                                <%= Utils.generateServerOptionsHTML(defaultProvisionServerName) %>
                             </select>
                         </div>
                     </li>
