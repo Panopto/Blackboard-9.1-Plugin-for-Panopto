@@ -370,7 +370,7 @@ else
                             <!-- Comma-delimited list of Blackboard courseIds to provision, populated by Blackboard course picker widget. -->
                             <input type="text" name="bbCourses"> <input type="button" value="Course Picker" onclick="launchCoursePicker()" name="browse">
                             <br />
-                            <span tabIndex="0" class="stepHelp">Course IDs may be entered as a comma seperated list.</span>
+                            <span tabIndex="0" class="stepHelp">Course IDs may be entered as a comma separated list.</span>
                             <br />
                             <br />
                             Add courses from a CSV:  <input type="file" name="bbCourseCSV"  id="csvFile" accept=".csv"/>
