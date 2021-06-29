@@ -13403,7 +13403,7 @@
       <name>levels</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
-      <description>Comma seperated level attribute. The list element will be displayed only for these levels.
+      <description>Comma separated level attribute. The list element will be displayed only for these levels.
                   If not specified the element will be used for all the levels.
       </description>
     </attribute>
