@@ -370,7 +370,7 @@ else
                             <!-- Comma-delimited list of Blackboard courseIds to provision, populated by Blackboard course picker widget. -->
                             <input type="text" name="bbCourses"> <input type="button" value="Course Picker" onclick="launchCoursePicker()" name="browse">
                             <br />
-                            <span tabIndex="0" class="stepHelp">Course IDs may be entered as a comma seperated list.</span>
+                            <span tabIndex="0" class="stepHelp">Course IDs may be entered as a comma separated list.</span>
                             <br />
                             <br />
                             Add courses from a CSV:  <input type="file" name="bbCourseCSV"  id="csvFile" accept=".csv"/>
@@ -476,8 +476,8 @@ else
                     <li>
                         <div class="field">
                             <p tabIndex="0" class="stepHelp">
-                                Sets the default Panopto server to use if this Blackboard server is connected to multiple Panopto servers.<br />
-                                The default Panopto server is used for embedding Panopto content in unprovisioned courses, and will also be pre-selected in the server select boxes for provisioning.<br />
+                                Sets the default Panopto server to use if this Blackboard server is connected to multiple Panopto servers.<br /> 
+                                Note: The default Panopto server is used for embedding Panopto content using the Mashup tool in unprovisioned courses, and will also be pre-selected in the server select boxes for provisioning.<br />
                             </p>
                         </div>
                     </li>
