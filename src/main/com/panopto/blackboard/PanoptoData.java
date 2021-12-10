@@ -167,6 +167,11 @@ public class PanoptoData {
         return previousProvisioningError;
     }
     
+    // Returns the Ids of folders currently mapped to the course. 
+    public String[] getSessionGroupPublicIDs() {
+        return sessionGroupPublicIDs;
+    }
+    
     // SOAP port for talking to Panopto
     private SessionManagementStub sessionManagement;
 
