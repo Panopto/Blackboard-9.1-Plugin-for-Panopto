@@ -166,7 +166,7 @@
                        <iframe id="pageframe" width="100%" height="100%" src="<%=IFrameSrc%>"></iframe>
                    </div>
             </bbNG:step>
-            <bbNG:stepSubmit showCancelButton="true">
+            <bbNG:stepSubmit>
                  <bbNG:stepSubmitButton id="submitbutton" label="Insert Video" onClick="clickSubmit()"/>
             </bbNG:stepSubmit>            
         </bbNG:dataCollection>

@@ -109,7 +109,12 @@ if(folderIds != null)
     
     // Since we are reconfiguring a course we should reset the existing context and assignment folders so new ones can be made.
     // Only redirect if the provisioning all succeeded, otherwise keep the user there and display the error.
-    ccCourse.unprovisionExternalCourse();
+    
+    String[] currentFolderIds = ccCourse.getSessionGroupPublicIDs();
+    
+    if (!folderIds.equals(currentFolderIds)) {
+        ccCourse.unprovisionExternalCourse();
+    }
     
     if(ccCourse.reprovisionCourse(folderIds)) {
         ccCourse.updateFolderExternalIdWithProvider(folderIds[0]);
