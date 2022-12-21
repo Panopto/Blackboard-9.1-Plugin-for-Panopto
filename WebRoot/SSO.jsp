@@ -35,18 +35,22 @@
 	String expiration = request.getParameter("expiration");
 	String requestAuthCode = request.getParameter("authCode");
 
-	String action = request.getParameter("action");
+    String action = request.getParameter("action");
+    String triedAuth = request.getParameter("triedAuth");
+    
 	boolean relogin = (action != null) && action.equals("relogin") && Utils.pluginSettings.getRefreshLogins();
+	boolean inLoop = (triedAuth != null) && triedAuth.equals("true");
 
 	// Bounce unauthenticated/guest users and forced login requests through the login page.
 	BbSession bbSession = BbSessionManagerServiceFactory.getInstance().getSession(request);
-	if (!bbSession.isAuthenticated() || bbSession.getUserName().equals("guest") || relogin)
+	if (!inLoop && (!bbSession.isAuthenticated() || bbSession.getUserName().equals("guest") || relogin))
 	{
 		// Put callbackURL last so it doesn't eat the rest of the params when Blackboard erroneously double-decodes it.
 		String selfURL = request.getRequestURI() + 
 							"?authCode=" + requestAuthCode +
 							"&serverName=" + serverName +
 							"&expiration=" + expiration +
+							"&triedAuth=true" +
 							"&callbackURL=" + URLEncoder.encode(callbackURL, "UTF-8");
 
 		String returnURL = URLEncoder.encode(selfURL, "UTF-8");

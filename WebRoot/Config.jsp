@@ -21,6 +21,8 @@
 
 <%@page import="com.panopto.blackboard.Utils"%>
 <%@page import="java.util.*"%>
+<%@page import="java.net.URL"%>
+<%@page import="java.net.MalformedURLException"%>
 <%@page import="blackboard.platform.plugin.PlugInUtil" %>
 <%@page import="blackboard.data.course.CourseMembership" %>
 <%@page import="blackboard.data.course.CourseMembership.Role" %>
@@ -86,6 +88,7 @@ String maxSocketWait = request.getParameter("maxSocketWait");
 
 //Bounce page address to copy into Panopto
 String SSOAddress = "https://" + ctx.getHostName()  + PlugInUtil.getUri("ppto", "PanoptoCourseTool", "SSO.jsp");
+String LogsAddress = "https://" + ctx.getHostName()  + PlugInUtil.getUri("ppto", "PanoptoCourseTool", "Logs.jsp");
 
 //Array of all course membership roles to list.
 Role[] courseRoles = CourseMembership.Role.getAllCourseRoles();
@@ -184,8 +187,16 @@ if((remove_hostname != null) && !remove_hostname.equals(""))
 }
 if((add_hostname != null) && (add_hostname_key != null))
 {
-    add_hostname = add_hostname.trim();
+    String originalHostname = add_hostname.toLowerCase().trim();
+    add_hostname = originalHostname;
     add_hostname_key = add_hostname_key.trim();
+    
+    try {
+        URL url = new URL(add_hostname);
+        add_hostname = url.getAuthority() + url.getPath();
+    } catch (MalformedURLException e) {
+        Utils.log("New Panopto server URL, " + originalHostname + ", is invalid. Please input a proper FQDN, e.g. myinstitution.region.panopto.com");
+    }
     
     if(!add_hostname.equals("") && !add_hostname_key.equals(""))
     {
@@ -266,7 +277,7 @@ else
                                     <tr>
                                         <td>
                                             <input name="add_hostname" size="30" value="" />
-                                            <div class="settingNote">e.g. panopto.myinstitution.edu</div>
+                                            <div class="settingNote">e.g. myinstitution.region.panopto.com</div>
                                         </td>
                                         <td>
                                             <input name="add_hostname_key" size="40" value="" />
@@ -278,7 +289,6 @@ else
                                     </tr>
                                 </table>
                             </div>
-
                         </div>
                     </li>
                 </ol>
@@ -435,6 +445,30 @@ else
                     <%
                     }
                     %>
+                </ol>
+            </div>
+          </div>
+    </form>
+    
+    <!-- Post to breakout bulk reset page. -->
+    <form name="bulkResetForm" action="Bulk_Reset.jsp" method="post">
+         <div class="form">
+            <div class="steptitle submittitle" id="steptitle2">
+                <span id="stepnumber2">2</span>
+                Reset All Provisioned courses
+            </div>
+            <div class="stepcontent" id="step2">
+                <ol>
+                    <li><!-- URL of current page so provision breakout page knows where to return to. -->
+                        <input type="hidden" name="returnUrl" value="<%= request.getRequestURL() %>" />
+                        <div class="label">
+                        </div>
+                        <div class="field">
+                            <br />
+                            <input name="resetAll" class="secondary" type="submit" border="0" hspace="5" value="Reset All Courses"/>
+                            <p tabIndex="0" class="stepHelp">Resets all courses previously provisioned to Panopto. This will unprovision all Panopto courses and delete their mapping from the Blackboard database. This operation cannot be undone.</p>
+                        </div>
+                    </li>
                 </ol>
             </div>
           </div>
@@ -813,7 +847,8 @@ else
 			                    <li>
 			                        <div class="jsSubmitButtonDiv">
 			                        	<input name="save-and-return" class="submit button-1" type="submit" value="Save general settings" onclick="document.location='<%=Utils.buildingBlockManagerURL%>';"/>
-			                            <input class="button-1" type="button" name="bottom_Return" role="button" value="Return to Block Manager" onclick="window.location.href='<%=Utils.buildingBlockManagerURL%>';" />
+                                        <input class="button-1" type="button" name="bottom_Return" role="button" value="Return to Block Manager" onclick="window.location.href='<%=Utils.buildingBlockManagerURL%>';" />
+                                        <input class="button-1" type="button" name="bottom_Logs" role="button" value="View Panopto block logs" onclick="window.location.href='<%=LogsAddress%>';" />
 			                        </div>
 			                    </li>
 			                </ol>

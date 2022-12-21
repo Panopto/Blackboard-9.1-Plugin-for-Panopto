@@ -75,7 +75,7 @@ if (!ccCourse.userMayConfig())
 <%
 } else {
     // Reset the course to have no Panopto configuration.
-    ccCourse.resetCourse(); %>
+    ccCourse.resetCourse(true); %>
     <bbUI:docTemplate title="<%=page_title%>">
         <bbUI:receipt type="PASS" iconUrl="<%=iconUrl%>" title="<%=page_title%>" recallUrl="<%=parentURL%>">
             This course has been reset.

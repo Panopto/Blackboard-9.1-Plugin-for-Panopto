@@ -25,6 +25,7 @@
 <%@page import="blackboard.persist.Id"%>
 <%@page import="blackboard.data.course.Course"%>
 <%@page import="com.panopto.blackboard.PanoptoData"%>
+<%@page import="com.panopto.services.SessionManagementStub.Folder"%>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -151,6 +152,9 @@ if(lectureURL != null)
 			}
 			else
 			{
+
+				Folder[] mappedFolders = ccCourse.getFolders();
+				ccCourse.updateCourseFolders(mappedFolders);
 			 %>	
 			 
  			<form name="folderForm" id="folderForm">

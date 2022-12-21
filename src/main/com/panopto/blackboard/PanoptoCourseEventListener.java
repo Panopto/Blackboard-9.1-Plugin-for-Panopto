@@ -21,6 +21,7 @@ package com.panopto.blackboard;
 import blackboard.admin.persist.course.CloneConfig;
 import blackboard.admin.persist.course.CourseEventListener;
 import blackboard.data.course.Course;
+import blackboard.data.course.Course.UltraStatus;
 import blackboard.data.course.CourseManager;
 import blackboard.data.course.CourseManagerFactory;
 import blackboard.persist.Id;
@@ -52,28 +53,42 @@ public class PanoptoCourseEventListener implements CourseEventListener {
         CourseManager manager = CourseManagerFactory.getInstance();
         
         Course targetCourse = manager.getCourse(targetId);
-        PanoptoData targetCourseData = new PanoptoData(targetCourse, userName);
+        UltraStatus targetUltraStatus = targetCourse.getUltraStatus();
         
         Course sourceCourse = manager.getCourse(sourceId);
-        PanoptoData sourceCourseData = new PanoptoData(sourceCourse, userName);
+        UltraStatus sourceUltraStatus = sourceCourse.getUltraStatus();
         
-        // Even if course copy is not enabled by Panopto blackboard will copy all data base registries including Panopto ones, so we need to clean them up.
-        targetCourseData.handleCopyRegistryChanges(sourceCourseData);
+        if (targetUltraStatus.isClassic() && sourceUltraStatus.isClassic()) {
+            PanoptoData targetCourseData = new PanoptoData(targetCourse, userName);
+            PanoptoData sourceCourseData = new PanoptoData(sourceCourse, userName);
+            
+            // Even if course copy is not enabled by Panopto blackboard will copy all data base registries including Panopto ones, so we need to clean them up.
+            targetCourseData.handleCopyRegistryChanges(sourceCourseData);
+            
+            // Copy over permissions if the course copy setting is enabled for the site.
+            if (Utils.pluginSettings.getCourseCopyEnabled()) {
+                if (sourceCourseData.isMapped()) {
+                    if(!targetCourseData.isMapped()) {
+                        Utils.log("Target course with Id (" + targetCourse.getCourseId() + ") was not provisioned, we are provisioning it to a default folder before handling the import!");
+                        targetCourseData.provisionCourse(sourceCourseData.getServerName());
+                    }
+                    // Get the target course so we can copy into it from the source.
+                    targetCourseData.copyCoursePermissions(sourceCourse);
         
-        // Copy over permissions if the course copy setting is enabled for the site.
-        if (Utils.pluginSettings.getCourseCopyEnabled()) {
-            if (sourceCourseData.isMapped()) {
-                if(!targetCourseData.isMapped()) {
-                    Utils.log("Target course with Id (" + targetCourse.getCourseId() + ") was not provisioned, we are provisioning it to a default folder before handling the import!");
-                    targetCourseData.provisionCourse(sourceCourseData.getServerName());
+                    Utils.log(String.format("Course Cloned. Source ID: %s Target ID: %s", sourceId.toExternalString(),
+                            targetId.toExternalString()));
+                } else {
+                    Utils.log("Source course with Id (" + sourceCourse.getCourseId() + ") was not provisioned, Blackboard course copy can continue, however Panopto course copy has no folders to copy.");
                 }
-                // Get the target course so we can copy into it from the source.
-                targetCourseData.copyCoursePermissions(sourceCourse);
-    
-                Utils.log(String.format("Course Cloned. Source ID: %s Target ID: %s", sourceId.toExternalString(),
-                        targetId.toExternalString()));
+            }
+        } else {
+            if (!targetUltraStatus.isClassic() && !sourceUltraStatus.isClassic()) {
+                Utils.log("Course Copy/Import attempted but both target course with Id (" + targetCourse.getCourseId() + ") and source course with Id (" + sourceCourse.getCourseId() + ")" 
+                        +  " are set to use Ultra when Ultra courses are not supported by the Panopto building block.");
+            } else if (!targetUltraStatus.isClassic()) {
+                Utils.log("Course Copy/Import attempted but target course with Id (" + targetCourse.getCourseId() + ") is set to use Ultra when Ultra courses are not supported by the Panopto building block.");
             } else {
-                Utils.log("Source course with Id (" + sourceCourse.getCourseId() + ") was not provisioned, Blackboard course copy can continue, however Panopto course copy has no folders to copy.");
+                Utils.log("Course Copy/Import attempted but source course with Id (" + sourceCourse.getCourseId() + ") is set to use Ultra when Ultra course are not supported by the Panopto building block.");
             }
         }
     }

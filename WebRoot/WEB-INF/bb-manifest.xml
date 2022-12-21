@@ -5,7 +5,7 @@
         <description value="Provision Panopto courses from Blackboard.  View live listing of available Panopto content from within the associated Blackboard course.  Import Panopto lecture links as Blackboard content items." />
         <handle value="PanoptoCourseTool" />
         <webapp-type value="javaext" />
-        <version value="2021.12.1" />
+        <version value="2022.12.1" />
         <requires>
             <bbversion value="9.1" />
         </requires>
@@ -75,6 +75,18 @@
                         <name value="Panopto Tool Settings" />
                         <url value="Config.jsp" />
                         <description value="Settings for the Panopto tool" />
+                        <entitlement-uid value="system.panopto.EXECUTE" />
+                    </link>
+                </links>
+            </application>
+            <application handle="PanoptoCourseToolAppLogs" type="system" name="Panopto Course Tool Logs">
+                <description>Panopto Course Tool Config</description>
+                <links>
+                    <link>
+                        <type value="system_tool" />
+                        <name value="Panopto Tool Logs" />
+                        <url value="Logs.jsp" />
+                        <description value="Logs for the Panopto tool" />
                         <entitlement-uid value="system.panopto.EXECUTE" />
                     </link>
                 </links>
