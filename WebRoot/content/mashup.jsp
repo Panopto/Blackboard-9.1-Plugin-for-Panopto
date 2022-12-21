@@ -59,11 +59,7 @@
             }
         }
     }
-    else{
-    %>
-    <script> AlertAndRedirect();</script>
-    <%
-    }
+    
     //Generate source URL for iframe from info. Blackboard embeds require https
     String IFrameSrc = "https://" +serverName +"/Panopto/Pages/Sessions/EmbeddedUpload.aspx?playlistsEnabled=true&singleEmbedOnly=true&instance=" + Utils.pluginSettings.getInstanceName() + folderId;
 %>

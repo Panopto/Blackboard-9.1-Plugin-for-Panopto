@@ -39,6 +39,7 @@ import blackboard.base.FormattedText;
 import blackboard.data.ValidationException;
 import blackboard.data.content.Content;
 import blackboard.data.course.Course;
+import blackboard.data.course.Course.UltraStatus;
 import blackboard.data.course.CourseMembership;
 import blackboard.data.course.CourseMembership.Role;
 import blackboard.data.navigation.CourseToc;
@@ -341,6 +342,7 @@ public class PanoptoData {
         this.serverName = serverName;
 
         if ((serverName != null) && !serverName.equals("")) {
+            serverName = serverName.toLowerCase();
             apiUserKey = Utils.decorateBlackboardUserName(bbUserName);
             apiUserAuthCode = Utils.generateAuthCode(serverName, apiUserKey + "@" + serverName);
             sessionManagement = getPanoptoSessionManagementSOAPService(serverName);
@@ -1458,12 +1460,17 @@ public class PanoptoData {
     // Updates the course so it is mapped to the given folders
     public boolean reprovisionCourse(String[] folderIds) {
         try {
+            UltraStatus targetUltraStatus = bbCourse.getUltraStatus();
+            if (!targetUltraStatus.isClassic()) {
+                Utils.log("Attempted to reprovision an Ultra course with Id (" + bbCourse.getCourseId() + "). Building block only supports classic courses.");
+                return false;
+            }
             
             // Reset the last provisioning error since this provisioning is new
             this.previousProvisioningError = "";
             
             Utils.pluginSettings = new Settings();
-
+            
             String externalCourseId = Utils.decorateBlackboardCourseID(bbCourse.getId().toExternalString());
             String fullName = bbCourse.getCourseId() + ": " + bbCourse.getTitle();
 
@@ -1601,7 +1608,7 @@ public class PanoptoData {
     }
 
     // Updates the course so it has no Panopto data
-    public void resetCourse() throws RemoteException {
+    public void resetCourse(boolean fullReset) throws RemoteException {
         if (!isMapped()) {
             Utils.log(String.format("Cannot reset BB course, not mapped yet. ID: %s, Title: %s\n",
                     bbCourse.getId().toExternalString(), bbCourse.getTitle()));
@@ -1609,13 +1616,17 @@ public class PanoptoData {
 
             // Before blowing away the data, get the folder list.
             Folder[] courseFolders = getFolders();
+            boolean clearLocal = true;
             
             Utils.log(String.format(
                     "Resetting BB course, ID: %s, Title: %s, Old Server: %s, Old Panopto IDs: %s\n, Old folders count: %s\n",
                     bbCourse.getId().toExternalString(), bbCourse.getTitle(), serverName,
                     Utils.encodeArrayOfStrings(sessionGroupPublicIDs), courseFolders.length));
+            if (fullReset) {
+                clearLocal = unprovisionExternalCourse();
+            }
             
-            if (unprovisionExternalCourse()) {            
+            if (clearLocal) {            
                 // In the set registry entry function, we delete existing entries
                 // and only create new ones if the value is
                 // not null.
@@ -1664,6 +1675,12 @@ public class PanoptoData {
     }
 
     public boolean provisionCourse(String serverName) {
+        UltraStatus targetUltraStatus = bbCourse.getUltraStatus();
+        if (!targetUltraStatus.isClassic()) {
+            Utils.log("Attempted to provision an Ultra course with Id (" + bbCourse.getCourseId() + "). Building block only supports classic courses.");
+            return false;
+        }
+        
         Utils.pluginSettings = new Settings();
         updateServerName(serverName);
         setCourseRegistryEntry(hostnameRegistryKey, serverName);
@@ -1911,7 +1928,7 @@ public class PanoptoData {
 
     // Called after provision or reprovision to update the local store of folder
     // metadata
-    private void updateCourseFolders(Folder[] folders) {
+    public void updateCourseFolders(Folder[] folders) {
         setCourseRegistryEntry(hostnameRegistryKey, serverName);
 
         // First sort the folders.

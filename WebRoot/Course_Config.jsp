@@ -102,17 +102,20 @@ if((serverList == null) || (serverList.size() == 0))
 // On main form submit, set final course association and redirect to referring page.
 String[] folderIds = request.getParameterValues("selectedFolders");
 
+boolean failedReconfigure = false;
+
 if(folderIds != null)
 {
 
     String redirectURL = "";
     
-    // Since we are reconfiguring a course we should reset the existing context and assignment folders so new ones can be made.
-    // Only redirect if the provisioning all succeeded, otherwise keep the user there and display the error.
+    String[] sortedFolderIds = Arrays.copyOf(folderIds, folderIds.length);
+    Arrays.sort(sortedFolderIds);
     
-    String[] currentFolderIds = ccCourse.getSessionGroupPublicIDs();
+    String[] sortedCurrentFolderIds = ccCourse.getSessionGroupPublicIDs();
+    Arrays.sort(sortedCurrentFolderIds);
     
-    if (!folderIds.equals(currentFolderIds)) {
+    if (!Arrays.equals(sortedFolderIds, sortedCurrentFolderIds)) {
         ccCourse.unprovisionExternalCourse();
     }
     
@@ -250,10 +253,9 @@ if(folderIds != null)
                 return;
             }
             else
-            {
-             %>
-
-    
+            {%>
+	
+	    
             <!-- Use a separate form for the session group so we can validate separately and detect active postback of session group field -->        
             <form name="folderForm" id="folderForm" onsubmit="return validate(this)">
                 <!-- Passed from Blackboard, see above -->
@@ -288,7 +290,11 @@ if(folderIds != null)
                                         <td>
                                             <span class="sectionHeader"> Available Folders: </span><br />
                                             <SELECT NAME="availableFolders" id="availableFolders" class="selectFoldersListBox" size=10 multiple>
-                                                 <%= ccCourse.generateCourseConfigAvailableFoldersOptionsHTML() %>
+                                                 <%try {%>
+                                                    <%= ccCourse.generateCourseConfigAvailableFoldersOptionsHTML() %>
+	                                              <%} catch(Exception e) {
+	                                                 failedReconfigure = true;
+	                                              }%>
                                               </SELECT>
                                         </td>
                                         <td>
@@ -299,7 +305,12 @@ if(folderIds != null)
                                         <td>
                                             <span class="sectionHeader"> Selected Folders: </span><br />
                                             <SELECT NAME="selectedFolders" id="selectedFolders" class="selectFoldersListBox" size=10 multiple>
-                                                <%= ccCourse.generateCourseConfigSelectedFoldersOptionsHTML() %>
+                                                  <%try {%>
+                                                    <%= ccCourse.generateCourseConfigSelectedFoldersOptionsHTML() %>
+                                                  <%} catch(Exception e) {
+                                                     failedReconfigure = true;
+                                                  }%>
+                                                
                                               </SELECT>
                                               <br />
                                         </td>
@@ -404,28 +415,43 @@ if(folderIds != null)
                                         <td>
                                             <span class="sectionHeader"> Copied Folders: </span><br />
                                             <SELECT NAME="copiedFolders" id="copiedFolders" class="selectFoldersListBox" size=10 disabled>
-                                                 <%= ccCourse.generateCourseConfigCopyFoldersOptionsHTML() %>
-                                            </SELECT>
-                                        </td>
-                                    </tr>
-                                </Table>
-                            </div>
-                        </li>
-                        <%
-                        }
-                        %>
-                    </ol>
+                                            <%try {%>
+                                                 <%=ccCourse.generateCourseConfigCopyFoldersOptionsHTML()%>
+                                            <%} catch(Exception e) {
+                                                 failedReconfigure = true;
+                                              }%>
+                                              </SELECT>
+                                          </td>
+                                      </tr>
+                                  </Table>
+                              </div>
+                          </li>
+		                <%}%>
+                          <li>
+                              <div class="field">
+				                 <%if (failedReconfigure) { %>
+				                     <div class="steptitle" id="errortitle">
+				                         There was an error configuring this course with Panopto, see the Panopto block logs for more details.
+				                     </div>
+				                     <p class="taskbuttondiv">
+				                         <input name="bottom_Cancel" class="button-2" onclick="window.location.href='<%= parentURL %>'" type="button" value="Cancel"/>
+				                     </p>
+				                 <%} else { %>
+					                <div class="steptitle submittitle" id="steptitle2">
+					                    <span id="stepnumber2">2</span>
+					                    Save
+					                </div>
+					                <p class="taskbuttondiv">
+					                    <input name="bottom_Cancel" class="button-2" onclick="window.location.href='<%= parentURL %>'" type="button" value="Cancel"/>
+					                    <input name="bottom_Submit" class="submit button-1" type="submit" value="Submit"/>
+					                </p>
+				                 <%}%>
+		                     </div>
+		                  </li>
+                     </ol>
                 </div>
-                <div class="steptitle submittitle" id="steptitle2">
-                    <span id="stepnumber2">2</span>
-                    Save
-                </div>
-                <p class="taskbuttondiv">
-                    <input name="bottom_Cancel" class="button-2" onclick="window.location.href='<%= parentURL %>'" type="button" value="Cancel"/>
-                    <input name="bottom_Submit" class="submit button-1" type="submit" value="Submit"/>
-                </p>
             </form>
-        <% } %>
+           <%}%>
 
         </bbUI:coursePage>
 
