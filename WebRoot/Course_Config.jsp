@@ -294,6 +294,7 @@ if(folderIds != null)
                                                     <%= ccCourse.generateCourseConfigAvailableFoldersOptionsHTML() %>
 	                                              <%} catch(Exception e) {
 	                                                 failedReconfigure = true;
+	                                                 Utils.log(e, "Error on generateCourseConfigAvailableFoldersOptionsHTML");
 	                                              }%>
                                               </SELECT>
                                         </td>
@@ -309,6 +310,7 @@ if(folderIds != null)
                                                     <%= ccCourse.generateCourseConfigSelectedFoldersOptionsHTML() %>
                                                   <%} catch(Exception e) {
                                                      failedReconfigure = true;
+                                                     Utils.log(e, "Error on generateCourseConfigSelectedFoldersOptionsHTML");
                                                   }%>
                                                 
                                               </SELECT>
@@ -419,6 +421,7 @@ if(folderIds != null)
                                                  <%=ccCourse.generateCourseConfigCopyFoldersOptionsHTML()%>
                                             <%} catch(Exception e) {
                                                  failedReconfigure = true;
+                                                 Utils.log(e, "Error on generateCourseConfigCopyFoldersOptionsHTML");
                                               }%>
                                               </SELECT>
                                           </td>

@@ -78,6 +78,8 @@ Boolean TAsCanCreateLinks = (request.getParameter("TAsCanCreateLinks") != null);
 Boolean courseResetEnabled = (request.getParameter("courseResetEnabled") != null);
 Boolean verbose = (request.getParameter("verbose") != null);
 Boolean insertLinkOnProvision = (request.getParameter("insertLinkOnProvision") != null);
+Boolean insertLTILinkOnProvision = (request.getParameter("insertLTILinkOnProvision") != null);
+Boolean insertFolderLinkOnProvision = (request.getParameter("insertFolderLinkOnProvision") != null);
 Boolean videoLinkToolIncludeCreatorFolders = (request.getParameter("videoLinkToolIncludeCreatorFolders") != null);
 String menuLinkText = request.getParameter("menuLinkText");
 String roleMappingString = request.getParameter("roleMappingString");
@@ -122,6 +124,8 @@ if(instanceName != null)
 	Utils.pluginSettings.setCourseResetEnabled(courseResetEnabled);
 	Utils.pluginSettings.setVerbose(verbose);
 	Utils.pluginSettings.setInsertLinkOnProvision(insertLinkOnProvision);
+    Utils.pluginSettings.setInsertLTILinkOnProvision(insertLTILinkOnProvision);
+    Utils.pluginSettings.setInsertFolderLinkOnProvision(insertFolderLinkOnProvision);
 	Utils.pluginSettings.setVideoLinkToolIncludeCreatorFolders(videoLinkToolIncludeCreatorFolders);
 	Utils.pluginSettings.setCourseCopyEnabled(courseCopyEnabled);
 	
@@ -169,6 +173,8 @@ TAsCanCreateLinks = Utils.pluginSettings.getTAsCanCreateLinks();
 courseResetEnabled = Utils.pluginSettings.getCourseResetEnabled();
 verbose = Utils.pluginSettings.getVerbose();
 insertLinkOnProvision = Utils.pluginSettings.getInsertLinkOnProvision();
+insertLTILinkOnProvision = Utils.pluginSettings.getInsertLTILinkOnProvision();
+insertFolderLinkOnProvision = Utils.pluginSettings.getInsertFolderLinkOnProvision();
 videoLinkToolIncludeCreatorFolders = Utils.pluginSettings.getVideoLinkToolIncludeCreatorFolders();
 menuLinkText = Utils.pluginSettings.getMenuLinkText();
 roleMappingString = Utils.pluginSettings.getRoleMappingString();
@@ -474,6 +480,55 @@ else
           </div>
     </form>
     
+    <!-- Post to breakout bulk LTI nav link page. -->
+    <form name="bulkLTIForm" action="Bulk_LTI_Link.jsp" method="post">
+         <div class="form">
+            <div class="steptitle submittitle" id="steptitle2">
+                <span id="stepnumber2">2</span>
+                Add LTI navigation link to all provisioned courses
+            </div>
+            <div class="stepcontent" id="step2">
+                <ol>
+                    <li><!-- URL of current page so provision breakout page knows where to return to. -->
+                        <input type="hidden" name="returnUrl" value="<%= request.getRequestURL() %>" />
+                        <div class="label">
+                        </div>
+                        <div class="field">
+                            <br />
+                            <input name="ltiLinkAll" class="secondary" type="submit" border="0" hspace="5" value="Add LTI Link to all courses"/>
+                            <p tabIndex="0" class="stepHelp">Adds an LTI navigation link to the table of contents menu for all provisioned courses. <br />
+                            Note: This feature requires an LTI Tool Provider and corresponding Course Tool placement for the provisioned Panopto server to work properly.</p>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+          </div>
+    </form>
+    
+    <!-- Post to breakout bulk folder list nav link page. -->
+    <form name="bulkListLinkForm" action="Bulk_List_Link.jsp" method="post">
+         <div class="form">
+            <div class="steptitle submittitle" id="steptitle2">
+                <span id="stepnumber2">2</span>
+                Add non-LTI Folder list navigation links to all provisioned courses
+            </div>
+            <div class="stepcontent" id="step2">
+                <ol>
+                    <li><!-- URL of current page so provision breakout page knows where to return to. -->
+                        <input type="hidden" name="returnUrl" value="<%= request.getRequestURL() %>" />
+                        <div class="label">
+                        </div>
+                        <div class="field">
+                            <br />
+                            <input name="folderListLinkAll" class="secondary" type="submit" border="0" hspace="5" value="Add Folder List Link to all courses"/>
+                            <p tabIndex="0" class="stepHelp">Adds non-LTI navigation links for each provisioned folder to the table of contents menu for all provisioned courses. <br />
+                        </div>
+                    </li>
+                </ol>
+            </div>
+          </div>
+    </form>
+    
     <form name="instanceForm">
          <div class="form">
             <div class="steptitle submittitle" id="steptitle3">
@@ -537,6 +592,39 @@ else
                         <div class="field">
                             <p tabIndex="0" class="stepHelp">
                                When checked, a link to a course's Panopto content will be automatically inserted into the course's navigation menu when it is provisioned.<br/>
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    
+                    <li>
+                        <div class="label">Panopto LTI link on course menu when provisioned</div>
+                        <div class="field">
+                            <input name="insertLTILinkOnProvision" type="checkbox" <%= insertLTILinkOnProvision ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                               When checked, a LTI link to a course's Panopto content will be automatically inserted into the course's navigation menu when it is provisioned. <br />
+                            Note: This feature requires an LTI Tool Provider and corresponding Course Tool placement for the provisioned Panopto server to work properly. <br />
+                                <br/>
+                                <br/>
+                            </p>
+                        </div>
+                    </li>
+                    
+                    <li>
+                        <div class="label">Panopto non-LTI folder list links on course menu when provisioned</div>
+                        <div class="field">
+                            <input name="insertFolderLinkOnProvision" type="checkbox" <%= insertFolderLinkOnProvision ? "checked" : "" %> style="float:left" />
+                        </div>
+                    </li>
+                    <li>
+                        <div class="field">
+                            <p tabIndex="0" class="stepHelp">
+                               When checked, non-LTI links to a course's Panopto content for each provisioned folder will be automatically inserted into the course's navigation menu when it is provisioned. <br />
                                 <br/>
                                 <br/>
                             </p>

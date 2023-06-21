@@ -87,6 +87,12 @@ public class Settings {
     // Insert a link to panopto tool on course page when a course is provisioned
     private Boolean insertLinkOnProvision = false;
 
+    // Insert a link to panopto LTI tool on course page when a course is provisioned
+    private Boolean insertLTILinkOnProvision = false;
+
+    // Insert a link to panopto non-LTI folder list link on course page when a course is provisioned
+    private Boolean insertFolderLinkOnProvision = false;
+
     // Whether or not the Panopto Link tool uses Mapped + Public or Mapped + Creator folders. 
     private Boolean videoLinkToolIncludeCreatorFolders = false;
 
@@ -297,6 +303,24 @@ public class Settings {
         save();
     }
 
+    public Boolean getInsertLTILinkOnProvision() {
+        return insertLTILinkOnProvision;
+    }
+
+    public void setInsertLTILinkOnProvision(Boolean insertLTILinkOnProvision) {
+        this.insertLTILinkOnProvision = insertLTILinkOnProvision;
+        save();
+    }
+
+    public Boolean getInsertFolderLinkOnProvision() {
+        return insertFolderLinkOnProvision;
+    }
+
+    public void setInsertFolderLinkOnProvision(Boolean insertFolderLinkOnProvision) {
+        this.insertFolderLinkOnProvision = insertFolderLinkOnProvision;
+        save();
+    }
+
     public Boolean getVideoLinkToolIncludeCreatorFolders() {
         return videoLinkToolIncludeCreatorFolders;
     }
@@ -444,6 +468,14 @@ public class Settings {
             Element insertLinkOnProvisionElem = settingsDocument.createElement("insertLinkOnProvision");
             insertLinkOnProvisionElem.setAttribute("insertLinkOnProvision", insertLinkOnProvision.toString());
             docElem.appendChild(insertLinkOnProvisionElem);
+
+            Element insertLTILinkOnProvisionElem = settingsDocument.createElement("insertLTILinkOnProvision");
+            insertLTILinkOnProvisionElem.setAttribute("insertLTILinkOnProvision", insertLTILinkOnProvision.toString());
+            docElem.appendChild(insertLTILinkOnProvisionElem);
+
+            Element insertFolderLinkOnProvisionElem = settingsDocument.createElement("insertFolderLinkOnProvision");
+            insertFolderLinkOnProvisionElem.setAttribute("insertFolderLinkOnProvision", insertFolderLinkOnProvision.toString());
+            docElem.appendChild(insertFolderLinkOnProvisionElem);
 
             Element videoLinkToolIncludeCreatorFoldersElem = settingsDocument.createElement("videoLinkToolIncludeCreatorFolders");
             videoLinkToolIncludeCreatorFoldersElem.setAttribute("videoLinkToolIncludeCreatorFolders", videoLinkToolIncludeCreatorFolders.toString());
@@ -595,6 +627,20 @@ public class Settings {
             Element insertLinkOnProvisionElem = (Element) insertLinkOnProvisionNodes.item(0);
             this.insertLinkOnProvision = Boolean
                     .valueOf(insertLinkOnProvisionElem.getAttribute("insertLinkOnProvision"));
+        }
+
+        NodeList insertLTILinkOnProvisionNodes = docElem.getElementsByTagName("insertLTILinkOnProvision");
+        if (insertLTILinkOnProvisionNodes.getLength() != 0) {
+            Element insertLTILinkOnProvisionElem = (Element) insertLTILinkOnProvisionNodes.item(0);
+            this.insertLTILinkOnProvision = Boolean
+                    .valueOf(insertLTILinkOnProvisionElem.getAttribute("insertLTILinkOnProvision"));
+        }
+
+        NodeList insertFolderLinkOnProvisionNodes = docElem.getElementsByTagName("insertFolderLinkOnProvision");
+        if (insertFolderLinkOnProvisionNodes.getLength() != 0) {
+            Element insertFolderLinkOnProvisionElem = (Element) insertFolderLinkOnProvisionNodes.item(0);
+            this.insertFolderLinkOnProvision = Boolean
+                    .valueOf(insertFolderLinkOnProvisionElem.getAttribute("insertFolderLinkOnProvision"));
         }
 
         NodeList videoLinkToolIncludeCreatorFoldersNodes = docElem.getElementsByTagName("videoLinkToolIncludeCreatorFolders");
