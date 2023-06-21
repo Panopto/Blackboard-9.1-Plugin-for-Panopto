@@ -34,9 +34,10 @@ import java.util.Set;
 
 import org.apache.axis2.transport.http.HTTPConstants;
 
-import blackboard.base.BbList.Iterator;
 import blackboard.base.FormattedText;
 import blackboard.data.ValidationException;
+import blackboard.data.blti.BasicLTIDomainConfig;
+import blackboard.data.blti.BasicLTIPlacement;
 import blackboard.data.content.Content;
 import blackboard.data.course.Course;
 import blackboard.data.course.Course.UltraStatus;
@@ -64,8 +65,9 @@ import blackboard.platform.persistence.PersistenceServiceFactory;
 import blackboard.platform.plugin.PlugIn;
 import blackboard.platform.plugin.PlugInManager;
 import blackboard.platform.plugin.PlugInManagerFactory;
+import blackboard.platform.blti.BasicLTIDomainConfigManagerFactory;
+import blackboard.platform.blti.BasicLTIPlacementManager;
 
-import com.panopto.blackboard.Utils;
 import com.panopto.services.SessionManagementStub;
 import com.panopto.services.SessionManagementStub.DeleteFolders;
 import com.panopto.services.SessionManagementStub.Folder;
@@ -615,7 +617,15 @@ public class PanoptoData {
 
                 listResponse = resp.getGetCreatorFoldersListResult();
                 
-                allFolders.addAll(Arrays.asList(listResponse.getResults().getFolder()));
+                List<Folder> newResponseFolders = null;
+                try {
+                    newResponseFolders = Arrays.asList(listResponse.getResults().getFolder());
+                } catch (Exception e) {
+                    Utils.log(e, "Unable to get folders from getCreatorFoldersList reqeust.");
+                    newResponseFolders = Arrays.asList(new Folder[] {});
+                }
+                
+                allFolders.addAll(newResponseFolders);
 
                 if (totalFoldersExpected == -1) {
                     // First time through, grab the expected total count.
@@ -1517,6 +1527,14 @@ public class PanoptoData {
             if (Utils.pluginSettings.getInsertLinkOnProvision()) {
                 addCourseMenuLink();
             }
+            
+            if (Utils.pluginSettings.getInsertLTILinkOnProvision()) {
+                addCourseMenuLTILink();
+            }
+            
+            if (Utils.pluginSettings.getInsertFolderLinkOnProvision()) {
+                addCourseMenuFolderListLinks();
+            }
         } catch (Exception e) {
             String folderString = Utils.encodeArrayOfStrings(folderIds);
             String exceptionMessage = e.getMessage();
@@ -1712,7 +1730,14 @@ public class PanoptoData {
             // Add menu item if setting is enabled
             if (Utils.pluginSettings.getInsertLinkOnProvision()) {
                 addCourseMenuLink();
-
+            }
+            
+            if (Utils.pluginSettings.getInsertLTILinkOnProvision()) {
+                addCourseMenuLTILink();
+            }
+            
+            if (Utils.pluginSettings.getInsertFolderLinkOnProvision()) {
+                addCourseMenuFolderListLinks();
             }
         } catch (Exception e) {
             String exceptionMessage = e.getMessage();
@@ -2563,6 +2588,169 @@ public class PanoptoData {
                 }
             }
         }
+    }
+    
+    public boolean addCourseMenuLTILink() throws ValidationException, PersistenceException {
+
+        Id cid = bbCourse.getId();
+        Utils.pluginSettings = new Settings();
+
+        // Get list of page's current menu links
+        List<CourseToc> courseTocList = CourseTocDbLoader.Default.getInstance().loadByCourseId(cid);
+        
+        if (this.serverName == null || this.serverName.isEmpty()) {
+            Utils.log("The course " + bbCourse.getTitle() + " has not been provisioned with Panopto. Can not create LTI menu link if the course is not provisioned.");
+            return false;
+        }
+        
+        BasicLTIDomainConfig ltiConfig = null;
+        List<BasicLTIPlacement> ltiPlacements = null;
+        
+        try {
+            ltiConfig = BasicLTIDomainConfigManagerFactory.getInstance().loadByDomain(this.serverName);
+            ltiPlacements = BasicLTIPlacementManager.Factory.getInstance().loadByDomainConfigId(ltiConfig.getId());
+        } catch (KeyNotFoundException e) {
+            Utils.log(e, "LTI Tool not configured for Panopto server " + this.serverName + ". Please configure LTI tool to be able to add a link to course " + bbCourse.getTitle());
+            return false;
+        }
+        
+        BasicLTIPlacement targetPlacement = null;
+        try {
+            // Trying to use enum definitions from bb files not working, doing string comparison instead
+            boolean isLTI13 = ltiConfig.getLtiType().toString().equals("LTI_JWT");
+            
+            String placementInstance = null;
+            String blockInstance = Utils.pluginSettings.getInstanceName();
+            while (ltiPlacements.iterator().hasNext() && targetPlacement == null) {
+                BasicLTIPlacement walker = ltiPlacements.iterator().next();
+    
+                if (!isLTI13) {
+                    placementInstance = ltiConfig.getKey();
+                    if (placementInstance == null || placementInstance.trim().isEmpty()) {
+                        placementInstance = walker.getKey();
+                    }
+                }
+                
+                if (walker.getType() == blackboard.data.blti.BasicLTIPlacement.Type.Application &&
+                    (isLTI13 || (placementInstance != null && placementInstance.equals(blockInstance)))) {
+                    targetPlacement = walker;
+                    break;
+                }
+                
+                ltiPlacements.remove(walker);
+            }
+            
+            if (targetPlacement == null) {
+                Utils.log("Can not find a target LTI Course Application placement for the Panopto server " + this.serverName + 
+                          ". Please create an LTI tool for " + this.serverName + 
+                          " and create a Course Application placement to be able to add an LTI menu link to course " + bbCourse.getTitle() + ".");
+                return false;
+            }
+            
+            // Iterate through each link and check if it's text matches the text of
+            // the item to be created
+            boolean linkExists = false;
+            while (courseTocList.iterator().hasNext() && linkExists == false) {
+                CourseToc ct = courseTocList.iterator().next();
+                
+    
+                linkExists = ct.getInternalHandle().equals(targetPlacement.getNavItemHandle());
+                
+                if (linkExists) {
+                    Utils.log("Panpto Folder LTI link already exists for course " + bbCourse.getTitle());
+                    break;
+                }
+                
+                courseTocList.remove(ct);
+            }
+    
+            // If link with desired text doesn't exists, create a new one
+            if (!linkExists) {
+                CourseToc panLink = new CourseToc();
+                panLink.setCourseId(cid);
+                panLink.setLabel(targetPlacement.getName());
+                panLink.setTargetType(CourseToc.Target.APPLICATION);
+                panLink.setLaunchInNewWindow(false);
+                panLink.setIsEntryPoint(false);
+                panLink.setInternalHandle(targetPlacement.getNavItemHandle());
+                CourseTocDbPersister.Default.getInstance().persist(panLink);
+            }
+        } catch (Exception e) {
+            Utils.log(e, "failed bulk building LTI links for provisioned courses");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    public boolean addCourseMenuFolderListLinks() throws ValidationException, PersistenceException {
+
+        Id cid = bbCourse.getId();
+        Utils.pluginSettings = new Settings();
+        
+        // Get list of page's current menu links
+        List<CourseToc> courseTocList = CourseTocDbLoader.Default.getInstance().loadByCourseId(cid);
+        
+        if (this.serverName == null || this.serverName.isEmpty()) {
+            Utils.log("The course " + bbCourse.getTitle() + " has not been provisioned with Panopto. Can not create folder list menu links if the course is not provisioned.");
+            return false;
+        }
+        
+        try {
+            // Get course info from SOAP service.
+            Folder[] folders = this.getFolders();
+            
+            if (folders != null) {
+                for (int i = 0; i < folders.length; i++)
+                {
+                    if (folders[i] == null)
+                    {
+                        Utils.log("Error getting a folder from the Panopto server. This could be because the folder was deleted or the user does not have access to it.");
+                    }
+                    else
+                    {
+                        String folderUrl = folders[i].getEmbedUrl() +"&instance=" + Utils.pluginSettings.getInstanceName();
+                        
+                        // Iterate through each link and check if it's text matches the text of
+                        // the item to be created
+                        boolean linkExists = false;
+                        while (courseTocList.iterator().hasNext() && linkExists == false) {
+                            CourseToc ct = courseTocList.iterator().next();
+                            
+                
+                            linkExists = ct.getUrl().equals(folderUrl);
+                            
+                            if (linkExists) {
+                                Utils.log("Panpto Folder link already exists for course " + bbCourse.getTitle() + " and folder " + folders[i].getName());
+                                break;
+                            }
+                            
+                            courseTocList.remove(ct);
+                        }
+                
+                        // If link with desired text doesn't exists, create a new one
+                        if (!linkExists) {
+                            CourseToc panLink = new CourseToc();
+                            panLink.setCourseId(cid);
+                            panLink.setLabel(folders[i].getName());
+                            panLink.setTargetType(CourseToc.Target.URL);
+                            panLink.setLaunchInNewWindow(false);
+                            panLink.setIsEntryPoint(false);
+                            panLink.setUrl(folderUrl);
+                            CourseTocDbPersister.Default.getInstance().persist(panLink);
+                        }
+                    }
+                }
+            } else {
+                Utils.log("Unable to create folder list links for course "  + bbCourse.getTitle() + ", not able to retrieve folders for course.");
+                return false;
+            }
+        } catch (Exception e) {
+            Utils.log(e, "Failed to add non-LTI folder links to course");
+            return false;
+        }
+        
+        return true;
     }
 
     // Retrieves list of role ids mapped to either the "ta" or "instructor" role
